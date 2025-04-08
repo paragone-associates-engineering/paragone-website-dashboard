@@ -1,54 +1,31 @@
+# Paragóne Signature and Associates website ui
+
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Few things to NOTE to ensure continuity:
+Folder structure:
 
-Currently, two official plugins are available:
+- Folders are structured based on App features or/and pages.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Top level folder for page or feature
+    - /components
+    - /hooks
+    - /reducers
+    - /selectors
+    - /helpers <!-- for helper functions per feature or page -->
+    - /types
+    - /__data__  <!-- if needed -->
+    - /__fixtures__  <!-- if needed -->
+  
+- We don't use css files, all styling is done via the sx prop in MUI components find example in App.tsx.
 
-## Expanding the ESLint configuration
+- Api calls are made inside hooks and dispatched to the store(if needed) through a reducer.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Do NOT push to the `main/master` branch rather create a new branch `git checkout -b <new-branch>`.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- Do a pull/merge request into the `main/master` branch that'd be approved by the lead
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+# CLEANUP:
+1.    Base url should be put in an environment variable so it's easily accessible and can be changed easily from the deployment server.
+2.    Delete all commented codes. (comments for documentation can be left, but we don't want commented codes in the main branch)
+3.    Remove all the previous temporary data that was used before enpoints were made.
