@@ -166,7 +166,7 @@ export function SidebarItem({
 
   // Check if any child route is active
   const isChildActive = React.Children.toArray(children).some((child) => {
-    if (React.isValidElement(child) && "props" in child && typeof child.props === "object" && "href" in child.props && child.props.href) {
+    if (React.isValidElement(child) && "props" in child && typeof child.props === "object" && child.props && "href" in child.props && child.props.href) {
       return location.pathname === child.props.href
     }
     return false
