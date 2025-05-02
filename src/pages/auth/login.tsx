@@ -29,7 +29,6 @@ const Login = () => {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate API call
     setTimeout(() => {
       console.log("Login submitted:", formData)
       setIsLoading(false)
@@ -110,19 +109,19 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-<a href="#" className="text-sm text-primary hover:text-yellow-600">
+<a href="#" className="text-sm text-primar">
                     Forgot Password?
                   </a>
 </div>
               
 
-              <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600" disabled={isLoading}>
+              <Button type="submit" className="w-full " disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
 
               <div className="text-center text-sm">
                 <span className="text-gray-600">Don't have an account?</span>{" "}
-                <a href="#" className="text-yellow-500 hover:text-yellow-600 font-medium">
+                <a href="#" className=" font-medium">
                   Sign Up
                 </a>
               </div>

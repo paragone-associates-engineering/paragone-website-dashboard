@@ -12,17 +12,17 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const [isLoggedin, setIsLoggedIn] = useState(true)
-
+  const [collapsed, setCollapsed] = useState(false);
   if (!isLoggedin) {
     return <Login />
   }
 
   return (
     <div className='lg:flex max-w-full'>
-      <Sidebar />
-      <main className='lg:ml-[250px] w-full mx-auto'>
+      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+      <main className={`${collapsed ? 'lg:ml-[100px]' : 'lg:ml-[250px]'} w-full mx-auto`}>
         <Navbar handleLogOut={()=> setIsLoggedIn(false)} />
-          <div className=" max-w-[1010px] 2xl:max-w-[1300px] xl:pl-5">
+          <div className={`${collapsed ? 'max-w-[1150px]' : 'max-w-[1010px]' } 2xl:max-w-[1300px] xl:pl-5`}>
           {children}
           </div>
       </main>

@@ -96,7 +96,7 @@ const CustomerList = () => {
         <h1 className="text-2xl font-bold">Customer list</h1>
         <div className="flex items-center gap-4">
           <Input type="search" placeholder="Search here..." className="w-[300px]" />
-          <Button className="bg-yellow-500 hover:bg-yellow-600">+ Add New Customer</Button>
+          <Button className="bg-primary hover:bg-primary/90">+ Add New Customer</Button>
         </div>
       </div>
 
@@ -116,7 +116,7 @@ const CustomerList = () => {
 
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <div className="text-yellow-500 font-medium">{customer.id}</div>
+                    <div className="text-primary font-medium">{customer.id}</div>
                     <div className="font-semibold">{customer.name}</div>
                     <div className="text-sm text-gray-500">Join on {customer.joinDate}</div>
                   </div>
@@ -183,7 +183,7 @@ const CustomerList = () => {
                       <div className="text-sm text-gray-500">2 June 2018 - 4 June 2019</div>
                       <div className="flex items-center mt-1">
                         {[1, 2].map((star) => (
-                          <svg key={star} className="w-4 h-4 text-yellow-500 fill-current" viewBox="0 0 24 24">
+                          <svg key={star} className="w-4 h-4 text-primary fill-current" viewBox="0 0 24 24">
                             <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                           </svg>
                         ))}
@@ -205,7 +205,7 @@ const CustomerList = () => {
                       <div className="text-sm text-gray-500">2 June 2018 - 4 June 2019</div>
                       <div className="flex items-center mt-1">
                         {[1, 2, 3, 4].map((star) => (
-                          <svg key={star} className="w-4 h-4 text-yellow-500 fill-current" viewBox="0 0 24 24">
+                          <svg key={star} className="w-4 h-4 text-primary fill-current" viewBox="0 0 24 24">
                             <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                           </svg>
                         ))}
@@ -253,7 +253,7 @@ const CustomerList = () => {
             <Button
               variant={currentPage === 1 ? "default" : "outline"}
               size="sm"
-              className={currentPage === 1 ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+              className={currentPage === 1 ? "bg-primary hover:bg-primary/90" : ""}
               onClick={() => setCurrentPage(1)}
             >
               1
@@ -262,7 +262,7 @@ const CustomerList = () => {
               <Button
                 variant={currentPage === 2 ? "default" : "outline"}
                 size="sm"
-                className={currentPage === 2 ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                className={currentPage === 2 ? "bg-primary hover:bg-primary/90" : ""}
                 onClick={() => setCurrentPage(2)}
               >
                 2
@@ -272,7 +272,7 @@ const CustomerList = () => {
               <Button
                 variant={currentPage === 3 ? "default" : "outline"}
                 size="sm"
-                className={currentPage === 3 ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                className={currentPage === 3 ? "bg-primary hover:bg-primary/90" : ""}
                 onClick={() => setCurrentPage(3)}
               >
                 3

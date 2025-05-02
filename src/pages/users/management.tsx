@@ -324,7 +324,7 @@ const UserManagementPage = () => {
 
               <div className="flex justify-end gap-2 mt-6">
                 <Button variant="outline">Cancel</Button>
-                <Button className="bg-yellow-500 hover:bg-yellow-600">Add user</Button>
+                <Button>Add user</Button>
               </div>
             </div>
           </form>

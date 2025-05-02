@@ -236,7 +236,7 @@ const InspectionBookings = () => {
                 <path d="m15 18-6-6 6-6" />
               </svg>
             </Button>
-            <Button variant="default" size="sm" className="bg-yellow-500 hover:bg-yellow-600">
+            <Button variant="default" size="sm" >
               1
             </Button>
             <Button variant="outline" size="sm">

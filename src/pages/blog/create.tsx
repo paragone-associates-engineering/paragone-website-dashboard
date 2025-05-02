@@ -1,150 +1,180 @@
+
+import type React from "react"
+
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { DataTable } from "@/components/shared/data-table"
-import { Eye, Pencil, Trash2, ChevronDown } from "lucide-react"
-import { useNavigate } from "react-router-dom"
-
-interface Job {
-  id: string
-  title: string
-  description: string
-  applicationDeadline: string
-  publishedBy: string
-}
-
-const initialJobs: Job[] = [
-  {
-    id: "1",
-    title: "Ex qui dolor commodo occaecat",
-    description: "Ex qui dolor commodo occaecat est voluptate conse ctetur irure",
-    applicationDeadline: "13 Sep 23 17:02:24",
-    publishedBy: "Admin",
-  },
-  {
-    id: "2",
-    title: "Ex qui dolor commodo occaecat",
-    description: "Ex qui dolor commodo occaecat est voluptate conse ctetur irure",
-    applicationDeadline: "13 Sep 23 17:02:24",
-    publishedBy: "Admin",
-  },
-  {
-    id: "3",
-    title: "Ex qui dolor commodo occaecat",
-    description: "Ex qui dolor commodo occaecat est voluptate conse ctetur irure",
-    applicationDeadline: "13 Sep 23 17:02:24",
-    publishedBy: "Admin",
-  },
-  {
-    id: "4",
-    title: "Ex qui dolor commodo occaecat",
-    description: "Ex qui dolor commodo occaecat est voluptate conse ctetur irure",
-    applicationDeadline: "13 Sep 23 17:02:24",
-    publishedBy: "Admin",
-  },
-]
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { FormContainer, FormField, FormImageUpload, FormTagsInput } from "@/components/shared/form-container"
 
 const CreateBlog = () => {
-  const [jobs, setJobs] = useState<Job[]>(initialJobs)
-  const navigate = useNavigate()
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "Villa",
+    description: "",
+    url: "",
+    startDate: "",
+    endDate: "",
+    scheduleDate: "",
+    startTime: "08:00",
+    endTime: "10:00",
+  })
+  const [blogImage, setBlogImage] = useState<string | null>(null)
+  const [blogTags, setBlogTags] = useState<string[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleDelete = (job: Job) => {
-    setJobs(jobs.filter((j) => j.id !== job.id))
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleEdit = (job: Job) => {
-    navigate(`/career/edit/${job.id}`)
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleView = (job: Job) => {
-    navigate(`/career/view/${job.id}`)
-  }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
 
-  const columns = [
-    {
-      id: "image",
-      header: "",
-      accessorKey: "image",
-      cell: () => (
-        <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
-          <img src="https://res.cloudinary.com/dv0mdoa6b/image/upload/v1741867698/microsoft-edge-_eCnLJWQXMg-unsplash_1_dmpqrj.png" alt="Job" className="w-6 h-6" />
-        </div>
-      ),
-    },
-    {
-      id: "title",
-      header: "Title",
-      accessorKey: "title",
-      enableSorting: true,
-    },
-    {
-      id: "description",
-      header: "Descriptions",
-      accessorKey: "description",
-    },
-  
-    {
-      id: "publishedBy",
-      header: "Published by",
-      accessorKey: "publishedBy",
-    },
-  ]
-
-  const actionMenu = {
-    items: [
-      {
-        label: "View jobs",
-        icon: <Eye className="h-4 w-4" />,
-        onClick: handleView,
-      },
-      {
-        label: "Edit jobs",
-        icon: <Pencil className="h-4 w-4" />,
-        onClick: handleEdit,
-      },
-      {
-        label: "Delete",
-        icon: <Trash2 className="h-4 w-4" />,
-        onClick: handleDelete,
-        className: "text-red-600",
-      },
-    ],
+    // Simulate API call
+    setTimeout(() => {
+      console.log("Form submitted:", {
+        ...formData,
+        blogImage,
+        blogTags,
+      })
+      setIsSubmitting(false)
+      // Reset form or redirect
+    }, 1500)
   }
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Blog, News & Insights</h1>
-        <Button className="bg-yellow-500 hover:bg-yellow-600" onClick={() => navigate("/career/add")}>
-          Create post
-        </Button>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Create blog</h1>
       </div>
 
-      <div className="bg-white rounded-lg border">
-        <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold">Careers</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <FormContainer
+            title="Create blog"
+            onSubmit={handleSubmit}
+            onCancel={() => console.log("Cancelled")}
+            submitLabel="Create blog"
+            isLoading={isSubmitting}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField label="Blog name" required>
+                <Input name="name" value={formData.name} onChange={handleInputChange} placeholder="Enter blog name" />
+              </FormField>
+
+              <FormField label="Blog category" required>
+                <Select value={formData.category} onValueChange={(value) => handleSelectChange("category", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Villa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Villa">Villa</SelectItem>
+                    <SelectItem value="Apartment">Apartment</SelectItem>
+                    <SelectItem value="House">House</SelectItem>
+                    <SelectItem value="Land">Land</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormField>
+            </div>
+
+            <FormField label="Description" className="mt-4">
+              <Textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Enter descriptions..."
+                className="min-h-[100px]"
+              />
+            </FormField>
+
+            <FormField label="Add URL" className="mt-4">
+              <Input
+                name="url"
+                value={formData.url}
+                onChange={handleInputChange}
+                placeholder="https://paragonesignature.netlify.app/"
+              />
+            </FormField>
+
+            <FormTagsInput
+              label="Blog tags"
+              value={blogTags}
+              onChange={setBlogTags}
+              suggestions={["Property", "Land", "Sale"]}
+              className="mt-4"
+            />
+
+            <div className="mt-6">
+              <h3 className="text-lg font-medium mb-4">Select time and schedule</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField label="Start date">
+                  <div className="relative">
+                    <Input
+                      name="startDate"
+                      value={formData.startDate}
+                      onChange={handleInputChange}
+                      placeholder="dd/mm/yyyy"
+                      type="date"
+                    />
+                  </div>
+                </FormField>
+
+                <FormField label="End date">
+                  <div className="relative">
+                    <Input
+                      name="endDate"
+                      value={formData.endDate}
+                      onChange={handleInputChange}
+                      placeholder="dd/mm/yyyy"
+                      type="date"
+                    />
+                  </div>
+                </FormField>
+              </div>
+
+              <FormField label="Blog schedule" className="mt-4">
+                <div className="relative">
+                  <Input
+                    name="scheduleDate"
+                    value={formData.scheduleDate}
+                    onChange={handleInputChange}
+                    placeholder="dd/mm/yyyy"
+                    type="date"
+                  />
+                </div>
+              </FormField>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <FormField label="Start time">
+                  <div className="relative">
+                    <Input name="startTime" value={formData.startTime} onChange={handleInputChange} type="time" />
+                  </div>
+                </FormField>
+
+                <FormField label="End time">
+                  <div className="relative">
+                    <Input name="endTime" value={formData.endTime} onChange={handleInputChange} type="time" />
+                  </div>
+                </FormField>
+              </div>
+            </div>
+          </FormContainer>
         </div>
 
-        <div className="p-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              Sort by <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Input type="search" placeholder="Search..." className="w-[300px]" />
-          </div>
+        <div className="lg:col-span-1">
+          <FormImageUpload
+            label="Upload or Drag your image here"
+            onChange={(file) => setBlogImage(file ? URL.createObjectURL(file) : null)}
+            value={blogImage}
+          />
         </div>
-
-        <DataTable
-          columns={columns}
-          data={jobs}
-          actionMenu={actionMenu}
-          pagination={{ pageSize: 10, totalItems: jobs.length }}
-          searchable={false}
-          selectable={true}
-        />
       </div>
     </div>
   )

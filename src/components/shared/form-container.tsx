@@ -37,7 +37,7 @@ export function FormContainer({
               {cancelLabel}
             </Button>
           )}
-          <Button type="submit" className="bg-yellow-500 hover:bg-yellow-600" disabled={isLoading}>
+          <Button type="submit" className="px-3" disabled={isLoading}>
             {isLoading ? "Processing..." : submitLabel}
           </Button>
         </div>
