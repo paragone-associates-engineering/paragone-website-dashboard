@@ -1,13 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type React from "react"
 import { useState } from "react"
 import { DataTable, StatusBadge } from "@/components/shared/data-table"
-import { FormField } from "@/components/shared/form-container"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, Pencil, Trash2 } from "lucide-react"
+import UserSearchForm from "@/components/shared/add-user"
 
 interface User {
   id: string
@@ -110,47 +106,7 @@ const initialPermissions: Permission[] = [
 const UserManagementPage = () => {
   const [users, setUsers] = useState<User[]>(initialUsers)
   const [permissions, setPermissions] = useState<Permission[]>(initialPermissions)
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    email: "",
-    designation: "",
-    role: "",
-  })
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const newUser: User = {
-      id: (users.length + 1).toString(),
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      role: formData.role,
-      phoneNumber: formData.phoneNumber,
-      designation: formData.designation,
-      status: "Active",
-    }
-    setUsers([...users, newUser])
-    setFormData({
-      firstName: "",
-      lastName: "",
-      phoneNumber: "",
-      email: "",
-      designation: "",
-      role: "",
-    })
-  }
-
+ 
   const handlePermissionChange = (id: string, field: keyof Permission, value: boolean) => {
     setPermissions(
       permissions.map((permission) => (permission.id === id ? { ...permission, [field]: value } : permission)),
@@ -257,77 +213,12 @@ const UserManagementPage = () => {
             <h2 className="text-lg font-semibold">Add user</h2>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField label="First name">
-                  <Input
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    placeholder="Enter first name"
-                  />
-                </FormField>
-
-                <FormField label="Last name">
-                  <Input
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    placeholder="Enter last name"
-                  />
-                </FormField>
-
-                <FormField label="Phone number">
-                  <Input
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
-                    onChange={handleInputChange}
-                    placeholder="Enter number"
-                  />
-                </FormField>
-
-                <FormField label="Email address">
-                  <Input
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Enter email"
-                    type="email"
-                  />
-                </FormField>
-
-                <FormField label="Designation">
-                  <Input
-                    name="designation"
-                    value={formData.designation}
-                    onChange={handleInputChange}
-                    placeholder="Enter designation"
-                  />
-                </FormField>
-
-                <FormField label="Role">
-                  <Select onValueChange={(value) => handleSelectChange("role", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Enter role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Super Admin">Super Admin</SelectItem>
-                      <SelectItem value="Admin">Admin</SelectItem>
-                      <SelectItem value="Manager">Manager</SelectItem>
-                      <SelectItem value="Operator">Operator</SelectItem>
-                      <SelectItem value="Accounts">Accounts</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormField>
-              </div>
-
-              <div className="flex justify-end gap-2 mt-6">
-                <Button variant="outline">Cancel</Button>
-                <Button>Add user</Button>
-              </div>
-            </div>
-          </form>
+          
+          <UserSearchForm
+      existingUsers={initialUsers}
+      onAddUser={() => console.log('Added user')}
+      onCancel={() => console.log("Cancelled")}
+    />
         </div>
 
         <div className="bg-white rounded-lg border">

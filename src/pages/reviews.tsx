@@ -409,10 +409,10 @@ const ReviewsPage: React.FC = () => {
                     ))}
                   </div>
                   <div className="flex justify-end gap-2">
-                    <button className="px-4 py-1 border rounded-md" onClick={() => handleArchiveToggle(review.id)}>
+                    <button className="px-4 py-1 border hover:bg-primary hover:text-white cursor-pointer rounded-md" onClick={() => handleArchiveToggle(review.id)}>
                       {review.archived ? "Unarchive" : "Archive"}
                     </button>
-                    <button className="px-4 py-1 bg-primary text-white rounded-md">Approve</button>
+                    <button className="px-4 py-1 bg-primary hover:bg-primary/80 text-white cursor-pointer rounded-md">Approve</button>
                   </div>
                 </div>
               </div>
