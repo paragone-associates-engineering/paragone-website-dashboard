@@ -116,7 +116,7 @@ const BlogPage = () => {
     <div className="p-3 md:p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Blog, News & Insights</h1>
-        <Button className="bg-primary hover:bg-yellow-600" onClick={() => navigate("/blog/create")}>
+        <Button onClick={() => navigate("/blog/create")}>
           Create post
         </Button>
       </div>

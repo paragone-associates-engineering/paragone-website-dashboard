@@ -252,7 +252,7 @@ export function DataTable({
                     key={pageNumber}
                     variant={currentPage === pageNumber ? "default" : "outline"}
                     size="sm"
-                    className={currentPage === pageNumber ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                    className={currentPage === pageNumber ? "bg-primary hover:bg-primary/80" : ""}
                     onClick={() => setCurrentPage(pageNumber)}
                   >
                     {pageNumber}
@@ -286,7 +286,7 @@ export function StatusBadge({ status }: { status: string }) {
       case "pending":
         return "bg-[#5A6164] hover:bg-gray-600 py-2"
       case "in progress":
-        return "bg-primary hover:bg-yellow-600 py-2"
+        return "bg-primary hover:bg-primary/80 py-2"
       default:
         return "bg-gray-100 text-gray-800 hover:bg-gray-200 py-2"
     }

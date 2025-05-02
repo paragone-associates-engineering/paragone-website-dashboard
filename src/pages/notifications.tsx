@@ -61,7 +61,7 @@ const NotificationPage = () => {
       <div className="space-y-6">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-medium text-yellow-500">New leads</CardTitle>
+            <CardTitle className="text-lg font-medium text-primary">New leads</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {notifications.map((notification) => (
@@ -75,7 +75,7 @@ const NotificationPage = () => {
                   <div className="flex items-center">
                     <span className="font-medium">{notification.user.name}</span>
                     <span className="ml-1 text-gray-500">mention you in</span>
-                    <span className="ml-1 text-yellow-500">{notification.project}</span>
+                    <span className="ml-1 text-primary">{notification.project}</span>
                   </div>
                   <div className="text-sm text-gray-500">{notification.date}</div>
                 </div>
@@ -103,7 +103,7 @@ const NotificationPage = () => {
                   <div className="flex items-center">
                     <span className="font-medium">{notification.user.name}</span>
                     <span className="ml-1 text-gray-500">mention you in</span>
-                    <span className="ml-1 text-yellow-500">{notification.project}</span>
+                    <span className="ml-1 text-primary">{notification.project}</span>
                   </div>
                   <div className="text-sm text-gray-500">{notification.date}</div>
                 </div>
@@ -131,7 +131,7 @@ const NotificationPage = () => {
                   <div className="flex items-center">
                     <span className="font-medium">{notification.user.name}</span>
                     <span className="ml-1 text-gray-500">mention you in</span>
-                    <span className="ml-1 text-yellow-500">{notification.project}</span>
+                    <span className="ml-1 text-primary">{notification.project}</span>
                   </div>
                   <div className="text-sm text-gray-500">{notification.date}</div>
                 </div>

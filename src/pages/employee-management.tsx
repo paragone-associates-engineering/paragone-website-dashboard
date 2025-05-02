@@ -211,7 +211,7 @@ const EmployeeManagement = () => {
               <Button variant="outline" onClick={() => setShowAddForm(false)}>
                 Cancel
               </Button>
-              <Button className="bg-yellow-500 hover:bg-yellow-600">Add employee</Button>
+              <Button>Add employee</Button>
             </div>
           </div>
         </div>

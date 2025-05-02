@@ -47,7 +47,7 @@ const AddPropertyPage = () => {
   const [propertyImage, setPropertyImage] = useState<string | null>(null)
   const [propertyTags] = useState<string[]>([])
   const [generalAmenities, setGeneralAmenities] = useState<string[]>([])
-  const [bedroomAmenities, setBedroomAmenities] = useState<string[]>([])
+  const [bedroomAmenities] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -379,15 +379,6 @@ const AddPropertyPage = () => {
             value={generalAmenities}
             onChange={setGeneralAmenities}
             suggestions={["Parking", "Wi-Fi", "Security system", "Elevator"]}
-          />
-        </FormSection>
-
-        <FormSection title="Bedroom amenities" collapsible>
-          <FormTagsInput
-            label="Enter amenities"
-            value={bedroomAmenities}
-            onChange={setBedroomAmenities}
-            suggestions={["Smart lighting", "Wi-Fi", "Security system"]}
           />
         </FormSection>
       </FormContainer>

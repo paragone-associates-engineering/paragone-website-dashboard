@@ -14,6 +14,7 @@ type SidebarContextType = {
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined)
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSidebar() {
   const context = useContext(SidebarContext)
   if (!context) {
@@ -194,7 +195,7 @@ export function SidebarItem({
     <div
       className={cn(
         "group flex w-full cursor-pointer items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
-        active || isChildActive ? "bg-yellow-500 text-white" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+        active || isChildActive ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
         className,
       )}
       onClick={handleClick}
@@ -204,7 +205,7 @@ export function SidebarItem({
         <>
           <span className="flex-1 truncate">{label}</span>
           {badge && (
-            <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-yellow-500 text-xs font-medium text-white">
+            <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-white">
               {badge}
             </span>
           )}
@@ -228,7 +229,7 @@ export function SidebarItem({
 
       {/* Badge for collapsed mode */}
       {collapsed && badge && (
-        <span className="absolute right-0 top-0 flex h-5 w-5 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full bg-yellow-500 text-xs font-medium text-white">
+        <span className="absolute right-0 top-0 flex h-5 w-5 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full bg-primary text-xs font-medium text-white">
           {badge}
         </span>
       )}
@@ -272,7 +273,7 @@ export function SidebarSubItem({ label, href, active, onClick, className }: Side
     <div
       className={cn(
         "flex cursor-pointer items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
-        isActive ? "text-yellow-500" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+        isActive ? "text-primary" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
         className,
       )}
       onClick={handleClick}

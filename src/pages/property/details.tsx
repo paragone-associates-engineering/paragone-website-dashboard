@@ -107,7 +107,7 @@ const PropertyDetailPage = () => {
         {[1, 2, 3, 4, 5].map((star) => (
           <svg
             key={star}
-            className={`w-4 h-4 ${star <= rating ? "text-yellow-500 fill-current" : "text-gray-300 fill-current"}`}
+            className={`w-4 h-4 ${star <= rating ? "text-primary fill-current" : "text-gray-300 fill-current"}`}
             viewBox="0 0 24 24"
           >
             <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
@@ -372,7 +372,7 @@ const PropertyDetailPage = () => {
                 <div className="h-16 w-16 rounded-full bg-gray-200"></div>
                 <div>
                   <h4 className="font-medium">{agent.name}</h4>
-                  <p className="text-sm text-yellow-500">{agent.role}</p>
+                  <p className="text-sm text-primary">{agent.role}</p>
                   <p className="text-sm text-gray-500 mt-1">{agent.address}</p>
                   <p className="text-sm font-medium mt-1">{agent.phone}</p>
                 </div>
@@ -441,12 +441,12 @@ const PropertyDetailPage = () => {
             <div className="flex flex-col items-center">
               <div className="w-20 h-20 rounded-full bg-gray-200 mb-4"></div>
               <h3 className="text-xl font-bold">{propertyOwners[0].name}</h3>
-              <p className="text-yellow-500 font-medium">{propertyOwners[0].role}</p>
+              <p className="text-primary font-medium">{propertyOwners[0].role}</p>
               <p className="text-sm text-gray-500 text-center mt-2">{propertyOwners[0].address}</p>
               <p className="text-sm font-medium mt-2">{propertyOwners[0].phone}</p>
 
               <div className="flex gap-2 mt-4">
-                <button className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white">
+                <button className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -462,7 +462,7 @@ const PropertyDetailPage = () => {
                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                   </svg>
                 </button>
-                <button className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white">
+                <button className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -478,7 +478,7 @@ const PropertyDetailPage = () => {
                     <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
                   </svg>
                 </button>
-                <button className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white">
+                <button className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"

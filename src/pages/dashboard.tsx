@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Progress } from "@/components/ui/progress"
 import CircleProgress from "@/components/shared/circle-progress"
+import PropertyMapChart from "@/components/shared/location-chart"
+import PropertyOverviewChart from "@/components/shared/property-overview"
 
 const Dashboard = () => {
   const [sortBy, setSortBy] = useState("Most views")
@@ -73,7 +75,7 @@ const Dashboard = () => {
                 <span className="text-sm text-gray-500">561/days</span>
               </div>
               <Progress value={75} className="h-2 bg-gray-200">
-                <div className="h-full bg-yellow-500 rounded-full"></div>
+                <div className="h-full bg-primary rounded-full"></div>
               </Progress>
             </div>
             <div>
@@ -82,96 +84,14 @@ const Dashboard = () => {
                 <span className="text-sm text-gray-500">3,456 Unit</span>
               </div>
               <Progress value={60} className="h-2 bg-gray-200">
-                <div className="h-full bg-yellow-500 rounded-full"></div>
+                <div className="h-full bg-primary rounded-full"></div>
               </Progress>
             </div>
           </CardContent>
         </Card>
 
         {/* Map */}
-        <Card className="lg:col-span-2">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-medium">Properties Map Location</h3>
-              <Button variant="ghost" size="icon">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="relative">
-              <img
-                src="/map.png"
-                alt="World Map"
-                className="w-full h-[300px] object-contain opacity-30"
-              />
-              <div className="absolute top-1/4 left-1/4 bg-yellow-500 text-white rounded-full w-10 h-10 flex items-center justify-center">
-                224
-              </div>
-              <div className="absolute top-1/5 right-1/4 bg-gray-200 text-gray-700 rounded-full w-10 h-10 flex items-center justify-center">
-                532
-              </div>
-              <div className="absolute top-1/3 right-1/5 bg-gray-200 text-gray-700 rounded-full w-10 h-10 flex items-center justify-center">
-                653
-              </div>
-              <div className="absolute bottom-1/4 left-1/3 bg-gray-200 text-gray-700 rounded-full w-10 h-10 flex items-center justify-center">
-                567
-              </div>
-              <div className="absolute bottom-1/3 right-1/4 bg-gray-200 text-gray-700 rounded-full w-10 h-10 flex items-center justify-center">
-                234
-              </div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white text-gray-700 rounded-full w-10 h-10 flex items-center justify-center shadow-md">
-                234
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-2 mt-4">
-              <div>
-                <h4 className="text-sm">Europe</h4>
-                <div className="flex items-center gap-2">
-                  <Progress value={60} className="h-2 bg-gray-200 flex-1">
-                    <div className="h-full bg-yellow-500 rounded-full"></div>
-                  </Progress>
-                  <span className="text-xs">653 Unit</span>
-                </div>
-              </div>
-              <div>
-                <h4 className="text-sm">Asia</h4>
-                <div className="flex items-center gap-2">
-                  <Progress value={50} className="h-2 bg-gray-200 flex-1">
-                    <div className="h-full bg-yellow-500 rounded-full"></div>
-                  </Progress>
-                  <span className="text-xs">653 Unit</span>
-                </div>
-              </div>
-              <div>
-                <h4 className="text-sm">Africa</h4>
-                <div className="flex items-center gap-2">
-                  <Progress value={70} className="h-2 bg-gray-200 flex-1">
-                    <div className="h-full bg-yellow-500 rounded-full"></div>
-                  </Progress>
-                  <span className="text-xs">653 Unit</span>
-                </div>
-              </div>
-              <div>
-                <h4 className="text-sm">Australia</h4>
-                <div className="flex items-center gap-2">
-                  <Progress value={30} className="h-2 bg-gray-200 flex-1">
-                    <div className="h-full bg-yellow-500 rounded-full"></div>
-                  </Progress>
-                  <span className="text-xs">653 Unit</span>
-                </div>
-              </div>
-              <div>
-                <h4 className="text-sm">America</h4>
-                <div className="flex items-center gap-2">
-                  <Progress value={45} className="h-2 bg-gray-200 flex-1">
-                    <div className="h-full bg-yellow-500 rounded-full"></div>
-                  </Progress>
-                  <span className="text-xs">653 Unit</span>
-                </div>
-              </div>
-            </div>
-            <h2 className='text-3xl font-bold mt-3'>Replace Map with a chart</h2>
-          </CardContent>
-        </Card>
+       <PropertyMapChart />
       </div>
 
       {/* Reviews and Overview */}
@@ -200,7 +120,7 @@ const Dashboard = () => {
                   </div>
                   <div className="ml-auto flex">
                     {[1, 2, 3, 4].map((star) => (
-                      <svg key={star} className="w-4 h-4 text-yellow-500 fill-current" viewBox="0 0 24 24">
+                      <svg key={star} className="w-4 h-4 text-primary fill-current" viewBox="0 0 24 24">
                         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                       </svg>
                     ))}
@@ -229,7 +149,7 @@ const Dashboard = () => {
                   </div>
                   <div className="ml-auto flex">
                     {[1, 2, 3, 4].map((star) => (
-                      <svg key={star} className="w-4 h-4 text-yellow-500 fill-current" viewBox="0 0 24 24">
+                      <svg key={star} className="w-4 h-4 text-primary fill-current" viewBox="0 0 24 24">
                         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                       </svg>
                     ))}
@@ -257,7 +177,7 @@ const Dashboard = () => {
                   </div>
                   <div className="ml-auto flex">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <svg key={star} className="w-4 h-4 text-yellow-500 fill-current" viewBox="0 0 24 24">
+                      <svg key={star} className="w-4 h-4 text-primary fill-current" viewBox="0 0 24 24">
                         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                       </svg>
                     ))}
@@ -270,227 +190,14 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <Button variant="default" className="w-full mt-6 bg-yellow-500 hover:bg-yellow-600">
+            <Button variant="default" className="w-full mt-6 bg-primary hover:bg-primary/90">
               See More Reviews
             </Button>
           </CardContent>
         </Card>
 
         {/* Overview Charts */}
-        <Card className="lg:col-span-2">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-medium">Overview</h3>
-              <Button variant="ghost" size="icon">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="flex items-center gap-2">
-                <div className="bg-blue-100 p-2 rounded">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 text-blue-600"
-                  >
-                    <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
-                    <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9" />
-                    <path d="M12 3v6" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Total Sale</p>
-                  <p className="font-medium">2,346 Unit</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-green-100 p-2 rounded">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 text-green-600"
-                  >
-                    <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
-                    <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9" />
-                    <path d="M12 3v6" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Total Rent</p>
-                  <p className="font-medium">458 Unit</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-purple-100 p-2 rounded">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 text-purple-600"
-                  >
-                    <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
-                    <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9" />
-                    <path d="M12 3v6" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Short Stay</p>
-                  <p className="font-medium">1,446 Unit</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-red-100 p-2 rounded">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 text-red-600"
-                  >
-                    <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
-                    <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9" />
-                    <path d="M12 3v6" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Total Land</p>
-                  <p className="font-medium">545 Unit</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 mb-2">
-              <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full flex items-center">
-                <span className="mr-1">0.8%</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-3 w-3"
-                >
-                  <path d="m18 15-6-6-6 6" />
-                </svg>
-              </div>
-              <span className="text-xs text-gray-500">than last week</span>
-            </div>
-
-            {/* Chart */}
-            <div className="h-[200px] mt-4 relative">
-              {/* This is a placeholder for the chart - in a real app you'd use a charting library */}
-              {/* <div className="absolute bottom-0 left-0 right-0 h-[200px] flex items-end">
-                <div className="flex-1 h-[70%] bg-blue-500 mx-1 rounded-t-sm"></div>
-                <div className="flex-1 h-[60%] bg-blue-500 mx-1 rounded-t-sm"></div>
-                <div className="flex-1 h-[80%] bg-blue-500 mx-1 rounded-t-sm"></div>
-                <div className="flex-1 h-[50%] bg-blue-500 mx-1 rounded-t-sm"></div>
-                <div className="flex-1 h-[65%] bg-blue-500 mx-1 rounded-t-sm"></div>
-                <div className="flex-1 h-[75%] bg-blue-500 mx-1 rounded-t-sm"></div>
-                <div className="flex-1 h-[60%] bg-blue-500 mx-1 rounded-t-sm"></div>
-                <div className="flex-1 h-[90%] bg-blue-500 mx-1 rounded-t-sm"></div>
-                <div className="flex-1 h-[70%] bg-blue-500 mx-1 rounded-t-sm"></div>
-                <div className="flex-1 h-[80%] bg-blue-500 mx-1 rounded-t-sm"></div>
-                <div className="flex-1 h-[60%] bg-blue-500 mx-1 rounded-t-sm"></div>
-                <div className="flex-1 h-[75%] bg-blue-500 mx-1 rounded-t-sm"></div>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 h-[200px] flex items-end">
-                <div className="flex-1 h-[60%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[70%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[50%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[80%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[75%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[65%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[85%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[70%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[60%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[50%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[80%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[65%] bg-red-500 mx-1 rounded-t-sm opacity-70"></div>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 h-[200px] flex items-end">
-                <div className="flex-1 h-[30%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[40%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[35%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[45%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[30%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[40%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[25%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[50%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[35%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[30%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[45%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[40%] bg-purple-500 mx-1 rounded-t-sm opacity-70"></div>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 h-[200px] flex items-end">
-                <div className="flex-1 h-[20%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[25%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[30%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[20%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[35%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[25%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[30%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[20%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[35%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[30%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[25%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-                <div className="flex-1 h-[35%] bg-green-500 mx-1 rounded-t-sm opacity-70"></div>
-              </div> */}
-              <div className='text-4xl font-bold mt-10'>Chart here</div>
-            </div>
-
-            {/* <div className="flex justify-between mt-4 text-xs text-gray-500">
-              <span>April</span>
-              <span>May</span>
-              <span>June</span>
-              <span>July</span>
-              <span>August</span>
-              <span>September</span>
-              <span>October</span>
-              <span>November</span>
-            </div> */}
-
-            {/* <div className="grid grid-cols-2 gap-4 mt-8">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <span className="text-xs">96 Rented</span>
-              </div> */}
-              {/* <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                <span className="text-xs">24 Sold</span>
-              </div>
-            </div> */}
-          </CardContent>
-        </Card>
+       <PropertyOverviewChart />
       </div>
 
       {/* Property Stats Cards */}
@@ -721,7 +428,7 @@ const Dashboard = () => {
                   <td className="py-3 px-4">3946 Coburn Hollow Road,South Pekin</td>
                   <td className="py-3 px-4">18/06/2018</td>
                   <td className="py-3 px-4">
-                    <Badge className="bg-yellow-500 hover:bg-yellow-600">Pending</Badge>
+                    <Badge className="bg-primary hover:bg-primary/90">Pending</Badge>
                   </td>
                   <td className="py-3 px-4">On Rent</td>
                   <td className="py-3 px-4 text-right">
@@ -766,7 +473,7 @@ const Dashboard = () => {
                   <td className="py-3 px-4">1553 Heritage Road,Visalia</td>
                   <td className="py-3 px-4">14/07/2018</td>
                   <td className="py-3 px-4">
-                    <Badge className="bg-yellow-500 hover:bg-yellow-600">Pending</Badge>
+                    <Badge className="bg-primay hover:bg-primary/90">Pending</Badge>
                   </td>
                   <td className="py-3 px-4">Sold</td>
                   <td className="py-3 px-4 text-right">

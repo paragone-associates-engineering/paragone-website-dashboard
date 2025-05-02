@@ -27,9 +27,9 @@ import {
   ChevronLeft
 } from 'lucide-react';
 
-const Sidebar = () => {
+const Sidebar = ({collapsed, setCollapsed}:{collapsed: boolean, setCollapsed: (value: boolean) => void}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  //const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState('/dashboard');
@@ -71,7 +71,6 @@ const Sidebar = () => {
     { icon: <Users size={20} />, label: 'Customer', path: '/customer',
       submenu: [
         { label: 'Customers list', path: '/customer/list' },
-        { label: 'Add customer', path: '/customer/add' },
       ] 
     },
     { icon: <MessageSquare size={20} />, label: 'Testimonials', path: '/testimonials',
@@ -82,13 +81,11 @@ const Sidebar = () => {
     { icon: <MapPin size={20} />, label: 'Region', path: '/region',
       submenu: [
         { label: 'Region list', path: '/region/list' },
-        { label: 'Add region', path: '/region/add' },
       ] 
     },
     { icon: <UserCircle size={20} />, label: 'Users', path: '/users',
       submenu: [
         { label: 'Users list', path: '/users/list' },
-        { label: 'Add user', path: '/users/add' },
         { label: 'User profile', path: '/users/profile' },
       ] 
     },
@@ -111,9 +108,7 @@ const Sidebar = () => {
     { icon: <Handshake size={20} />, label: 'Partner', path: '/partner',
       submenu: [
         { label: 'Associate Partner list', path: '/partner/associate-list' },
-        { label: 'Add associate partner', path: '/partner/add-associate' },
-        { label: 'Individual partner', path: '/partner/individual' },
-        { label: 'Company partner', path: '/partner/company' },
+        { label: 'Sell Property list', path: '/partner/individual' },
       ] 
     },
     { icon: <FileText size={20} />, label: 'Blog/News', path: '/blog',
@@ -202,12 +197,7 @@ const Sidebar = () => {
   const Footer = () => (
     <div className="mt-auto">
       {!collapsed && (
-        <div className="bg-blue-600 text-white p-4 text-sm mx-4 mb-4 rounded-lg">
-          Various versions have evolved over the years, sometimes by accident, sometimes on purpose.
-        </div>
-      )}
-      {!collapsed && (
-        <div className="px-4 pb-4 text-xs text-gray-600">
+        <div className="px-4 py-2 text-xs text-gray-600">
           <div>Paragone Signature Dashboard</div>
           <div>© 2025 All Rights Reserved</div>
         </div>

@@ -165,7 +165,7 @@ const ReviewsPage: React.FC = () => {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={cn("w-5 h-5", star <= rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300")}
+            className={cn("w-5 h-5", star <= rating ? "text-primary fill-primary" : "text-gray-300")}
           />
         ))}
       </div>
@@ -181,7 +181,7 @@ const ReviewsPage: React.FC = () => {
             key={star}
             className={cn(
               "w-6 h-6 cursor-pointer",
-              star <= newReview.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300",
+              star <= newReview.rating ? "text-primary fill-primary" : "text-gray-300",
             )}
             onClick={() => setNewReview({ ...newReview, rating: star })}
           />
@@ -217,7 +217,7 @@ const ReviewsPage: React.FC = () => {
           <button
             className={cn(
               "px-6 py-3 font-medium",
-              activeTab === "all" && "border-b-2 border-yellow-500 text-yellow-500",
+              activeTab === "all" && "border-b-2 border-primary text-primary",
             )}
             onClick={() => setActiveTab("all")}
           >
@@ -226,7 +226,7 @@ const ReviewsPage: React.FC = () => {
           <button
             className={cn(
               "px-6 py-3 font-medium",
-              activeTab === "published" && "border-b-2 border-yellow-500 text-yellow-500",
+              activeTab === "published" && "border-b-2 border-primary text-primary",
             )}
             onClick={() => setActiveTab("published")}
           >
@@ -235,7 +235,7 @@ const ReviewsPage: React.FC = () => {
           <button
             className={cn(
               "px-6 py-3 font-medium",
-              activeTab === "archived" && "border-b-2 border-yellow-500 text-yellow-500",
+              activeTab === "archived" && "border-b-2 border-primary text-primary",
             )}
             onClick={() => setActiveTab("archived")}
           >
@@ -244,7 +244,7 @@ const ReviewsPage: React.FC = () => {
           <button
             className={cn(
               "px-6 py-3 font-medium",
-              activeTab === "custom" && "border-b-2 border-yellow-500 text-yellow-500",
+              activeTab === "custom" && "border-b-2 border-primary text-primary",
             )}
             onClick={() => setActiveTab("custom")}
           >
@@ -345,7 +345,7 @@ const ReviewsPage: React.FC = () => {
             <label className="block mb-2 font-medium">Enter star review</label>
             <div className="flex justify-between items-center">
               {renderInteractiveStars()}
-              <span className="text-yellow-500 font-medium">{newReview.rating} Star</span>
+              <span className="text-primary font-medium">{newReview.rating} Star</span>
             </div>
           </div>
 
@@ -363,7 +363,7 @@ const ReviewsPage: React.FC = () => {
             >
               Cancel
             </button>
-            <button className="px-4 py-2 bg-yellow-500 text-white rounded-md" onClick={handleSubmitReview}>
+            <button className="px-4 py-2 bg-primary text-white rounded-md" onClick={handleSubmitReview}>
               Add review
             </button>
           </div>
@@ -381,7 +381,7 @@ const ReviewsPage: React.FC = () => {
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <div>
-                      <div className="text-yellow-500 font-medium">{review.id}</div>
+                      <div className="text-primary font-medium">{review.id}</div>
                       <h3 className="font-medium">{review.name}</h3>
                       <div className="text-sm text-gray-500">join on {review.joinDate}</div>
                     </div>
@@ -397,7 +397,7 @@ const ReviewsPage: React.FC = () => {
                         key={tagIndex}
                         className={cn(
                           "px-3 py-1 rounded-full text-xs font-medium",
-                          tag === "EXCELLENT" && "bg-yellow-100 text-yellow-600",
+                          tag === "EXCELLENT" && "bg-yellow-100 text-primary",
                           tag === "GREAT" && "bg-green-100 text-green-600",
                           tag === "BEST SERVICE" && "bg-blue-100 text-blue-600",
                           tag === "BAD SERVICE" && "bg-red-100 text-red-600",
@@ -409,10 +409,10 @@ const ReviewsPage: React.FC = () => {
                     ))}
                   </div>
                   <div className="flex justify-end gap-2">
-                    <button className="px-4 py-1 border rounded-md" onClick={() => handleArchiveToggle(review.id)}>
+                    <button className="px-4 py-1 border hover:bg-primary hover:text-white cursor-pointer rounded-md" onClick={() => handleArchiveToggle(review.id)}>
                       {review.archived ? "Unarchive" : "Archive"}
                     </button>
-                    <button className="px-4 py-1 bg-yellow-500 text-white rounded-md">Approve</button>
+                    <button className="px-4 py-1 bg-primary hover:bg-primary/80 text-white cursor-pointer rounded-md">Approve</button>
                   </div>
                 </div>
               </div>
@@ -440,7 +440,7 @@ const ReviewsPage: React.FC = () => {
               key={page}
               className={cn(
                 "w-8 h-8 flex items-center justify-center rounded-md",
-                currentPage === page ? "bg-yellow-500 text-white" : "border hover:bg-gray-50",
+                currentPage === page ? "bg-primary text-white" : "border hover:bg-gray-50",
               )}
               onClick={() => setCurrentPage(page)}
             >

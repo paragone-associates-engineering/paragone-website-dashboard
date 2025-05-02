@@ -221,7 +221,7 @@ const UserProfile = () => {
                   </div>
                   <div className="flex justify-end gap-2">
                     <Button variant="outline">Cancel</Button>
-                    <Button className="bg-yellow-500 hover:bg-yellow-600">Save changes</Button>
+                    <Button>Save changes</Button>
                   </div>
                 </div>
               </TabsContent>
@@ -260,7 +260,7 @@ const UserProfile = () => {
                   </div>
                   <div className="flex justify-end gap-2">
                     <Button variant="outline">Cancel</Button>
-                    <Button className="bg-yellow-500 hover:bg-yellow-600">Save changes</Button>
+                    <Button>Save changes</Button>
                   </div>
                 </div>
               </TabsContent>

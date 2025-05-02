@@ -155,7 +155,7 @@ const PropertyListing = () => {
     if (status === "Negotiation") {
       return <Badge className="bg-gray-600 hover:bg-gray-700">Negotiation</Badge>
     } else if (status === "Pending") {
-      return <Badge className="bg-yellow-500 hover:bg-yellow-600">Pending</Badge>
+      return <Badge className="bg-primary hover:bg-primary/80">Pending</Badge>
     } else if (status.includes("60 days")) {
       return <span className="text-green-600 text-sm font-medium">{status}</span>
     } else {
@@ -169,7 +169,7 @@ const PropertyListing = () => {
         <h1 className="text-2xl font-bold">Property Listing</h1>
         <div className="flex items-center gap-4">
           <Input type="search" placeholder="Search here..." className="w-[300px]" />
-          <Button className="bg-yellow-500 hover:bg-yellow-600">Add Property</Button>
+          <Button className="bg-primary hover:bg-primary/80">Add Property</Button>
         </div>
       </div>
 
@@ -262,7 +262,7 @@ const PropertyListing = () => {
                   />
                 </TableCell>
                 <TableCell>
-                  {property.featured && <Star className="h-5 w-5 text-yellow-500" fill="currentColor" />}
+                  {property.featured && <Star className="h-5 w-5 text-primary" fill="currentColor" />}
                 </TableCell>
                 <TableCell>{property.id}</TableCell>
                 <TableCell>{property.date}</TableCell>
@@ -277,7 +277,7 @@ const PropertyListing = () => {
                 <TableCell>{property.agent}</TableCell>
                 <TableCell>
                   {property.status === "Pending" ? (
-                    <Badge className="bg-yellow-500 hover:bg-yellow-600">Pending</Badge>
+                    <Badge className="bg-primary hover:bg-primary/80">Pending</Badge>
                   ) : property.status === "Negotiation" ? (
                     <Badge className="bg-gray-600 hover:bg-gray-700">Negotiation</Badge>
                   ) : (
@@ -334,7 +334,7 @@ const PropertyListing = () => {
             <Button
               variant={currentPage === 1 ? "default" : "outline"}
               size="sm"
-              className={currentPage === 1 ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+              className={currentPage === 1 ? "bg-primary hover:bg-primary/80" : ""}
               onClick={() => setCurrentPage(1)}
             >
               1
@@ -343,7 +343,7 @@ const PropertyListing = () => {
               <Button
                 variant={currentPage === 2 ? "default" : "outline"}
                 size="sm"
-                className={currentPage === 2 ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                className={currentPage === 2 ? "bg-primary hover:bg-primary/80" : ""}
                 onClick={() => setCurrentPage(2)}
               >
                 2
@@ -353,7 +353,7 @@ const PropertyListing = () => {
               <Button
                 variant={currentPage === 3 ? "default" : "outline"}
                 size="sm"
-                className={currentPage === 3 ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                className={currentPage === 3 ? "bg-primary hover:bg-primary/90" : ""}
                 onClick={() => setCurrentPage(3)}
               >
                 3

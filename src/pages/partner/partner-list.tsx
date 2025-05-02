@@ -3,7 +3,9 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { MoreVertical } from "lucide-react"
+import {MoreVertical, Upload} from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
 
 interface Partner {
   logo: string
@@ -62,12 +64,29 @@ const partnersData: Partner[] = [
 const PartnerList = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const partnersPerPage = 9
-
+  const [showAddPartner, setShowAddPartner] = useState(false)
+  const [newPartner, setNewPartner] = useState({
+    name: "",
+    type: "",
+    description: "",
+    logo: null as File | null,
+  })
   // Get current partners
   const indexOfLastPartner = currentPage * partnersPerPage
   const indexOfFirstPartner = indexOfLastPartner - partnersPerPage
   const currentPartners = partnersData.slice(indexOfFirstPartner, indexOfLastPartner)
 
+  const handleAddPartner = () => {
+    console.log("Adding partner:", newPartner)
+    setShowAddPartner(false)
+    setNewPartner({
+      name: "",
+      type: "",
+      description: "",
+      logo: null,
+    })
+   
+  }
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -99,7 +118,7 @@ const PartnerList = () => {
             <div className="relative">
               <Input placeholder="Search..." className="w-[300px]" />
             </div>
-            <Button>Add partner</Button>
+            <Button onClick={() => setShowAddPartner(true)} >Add partner</Button>
           </div>
         </div>
 
@@ -148,7 +167,7 @@ const PartnerList = () => {
             <Button
               variant={currentPage === 1 ? "default" : "outline"}
               size="sm"
-              className={currentPage === 1 ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+              className={currentPage === 1 ? "bg-primary hover:bg-primary/90" : ""}
               onClick={() => setCurrentPage(1)}
             >
               1
@@ -156,7 +175,7 @@ const PartnerList = () => {
             <Button
               variant={currentPage === 2 ? "default" : "outline"}
               size="sm"
-              className={currentPage === 2 ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+              className={currentPage === 2 ? "bg-primary hover:bg-primary/90" : ""}
               onClick={() => setCurrentPage(2)}
             >
               2
@@ -164,7 +183,7 @@ const PartnerList = () => {
             <Button
               variant={currentPage === 3 ? "default" : "outline"}
               size="sm"
-              className={currentPage === 3 ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+              className={currentPage === 3 ? "bg-primary hover:bg-primary/90" : ""}
               onClick={() => setCurrentPage(3)}
             >
               3
@@ -193,6 +212,89 @@ const PartnerList = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={showAddPartner} onOpenChange={setShowAddPartner}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add partner</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <div className="space-y-2">
+              <label htmlFor="partner-name" className="text-sm font-medium">
+                Partner name
+              </label>
+              <Input
+                id="partner-name"
+                placeholder="Affiliate or discount codes"
+                value={newPartner.name}
+                onChange={(e) => setNewPartner({ ...newPartner, name: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="partner-type" className="text-sm font-medium">
+                Partner type
+              </label>
+              <Select value={newPartner.type} onValueChange={(value) => setNewPartner({ ...newPartner, type: value })}>
+                <SelectTrigger id="partner-type">
+                  <SelectValue placeholder="Select partner type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="affiliate">Affiliate</SelectItem>
+                  <SelectItem value="vendor">Vendor</SelectItem>
+                  <SelectItem value="reseller">Reseller</SelectItem>
+                  <SelectItem value="agency">Agency</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="description" className="text-sm font-medium">
+                Description
+              </label>
+              <Textarea
+                id="description"
+                placeholder="Write description..."
+                value={newPartner.description}
+                onChange={(e) => setNewPartner({ ...newPartner, description: e.target.value })}
+                className="min-h-[80px]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Partner image/logo</label>
+              <div className="border border-dashed border-gray-300 rounded-md px-4 py-2">
+                <div
+                  className="w-24 h-24 flex flex-col items-center justify-center bg-gray-50 rounded-md cursor-pointer"
+                  onClick={() => document.getElementById("logo-upload")?.click()}
+                >
+                  <Upload className="h-6 w-6 text-gray-500" />
+                  <span className="text-sm text-gray-500 mt-2">Upload</span>
+                  <input
+                    type="file"
+                    id="logo-upload"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setNewPartner({ ...newPartner, logo: e.target.files[0] })
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="outline" onClick={() => setShowAddPartner(false)}>
+              Cancel
+            </Button>
+            <Button className="bg-primary hover:bg-primary/90 text-white" onClick={handleAddPartner}>
+              Create partner
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

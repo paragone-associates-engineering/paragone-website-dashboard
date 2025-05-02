@@ -120,7 +120,7 @@ const CareerPage = () => {
     <div className="p-3 md:p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Careers</h1>
-        <Button className="bg-primary hover:bg-yellow-600" onClick={() => navigate("/career/add")}>
+        <Button className="bg-primary hover:bg-primary/80" onClick={() => navigate("/career/add")}>
           Create job
         </Button>
       </div>
