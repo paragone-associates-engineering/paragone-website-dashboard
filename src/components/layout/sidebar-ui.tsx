@@ -197,12 +197,7 @@ const Sidebar = ({collapsed, setCollapsed}:{collapsed: boolean, setCollapsed: (v
   const Footer = () => (
     <div className="mt-auto">
       {!collapsed && (
-        <div className="bg-blue-600 text-white p-4 text-sm mx-4 mb-4 rounded-lg">
-          Various versions have evolved over the years, sometimes by accident, sometimes on purpose.
-        </div>
-      )}
-      {!collapsed && (
-        <div className="px-4 pb-4 text-xs text-gray-600">
+        <div className="px-4 py-2 text-xs text-gray-600">
           <div>Paragone Signature Dashboard</div>
           <div>© 2025 All Rights Reserved</div>
         </div>
