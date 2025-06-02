@@ -1,149 +1,176 @@
 
 
 import { useState } from "react"
-import { DataTable, StatusBadge } from "@/components/shared/data-table"
-import { Eye, Pencil, Trash2 } from "lucide-react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { DataTable } from "@/components/shared/data-table"
+import { Badge } from "@/components/ui/badge"
+import { Pencil, Trash2, RefreshCw, Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { propertyManagementService, type PropertyManagement, type STATUS } from "@/services/property-management-service"
+import { EditModal } from "@/components/property-management/edit-modal"
+import { StatusChangeModal } from "@/components/property-management/status-change"
+import { DeleteConfirmation } from "@/components/property-management/delete-confirmation"
 
-interface Property {
-  id: string
-  customerName: string
-  phoneNumber: string
-  emailAddress: string
-  propertyType: string
-  location: string
-  status: "Active" | "Pending" | "In Progress"
-}
+export default function PropertyManagementPage() {
+  const queryClient = useQueryClient()
+  const [editingProperty, setEditingProperty] = useState<PropertyManagement | null>(null)
+  const [statusChangeProperty, setStatusChangeProperty] = useState<PropertyManagement | null>(null)
+  const [deletingProperty, setDeletingProperty] = useState<PropertyManagement | null>(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-const initialProperties: Property[] = [
-  {
-    id: "1",
-    customerName: "Stephani",
-    phoneNumber: "(308) 555-0121",
-    emailAddress: "alma@example.com",
-    propertyType: "Bungalow",
-    location: "Straight 22th London 51256",
-    status: "Active",
-  },
-  {
-    id: "2",
-    customerName: "Sanji Fujiwara",
-    phoneNumber: "(225) 555-0118",
-    emailAddress: "jessica@example.com",
-    propertyType: "Apartment",
-    location: "Flat 2551 Center London 287223",
-    status: "Active",
-  },
-  {
-    id: "3",
-    customerName: "Hawkins",
-    phoneNumber: "(405) 555-0128",
-    emailAddress: "debbie@example.com",
-    propertyType: "Duplex",
-    location: "Waves Street 1st London 2441",
-    status: "Pending",
-  },
-  {
-    id: "4",
-    customerName: "Ilham Supriadi",
-    phoneNumber: "(252) 555-0126",
-    emailAddress: "georgia@example.com",
-    propertyType: "Apartment",
-    location: "Waves Street 1st London 2441",
-    status: "In Progress",
-  },
-  {
-    id: "5",
-    customerName: "Smantha Jr.",
-    phoneNumber: "(316) 555-0116",
-    emailAddress: "michelle@example.com",
-    propertyType: "Duplex",
-    location: "Corner Street 5th London 126623",
-    status: "In Progress",
-  },
-  {
-    id: "6",
-    customerName: "Yun-Yun",
-    phoneNumber: "(907) 555-0101",
-    emailAddress: "tanya@example.com",
-    propertyType: "Bungalow",
-    location: "Corner Street 5th London 126623",
-    status: "Pending",
-  },
-  {
-    id: "7",
-    customerName: "James Witcwicky",
-    phoneNumber: "(684) 555-0102",
-    emailAddress: "michael@example.com",
-    propertyType: "Apartment",
-    location: "Flat 2551 Center London 287223",
-    status: "In Progress",
-  },
-]
+  const {
+    data: propertyData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["property-management"],
+    queryFn: () => propertyManagementService.getPropertyManagement(),
+    staleTime: 1000 * 60 * 5,
+  })
 
-const PropertyManagementPage = () => {
-  const [properties, setProperties] = useState<Property[]>(initialProperties)
+  const properties = propertyData?.results || []
+  const metadata = propertyData?.metadata?.[0] || { total: 0, totalPages: 0 }
 
-  const handleDelete = (property: Property) => {
-    setProperties(properties.filter((p) => p.id !== property.id))
+  const updateMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      propertyManagementService.updatePropertyManagement(id, data),
+    onSuccess: () => {
+      toast.success("Property updated successfully")
+      queryClient.invalidateQueries({ queryKey: ["property-management"] })
+      setIsEditModalOpen(false)
+      setIsStatusModalOpen(false)
+      setEditingProperty(null)
+      setStatusChangeProperty(null)
+    },
+    onError: () => {
+      toast.error("Failed to update property")
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => propertyManagementService.updatePropertyManagement(id, { isActive: false }),
+    onSuccess: () => {
+      toast.success("Property deleted successfully")
+      queryClient.invalidateQueries({ queryKey: ["property-management"] })
+      setIsDeleteDialogOpen(false)
+      setDeletingProperty(null)
+    },
+    onError: () => {
+      toast.error("Failed to delete property")
+    },
+  })
+
+  const handleEdit = (property: PropertyManagement) => {
+    setEditingProperty(property)
+    setIsEditModalOpen(true)
   }
 
-  const handleEdit = (property: Property) => {
-    console.log("Edit property:", property)
-    // Implement edit functionality
+  const handleChangeStatus = (property: PropertyManagement) => {
+    setStatusChangeProperty(property)
+    setIsStatusModalOpen(true)
   }
 
-  const handleViewDetails = (property: Property) => {
-    console.log("View details:", property)
-    // Implement view details functionality
+  const handleDelete = (property: PropertyManagement) => {
+    setDeletingProperty(property)
+    setIsDeleteDialogOpen(true)
   }
 
-  const handleChangeStatus = (property: Property) => {
-    console.log("Change status:", property)
-    // Implement change status functionality
+ 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSaveEdit = (id: string, data: any) => {
+    updateMutation.mutate({ id, data })
+  }
+
+  const handleSaveStatus = (id: string, status: STATUS) => {
+    updateMutation.mutate({ id, data: { status } })
+  }
+
+  const handleConfirmDelete = () => {
+    if (deletingProperty) {
+      deleteMutation.mutate(deletingProperty.id)
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    const statusColors = {
+      pending: "bg-yellow-100 text-yellow-800 capitalize",
+      "In Progress": "bg-blue-100 text-blue-800 capitalize",
+      completed: "bg-green-100 text-green-800 capitalize",
+      approved: "bg-green-100 text-green-800 capitalize",
+      rejected: "bg-red-100 text-red-800 capitalize",
+    }
+
+    return (
+      <Badge className={statusColors[status as keyof typeof statusColors] || "bg-gray-100 text-gray-800"}>
+        {status}
+      </Badge>
+    )
   }
 
   const columns = [
     {
       id: "customerName",
-      header: "Customer name",
-      accessorKey: "customerName",
+      header: "Customer Name",
+      accessorKey: "name",
+      cell: ( row: PropertyManagement ) => {
+        return `${row.name.first} ${row.name.lastName}`
+      },
+      enableSorting: true,
     },
     {
       id: "phoneNumber",
-      header: "Phone number",
+      header: "Phone Number",
       accessorKey: "phoneNumber",
+      enableSorting: false,
     },
     {
-      id: "emailAddress",
-      header: "Email address",
-      accessorKey: "emailAddress",
+      id: "email",
+      header: "Email Address",
+      accessorKey: "email",
+      enableSorting: true,
     },
     {
       id: "propertyType",
-      header: "Property type",
+      header: "Property Type",
       accessorKey: "propertyType",
+      enableSorting: true,
     },
     {
       id: "location",
       header: "Location",
       accessorKey: "location",
+      enableSorting: true,
     },
     {
       id: "status",
       header: "Status",
       accessorKey: "status",
-       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      cell: (info: any) => <StatusBadge status={info.status} />,
+      cell: (row: PropertyManagement) => getStatusBadge(row.status),
+      enableSorting: true,
+    },
+    {
+      id: "createdAt",
+      header: "Created",
+      accessorKey: "createdAt",
+      cell: (row: PropertyManagement) => {
+        return new Date(row.createdAt).toLocaleDateString()
+      },
+      enableSorting: true,
+    },
+    {
+      id: "action",
+      header: "",
+      accessorKey: "id",
+      cell: () => null,
     },
   ]
 
   const actionMenu = {
     items: [
-      {
-        label: "View details",
-        icon: <Eye className="h-4 w-4" />,
-        onClick: handleViewDetails,
-      },
+      
       {
         label: "Edit property",
         icon: <Pencil className="h-4 w-4" />,
@@ -151,7 +178,7 @@ const PropertyManagementPage = () => {
       },
       {
         label: "Change status",
-        icon: <Pencil className="h-4 w-4" />,
+        icon: <RefreshCw className="h-4 w-4" />,
         onClick: handleChangeStatus,
       },
       {
@@ -164,21 +191,66 @@ const PropertyManagementPage = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-full">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Property Management</h1>
+        
       </div>
 
-      <DataTable
-        columns={columns}
-        data={properties}
-        actionMenu={actionMenu}
-        pagination={{ pageSize: 10, totalItems: properties.length }}
-        searchable={true}
-        selectable={true}
+      <div className="bg-white rounded-lg border overflow-hidden">
+        {isLoading ? (
+          <div className="flex justify-center items-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2">Loading Properties...</span>
+          </div>
+        ) : isError ? (
+          <div className="p-8 text-center text-red-500">Error loading properties. Please try again.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <DataTable
+              columns={columns}
+              data={properties}
+              actionMenu={actionMenu}
+              pagination={{ pageSize: 10, totalItems: metadata.total }}
+              searchable={true}
+              selectable={true}
+            />
+          </div>
+        )}
+      </div>
+
+      <EditModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setEditingProperty(null)
+        }}
+        property={editingProperty}
+        onSave={handleSaveEdit}
+        isLoading={updateMutation.isPending}
+      />
+
+      <StatusChangeModal
+        isOpen={isStatusModalOpen}
+        onClose={() => {
+          setIsStatusModalOpen(false)
+          setStatusChangeProperty(null)
+        }}
+        property={statusChangeProperty}
+        onSave={handleSaveStatus}
+        isLoading={updateMutation.isPending}
+      />
+
+      <DeleteConfirmation
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false)
+          setDeletingProperty(null)
+        }}
+        property={deletingProperty}
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
       />
     </div>
   )
 }
-
-export default PropertyManagementPage

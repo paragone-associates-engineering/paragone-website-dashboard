@@ -1,120 +1,141 @@
+
+import { useState } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { packageService } from "@/services/package-service"
+import { PackageCard } from "@/components/packages/card"
+import { PackageForm } from "@/components/packages/form"
 import { Button } from "@/components/ui/button"
-import { ArrowUpRight, Edit } from "lucide-react"
-
-interface SubscriptionPlan {
-  name: string
-  type: string
-  price: string
-  duration: string
-  features: {
-    name: string
-    value?: string | number
-  }[]
-  color: string
-}
-
-const subscriptionPlans: SubscriptionPlan[] = [
-  {
-    name: "Beginners",
-    type: "Starter",
-    price: "₦100,000",
-    duration: "1 month",
-    features: [{ name: "Property Listing", value: 2 }, { name: "Associate Push" }],
-    color: "bg-[#D5F7F6]",
-  },
-  {
-    name: "Pro",
-    type: "Professional",
-    price: "₦300,000",
-    duration: "3 months",
-    features: [
-      { name: "Property Listings", value: 5 },
-      { name: "Social Media Advert", value: 1 },
-      { name: "Sponsored Listing", value: 1 },
-      { name: "Associate Push" },
-    ],
-    color: "bg-[#FFF1C5]",
-  },
-  {
-    name: "Enterprise",
-    type: "Commercial",
-    price: "₦600,000",
-    duration: "6 months",
-    features: [
-      { name: "Property Listing", value: 10 },
-      { name: "Social Media Advert", value: 2 },
-      { name: "Sponsored Listing" },
-      { name: "Associate Push" },
-      { name: "Designated Account Officer" },
-    ],
-    color: "bg-[#DEE3FF]",
-  },
-  {
-    name: "Advance",
-    type: "Large",
-    price: "₦1,200,000",
-    duration: "1 year",
-    features: [
-      { name: "Unlimited Property Listings" },
-      { name: "Social Media Advert", value: 5 },
-      { name: "Sponsored Listing" },
-      { name: "Associate Push" },
-      { name: "Designated Account Officer" },
-    ],
-    color: "bg-[#FEDEFF]",
-  },
-]
+import { Plus } from "lucide-react"
+import { toast } from "sonner"
+import type { Package, CreatePackageDTO } from "@/types/package"
 
 const Subscriptions = () => {
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [editingPackage, setEditingPackage] = useState<Package | null>(null)
+
+  const queryClient = useQueryClient()
+
+  const packagesQuery = useQuery({
+    queryKey: ["packages"],
+    queryFn: packageService.getPackages,
+  })
+
+  const createPackageMutation = useMutation({
+    mutationFn: packageService.createPackage,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["packages"] })
+      toast.success("Package created successfully")
+      setShowAddForm(false)
+    },
+    onError: (error) => {
+      console.error("Error creating package:", error)
+      toast.error("Failed to create package")
+    },
+  })
+
+  const updatePackageMutation = useMutation({
+    mutationFn: ({ packageId, data }: { packageId: string; data: CreatePackageDTO }) =>
+      packageService.updatePackage(packageId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["packages"] })
+      toast.success("Package updated successfully")
+      setEditingPackage(null)
+    },
+    onError: (error) => {
+      console.error("Error updating package:", error)
+      toast.error("Failed to update package")
+    },
+  })
+
+  const handleCreateSubmit = (data: CreatePackageDTO) => {
+    createPackageMutation.mutate(data)
+  }
+
+  const handleUpdateSubmit = (data: CreatePackageDTO) => {
+    if (editingPackage) {
+      updatePackageMutation.mutate({ packageId: editingPackage.id, data })
+    }
+  }
+
+  const handleEdit = (pkg: Package) => {
+    setEditingPackage(pkg)
+    setShowAddForm(false)
+  }
+
+  const handleCancel = () => {
+    setShowAddForm(false)
+    setEditingPackage(null)
+  }
+
+  if (packagesQuery.isLoading) {
+    return (
+      <div className="p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">Subscriptions</h1>
+        </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      </div>
+    )
+  }
+
+  if (packagesQuery.isError) {
+    return (
+      <div className="p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">Subscriptions</h1>
+        </div>
+        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
+          Error loading subscription packages. Please try again later.
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="p-6">
-      <div className="mb-6">
+      <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Subscriptions</h1>
+        {!showAddForm && !editingPackage && (
+          <Button onClick={() => setShowAddForm(true)}>
+            <Plus className="h-4 w-4 mr-2" /> Add Package
+          </Button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {subscriptionPlans.map((plan, index) => (
-          <div key={index} className={`rounded-lg border ${plan.color} p-6`}>
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h2 className="text-xl font-bold">{plan.name}</h2>
-                <p className="text-gray-600">{plan.type}</p>
-              </div>
-              <Button variant="outline" size="sm" className="h-8 px-3">
-                <Edit className="h-4 w-4" />
-                <span className="ml-1">Edit</span>
-              </Button>
-            </div>
+      {showAddForm && (
+        <div className="mb-6">
+          <PackageForm
+            onSubmit={handleCreateSubmit}
+            onCancel={handleCancel}
+            isLoading={createPackageMutation.isPending}
+          />
+        </div>
+      )}
 
-            <div className="mb-6">
-              <h3 className="text-3xl font-bold">{plan.price}/</h3>
-              <p className="text-gray-600">{plan.duration}</p>
-            </div>
+      {editingPackage && (
+        <div className="mb-6">
+          <PackageForm
+            initialData={editingPackage}
+            onSubmit={handleUpdateSubmit}
+            onCancel={handleCancel}
+            isLoading={updatePackageMutation.isPending}
+          />
+        </div>
+      )}
 
-            <div className="mb-6">
-              <h4 className="font-medium mb-2">What's included:</h4>
-              <ul className="space-y-2">
-                {plan.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>
-                      {feature.name}
-                      {feature.value && ` ${feature.value}`}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <Button variant="outline" className="w-full">
-              <span>Subscribe</span>
-              <ArrowUpRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        ))}
-      </div>
+      {!showAddForm && !editingPackage && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {packagesQuery.data?.map((pkg) => (
+            <PackageCard key={pkg.id} package={pkg} onEdit={handleEdit} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
 export default Subscriptions
+
+

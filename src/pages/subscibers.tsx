@@ -1,132 +1,59 @@
 
-import { useState } from "react"
 import { DataTable } from "@/components/shared/data-table"
-import { Eye, Trash2 } from "lucide-react"
-
-interface Property {
-  id: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string
-  emailAddress: string
-  propertyType: string
-  location: string
-  status: "Active" | "Pending" | "In Progress"
-}
-
-const initialProperties: Property[] = [
-  {
-    id: "1",
-    firstName:"john",
-    lastName: "Stephani",
-    phoneNumber: "(308) 555-0121",
-    emailAddress: "alma@example.com",
-    propertyType: "Bungalow",
-    location: "Straight 22th London 51256",
-    status: "Active",
-  },
-  {
-    id: "2",
-    firstName:"Sanji",
-    lastName: "Fujiwara",
-    phoneNumber: "(225) 555-0118",
-    emailAddress: "jessica@example.com",
-    propertyType: "Apartment",
-    location: "Flat 2551 Center London 287223",
-    status: "Active",
-  },
-  {
-    id: "3",
-    firstName:"Ronald",
-    lastName: "Hawkins",
-    phoneNumber: "(405) 555-0128",
-    emailAddress: "debbie@example.com",
-    propertyType: "Duplex",
-    location: "Waves Street 1st London 2441",
-    status: "Pending",
-  },
-  {
-    id: "4",
-    firstName:"Ilham",
-    lastName: "Supriadi",
-    phoneNumber: "(252) 555-0126",
-    emailAddress: "georgia@example.com",
-    propertyType: "Apartment",
-    location: "Waves Street 1st London 2441",
-    status: "In Progress",
-  },
-  {
-    id: "5",
-    firstName:"Shane",
-    lastName: "Jr.",
-    phoneNumber: "(316) 555-0116",
-    emailAddress: "michelle@example.com",
-    propertyType: "Duplex",
-    location: "Corner Street 5th London 126623",
-    status: "In Progress",
-  },
-  {
-    id: "6",
-    firstName:"Philip",
-    lastName: "Yun-Yun",
-    phoneNumber: "(907) 555-0101",
-    emailAddress: "tanya@example.com",
-    propertyType: "Bungalow",
-    location: "Corner Street 5th London 126623",
-    status: "Pending",
-  },
-  {
-    id: "7",
-    firstName:"James",
-    lastName: " Witcwicky",
-    phoneNumber: "(684) 555-0102",
-    emailAddress: "michael@example.com",
-    propertyType: "Apartment",
-    location: "Flat 2551 Center London 287223",
-    status: "In Progress",
-  },
-]
+import {  Trash2, Loader2 } from "lucide-react"
+import  api  from "@/lib/api"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 const Subscribers = () => {
-  const [properties, setProperties] = useState<Property[]>(initialProperties)
-
-  const handleDelete = (property: Property) => {
-    setProperties(properties.filter((p) => p.id !== property.id))
+ // const [properties, setProperties] = useState<Property[]>(initialProperties)
+ const queryClient = useQueryClient()
+   const {data:subscribers, isLoading, isError} = useQuery({
+    queryKey: ["subscribers"],
+    queryFn: async () => {
+       const response = await api.get<{id:string,email:string}[]>("/emails/get-subscribption-emails")
+    return response.data || []
+    },
+   
+  })
+  const handleDelete = async(data:{email:string, id:string,isActive:boolean}) => {
+    if (!window.confirm("Are you sure you want to delete this subscriber?")) {
+      return
+    }
+     try{
+      const response = await api.post<{email:string,isActive:boolean}[]>(`/emails/update-subscription-email/${data?.id}`, {email:data.email, isActive:false})
+     toast('Email deleted Successfully')
+     queryClient.invalidateQueries({ queryKey: ["subscribers"] })
+    return response.data || []
+  }catch{
+    toast('Error deleting list. Please check your network or try again')
   }
-
-
-  const handleViewDetails = (property: Property) => {
-    console.log("View details:", property)
-    // Implement view details functionality
+    //setProperties(properties.filter((p) => p.id !== property.id))
   }
 
   
   const columns = [
+    // {
+    //   id: "firstName",
+    //   header: "First Name",
+    //   accessorKey: "firstName",
+    // },
+    // {
+    //   id: "lastName",
+    //   header: "Last Name",
+    //   accessorKey: "lastName",
+    // },
     {
-      id: "firstName",
-      header: "First Name",
-      accessorKey: "firstName",
-    },
-    {
-      id: "lastName",
-      header: "Last Name",
-      accessorKey: "lastName",
-    },
-    {
-      id: "emailAddress",
+      id: "email",
       header: "Email address",
-      accessorKey: "emailAddress",
+      accessorKey: "email",
     }
     
   ]
 
   const actionMenu = {
     items: [
-      {
-        label: "View details",
-        icon: <Eye className="h-4 w-4" />,
-        onClick: handleViewDetails,
-      },
+    
       {
         label: "Delete",
         icon: <Trash2 className="h-4 w-4" />,
@@ -142,14 +69,24 @@ const Subscribers = () => {
         <h1 className="text-2xl font-bold">Subscriber list</h1>
       </div>
 
-      <DataTable
+{isLoading ? (
+          <div className="flex justify-center items-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2">Loading all subscribers...</span>
+          </div>
+        ) : isError ? (
+          <div className="p-8 text-center text-red-500">Error loading emails. Please try again.</div>
+        ) : (
+             <DataTable
         columns={columns}
-        data={properties}
-        actionMenu={actionMenu}
-        pagination={{ pageSize: 10, totalItems: properties.length }}
+        data={!isLoading && subscribers ? subscribers : []}
+        actionMenu={ actionMenu}
+        pagination={{ pageSize: 10, totalItems: subscribers?.length }}
         searchable={true}
         selectable={true}
       />
+               )}
+     
     </div>
   )
 }

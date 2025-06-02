@@ -1,222 +1,224 @@
-import React from "react";
-import { DataTable, StatusBadge } from "@/components/ui/data-table"
+"use client"
 
-export type ExampleUser = {
-  id: string;
-  fullName: string;
-  email: string;
-  phoneNumber: string;
-  status: 'active' | 'inactive' | 'pending';
-  joined: string;
-};
+import { useState } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { DataTable } from "@/components/shared/data-table"
+import { Badge } from "@/components/ui/badge"
+import { Pencil, Trash2, Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { referAndEarnService, type ReferAndEarn } from "@/services/refer-and-earn-service"
+import { EditModal } from "@/components/refer-and-earn/edit-modal"
+import { DeleteConfirmation } from "@/components/refer-and-earn/delete-confirmation"
 
-// Sample data for the table
-const users: ExampleUser[] = [
-  {
-    id: "#001",
-    fullName: "Savannah Nguyen",
-    email: "bill.sanders@example.com",
-    phoneNumber: "(229) 555-0109",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#002",
-    fullName: "Bessie Cooper",
-    email: "deanna.curtis@example.com",
-    phoneNumber: "(209) 555-0104",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#003",
-    fullName: "Brooklyn Simmons",
-    email: "nathan.roberts@example.com",
-    phoneNumber: "(405) 555-0128",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#004",
-    fullName: "Jenny Wilson",
-    email: "jessica.hanson@example.com",
-    phoneNumber: "(907) 555-0101",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#005",
-    fullName: "Devon Lane",
-    email: "curtis.weaver@example.com",
-    phoneNumber: "(808) 555-0111",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#006",
-    fullName: "Dianne Russell",
-    email: "debra.holt@example.com",
-    phoneNumber: "(201) 555-0124",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#007",
-    fullName: "Esther Howard",
-    email: "georgia.young@example.com",
-    phoneNumber: "(217) 555-0113",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#008",
-    fullName: "Marvin McKinney",
-    email: "michelle.rivera@example.com",
-    phoneNumber: "(702) 555-0122",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#009",
-    fullName: "Jane Cooper",
-    email: "tanya.hill@example.com",
-    phoneNumber: "(208) 555-0112",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#010",
-    fullName: "Ralph Edwards",
-    email: "willie.jennings@example.com",
-    phoneNumber: "(302) 555-0107",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-];
+export default function ReferAndEarnPage() {
+  const queryClient = useQueryClient()
+  const [editingReferral, setEditingReferral] = useState<ReferAndEarn | null>(null)
+  const [deletingReferral, setDeletingReferral] = useState<ReferAndEarn | null>(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-export default function ReferAndEarn() {
-  const [pageIndex, setPageIndex] = React.useState(0);
-  const [pageSize] = React.useState(5);
-  const [sortField, setSortField] = React.useState<keyof ExampleUser | null>(null);
-  const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc' | null>(null);
-  
-  const handleSortChange = (field: keyof ExampleUser, direction: 'asc' | 'desc') => {
-    setSortField(field);
-    setSortDirection(direction);
-  };
-  
-  const handlePageChange = (page: number) => {
-    setPageIndex(page);
-  };
-  
-  // Example columns configuration
+  const {
+    data: referralData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["refer-and-earn"],
+    queryFn: () => referAndEarnService.getReferAndEarn(),
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const referrals = referralData?.results || []
+  const metadata = referralData?.metadata?.[0] || { total: 0, totalPages: 0 }
+
+  const updateMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: ({ id, data }: { id: string; data: any }) => referAndEarnService.updateReferAndEarn(id, data),
+    onSuccess: () => {
+      toast.success("Referral updated successfully")
+      queryClient.invalidateQueries({ queryKey: ["refer-and-earn"] })
+      setIsEditModalOpen(false)
+      setEditingReferral(null)
+    },
+    onError: () => {
+      toast.error("Failed to update referral")
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => referAndEarnService.updateReferAndEarn(id, { isActive: false }),
+    onSuccess: () => {
+      toast.success("Referral deleted successfully")
+      queryClient.invalidateQueries({ queryKey: ["refer-and-earn"] })
+      setIsDeleteDialogOpen(false)
+      setDeletingReferral(null)
+    },
+    onError: () => {
+      toast.error("Failed to delete referral")
+    },
+  })
+
+  const handleEdit = (referral: ReferAndEarn) => {
+    setEditingReferral(referral)
+    setIsEditModalOpen(true)
+  }
+
+  const handleDelete = (referral: ReferAndEarn) => {
+    setDeletingReferral(referral)
+    setIsDeleteDialogOpen(true)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSaveEdit = (id: string, data: any) => {
+    updateMutation.mutate({ id, data })
+  }
+
+  const handleConfirmDelete = () => {
+    if (deletingReferral) {
+      deleteMutation.mutate(deletingReferral.id)
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    const statusColors = {
+      Pending: "bg-yellow-100 text-yellow-800",
+      Approved: "bg-green-100 text-green-800",
+      Rejected: "bg-red-100 text-red-800",
+      "In Progress": "bg-blue-100 text-blue-800",
+    }
+
+    return (
+      <Badge className={statusColors[status as keyof typeof statusColors] || "bg-gray-100 text-gray-800"}>
+        {status}
+      </Badge>
+    )
+  }
+
   const columns = [
     {
       id: "id",
       header: "ID",
-      accessorKey: "id" as keyof ExampleUser,
-      sortable: true,
+      accessorKey: "id",
+      enableSorting: true,
     },
     {
       id: "fullName",
-      header: "Full name",
-      accessorKey: "fullName" as keyof ExampleUser,
-      sortable: true,
+      header: "Full Name",
+      accessorKey: "name",
+      cell: (row: ReferAndEarn ) => {
+        const { name } = row
+        return `${name.first} ${name.lastName}`
+      },
+      enableSorting: true,
     },
     {
       id: "email",
       header: "Email",
-      accessorKey: "email" as keyof ExampleUser,
-      sortable: true,
+      accessorKey: "email",
+      enableSorting: true,
     },
     {
       id: "phoneNumber",
-      header: "Phone number",
-      accessorKey: "phoneNumber" as keyof ExampleUser,
-      sortable: false,
+      header: "Phone Number",
+      accessorKey: "phoneNumber",
+      enableSorting: false,
+    },
+    {
+      id: "interestedService",
+      header: "Service",
+      accessorKey: "interestedService",
+      enableSorting: true,
     },
     {
       id: "status",
       header: "Status",
-      accessorKey: "status" as keyof ExampleUser,
-      cell: (row: ExampleUser) => <StatusBadge status={row.status} />,
-      sortable: true,
+      accessorKey: "status",
+      cell: (row: ReferAndEarn ) => getStatusBadge(row.status),
+      enableSorting: true,
     },
     {
-      id: "joined",
-      header: "Joined",
-      accessorKey: "joined" as keyof ExampleUser,
-      sortable: true,
-    },
-  ];
-  
-  // Sort and paginate data
-  const processedData = React.useMemo(() => {
-    const data = [...users];
-    
-    // Apply sorting
-    if (sortField && sortDirection) {
-      data.sort((a, b) => {
-        const aValue = a[sortField];
-        const bValue = b[sortField];
-        
-        if (aValue < bValue) {
-          return sortDirection === 'asc' ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortDirection === 'asc' ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    
-    // Return paginated data
-    return data.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
-  }, [users, pageIndex, pageSize, sortField, sortDirection]);
-  
-  
-  const actions = [
-    {
-      label: "View Details",
-      onClick: (user: ExampleUser) => {
-        alert(`View details for ${user.fullName}`);
+      id: "createdAt",
+      header: "Created",
+      accessorKey: "createdAt",
+      cell: ( row: ReferAndEarn) => {
+        return new Date(row.createdAt).toLocaleDateString()
       },
+      enableSorting: true,
     },
     {
-      label: "Edit",
-      onClick: (user: ExampleUser) => {
-        alert(`Edit ${user.fullName}`);
-      },
+      id: "action",
+      header: "",
+      accessorKey: "id",
+      cell: () => null,
     },
-    {
-      label: "Delete",
-      onClick: (user: ExampleUser) => {
-        alert(`Delete ${user.fullName}`);
+  ]
+
+  const actionMenu = {
+    items: [
+     
+      {
+        label: "Edit",
+        icon: <Pencil className="h-4 w-4" />,
+        onClick: handleEdit,
       },
-    },
-  ];
-  
+      {
+        label: "Delete",
+        icon: <Trash2 className="h-4 w-4" />,
+        onClick: handleDelete,
+        className: "text-red-600",
+      },
+    ],
+  }
+
   return (
-    <div className="w-full p-3 md:p-6 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-semibold mb-6">Refer and Earn</h2>
-      <DataTable
-        data={processedData}
-        columns={columns}
-        pagination={{
-          pageSize,
-          pageIndex,
-          pageCount: Math.ceil(users.length / pageSize),
-          onPageChange: handlePageChange,
+    <div className="p-6 max-w-full">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Refer and Earn</h1>
+       
+      </div>
+
+      <div className="bg-white rounded-lg border overflow-hidden">
+        {isLoading ? (
+          <div className="flex justify-center items-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2">Loading Referrals...</span>
+          </div>
+        ) : isError ? (
+          <div className="p-8 text-center text-red-500">Error loading referrals. Please try again.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <DataTable
+              columns={columns}
+              data={referrals}
+              actionMenu={actionMenu}
+              pagination={{ pageSize: 10, totalItems: metadata.total }}
+              searchable={true}
+              selectable={true}
+            />
+          </div>
+        )}
+      </div>
+
+      <EditModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setEditingReferral(null)
         }}
-        sorting={{
-          field: sortField,
-          direction: sortDirection,
-          onSortChange: handleSortChange,
+        referral={editingReferral}
+        onSave={handleSaveEdit}
+        isLoading={updateMutation.isPending}
+      />
+
+      <DeleteConfirmation
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false)
+          setDeletingReferral(null)
         }}
-        searchable
-        selectable
-        actions={actions}
+        referral={deletingReferral}
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
       />
     </div>
-  );
+  )
 }

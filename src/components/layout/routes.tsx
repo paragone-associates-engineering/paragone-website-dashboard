@@ -15,8 +15,10 @@ import JoinUs from "@/pages/join-us"
 import Login from "@/pages/auth/login"
 import RegionPage from "@/pages/region"
 import BlogPage from "@/pages/blog"
+import EditBlogPage from "@/pages/blog/edit"
 import CareerPage from "@/pages/career"
 import AddJobPage from "@/pages/career/add"
+import EditJobPage from "@/pages/career/edit"
 import PartnerWithUsPage from "@/pages/partner/type"
 import AddPropertyPage from "@/pages/property/add"
 import CreateBlog from "@/pages/blog/create"
@@ -28,13 +30,17 @@ import PropertyManagementPage from "@/pages/property/management"
 import Subscribers from "@/pages/subscibers"
 import PropertyRequestPage from "@/pages/property/request"
 import ReviewsPage from "@/pages/reviews"
+import UnauthorizedPage from "@/pages/auth/unauthorized"
+import ProtectedRoute from "@/components/layout/protected-routes"
 
 const AppRoutes = () => {
   
   return (
     <Routes>
-    <Route path="/" element={<Dashboard />} />
     <Route path="/login" element={<Login />} />
+     <Route path="/unauthorized" element={<UnauthorizedPage />} />
+     <Route element={<ProtectedRoute />}>
+     <Route path="/" element={<Dashboard />} />
     <Route path="/inspection-bookings" element={<InspectionBookings />} />
     <Route path="/inspection/list" element={<InspectionBookings />} />
     <Route path="/users/profile" element={<UserProfile />} />
@@ -58,8 +64,10 @@ const AppRoutes = () => {
       <Route path="/notification/all" element={<NotificationPage />} />
       <Route path="/blog/list" element={<BlogPage />} />
       <Route path="/blog/create" element={<CreateBlog />} />
+      <Route path="/blog/edit/:id" element={<EditBlogPage />} />
       <Route path="/career/list" element={<CareerPage />} />
       <Route path="/career/add" element={<AddJobPage />} />
+       <Route path="/career/edit/:id" element={<EditJobPage />} />
       <Route path="/partner/individual" element={<PartnerWithUsPage />} />
       <Route path="/reviews" element={<ReviewsPage />} />
       <Route path="/users" element={<UserManagementPage />} />
@@ -67,6 +75,7 @@ const AppRoutes = () => {
       <Route path="/advertising/list" element={<AdvertisingPage />} />
       <Route path="/contact/list" element={<ContactUsListPage />} />
       <Route path="/subscriber/list" element={<Subscribers />} />
+ </Route>
 
     {/* Redirect paths */}
     <Route path="/dashboard" element={<Navigate to="/" replace />} />

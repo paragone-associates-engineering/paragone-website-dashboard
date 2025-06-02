@@ -1,287 +1,203 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState } from "react"
-import { DataTable, StatusBadge } from "@/components/shared/data-table"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, Pencil, Trash2 } from "lucide-react"
-import UserSearchForm from "@/components/shared/add-user"
-
-interface User {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  role: string
-  phoneNumber: string
-  designation: string
-  status?: string
-}
-
-const initialUsers: User[] = [
-  {
-    id: "1",
-    firstName: "Jane",
-    lastName: "Cooper",
-    email: "jane@microsoft.com",
-    role: "Super Admin",
-    phoneNumber: "(225) 555-0118",
-    designation: "CEO",
-    status: "Active",
-  },
-  {
-    id: "2",
-    firstName: "Floyd",
-    lastName: "Miles",
-    email: "floyd@yahoo.com",
-    role: "Accounts",
-    phoneNumber: "(205) 555-0100",
-    designation: "Sr. Accountant",
-    status: "Active",
-  },
-  {
-    id: "3",
-    firstName: "Ronald",
-    lastName: "Richards",
-    email: "ronald@adobe.com",
-    role: "Manager",
-    phoneNumber: "(302) 555-0107",
-    designation: "Manager",
-    status: "Active",
-  },
-  {
-    id: "4",
-    firstName: "Marvin",
-    lastName: "McKinney",
-    email: "marvin@tesla.com",
-    role: "Operator",
-    phoneNumber: "(252) 555-0126",
-    designation: "Executive",
-    status: "Active",
-  },
-]
-
-interface Permission {
-  id: string
-  name: string
-  view: boolean
-  add: boolean
-  edit: boolean
-  delete: boolean
-}
-
-const initialPermissions: Permission[] = [
-  {
-    id: "1",
-    name: "User management",
-    view: true,
-    add: true,
-    edit: true,
-    delete: true,
-  },
-  {
-    id: "2",
-    name: "Review management",
-    view: false,
-    add: true,
-    edit: true,
-    delete: true,
-  },
-  {
-    id: "3",
-    name: "Review management",
-    view: false,
-    add: true,
-    edit: true,
-    delete: true,
-  },
-  {
-    id: "4",
-    name: "Review management",
-    view: false,
-    add: true,
-    edit: true,
-    delete: true,
-  },
-]
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
+import { useAuth } from "@/context/auth-context"
+import { addUser, updateUser, deleteUser } from "@/services/user-service"
+import { getEmployees } from "@/services/employee-service"
+import UserList from "@/components/users/list"
+import UserForm from "@/components/users/form"
+import UserProfile from "@/components/users/profile"
+import { useNavigate } from "react-router-dom"
+//import UnauthorizedPage from "@/pages/auth/unauthorized"
+import { Modal } from "@/components/ui/modal"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import type { User, Permission } from "@/types/user"
 
 const UserManagementPage = () => {
-  const [users, setUsers] = useState<User[]>(initialUsers)
-  const [permissions, setPermissions] = useState<Permission[]>(initialPermissions)
+  const { hasPermission } = useAuth()
+  const queryClient = useQueryClient()
+const navigate = useNavigate()
  
-  const handlePermissionChange = (id: string, field: keyof Permission, value: boolean) => {
-    setPermissions(
-      permissions.map((permission) => (permission.id === id ? { ...permission, [field]: value } : permission)),
-    )
+  const isAdmin = hasPermission("user", "view")
+
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showViewModal, setShowViewModal] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+
+ 
+  const { data: selectedUserData, isLoading: isLoadingUser } = useQuery({
+    queryKey: ["user", selectedUserId],
+    queryFn: () => (selectedUserId ? getEmployees(Number(selectedUserId)) : null),
+    enabled: !!selectedUserId,
+  })
+
+  const addUserMutation = useMutation({
+    mutationFn: addUser,
+    onSuccess: () => {
+      toast.success("User added successfully")
+      setShowAddModal(false)
+      queryClient.invalidateQueries({ queryKey: ["users"] })
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to add user: ${error.message}`)
+    },
+  })
+
+  const updateUserMutation = useMutation({
+    mutationFn: ({ userId, data }: { userId: string; data: { employeeId: string; permissions: Permission[] } }) =>
+      updateUser(userId, data),
+    onSuccess: () => {
+      toast.success("User updated successfully")
+      setShowEditModal(false)
+      queryClient.invalidateQueries({ queryKey: ["users"] })
+      queryClient.invalidateQueries({ queryKey: ["user", selectedUserId] })
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to update user: ${error.message}`)
+    },
+  })
+
+  const deleteUserMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      toast.success("User deleted successfully")
+      setShowDeleteDialog(false)
+      queryClient.invalidateQueries({ queryKey: ["users"] })
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to delete user: ${error.message}`)
+    },
+  })
+
+  const handleAddUser = () => {
+    setShowAddModal(true)
   }
 
-  const handleDelete = (user: User) => {
-    setUsers(users.filter((u) => u.id !== user.id))
+  const handleViewUser = (user: User) => {
+    setSelectedUserId(user.id)
+    setShowViewModal(true)
   }
 
-  const handleEdit = (user: User) => {
-    console.log("Edit user:", user)
-    // Implement edit functionality
+  const handleEditUser = (user: User) => {
+    setSelectedUserId(user.id)
+    setShowEditModal(true)
   }
 
-  const handleViewProfile = (user: User) => {
-    console.log("View profile:", user)
-    // Implement view profile functionality
+  const handleDeleteUser = (user: User) => {
+    setSelectedUserId(user.id)
+    setShowDeleteDialog(true)
   }
 
-  const columns = [
-    {
-      id: "name",
-      header: "Users Name",
-      accessorKey: "name",
-      cell: (info: any) => `${info?.firstName} ${info?.lastName}`,
-    },
-    {
-      id: "role",
-      header: "Role",
-      accessorKey: "role",
-    },
-    {
-      id: "phoneNumber",
-      header: "Phone Number",
-      accessorKey: "phoneNumber",
-    },
-    {
-      id: "email",
-      header: "Email",
-      accessorKey: "email",
-    },
-    {
-      id: "designation",
-      header: "Designation",
-      accessorKey: "designation",
-    },
-    {
-      id: "status",
-      header: "Status",
-      accessorKey: "status",
-     
-      cell: (info: any) => info.status && <StatusBadge status={info.status} />,
-    },
-  ]
+  const handleAddSubmit = (data: { employeeId: string; permissions: Permission[] }) => {
+    addUserMutation.mutate(data)
+  }
 
-  const actionMenu = {
-    items: [
-      {
-        label: "View profile",
-        icon: <Eye className="h-4 w-4" />,
-        onClick: handleViewProfile,
-      },
-      {
-        label: "Edit user",
-        icon: <Pencil className="h-4 w-4" />,
-        onClick: handleEdit,
-      },
-      {
-        label: "Delete",
-        icon: <Trash2 className="h-4 w-4" />,
-        onClick: handleDelete,
-        className: "text-red-600",
-      },
-    ],
+  const handleEditSubmit = (data: { employeeId: string; permissions: Permission[] }) => {
+    if (selectedUserId) {
+      updateUserMutation.mutate({ userId: selectedUserId, data })
+    }
+  }
+
+  const confirmDelete = () => {
+    if (selectedUserId) {
+      deleteUserMutation.mutate(selectedUserId)
+    }
+  }
+
+ 
+  if (!isAdmin) {
+    navigate('/unauthorized')
   }
 
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Dashboard user</h1>
+        <h1 className="text-2xl font-bold">User Management</h1>
+        <p className="text-gray-500">Manage system users and their permissions</p>
       </div>
 
-      <div className="mb-6">
-        <div className="bg-white rounded-lg border">
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold">All user</h2>
+      <UserList
+        onViewUser={handleViewUser}
+        onEditUser={handleEditUser}
+        onDeleteUser={handleDeleteUser}
+        onAddUser={handleAddUser}
+      />
+
+     
+      <Modal title="Add New User" isOpen={showAddModal} onClose={() => setShowAddModal(false)}>
+        <UserForm
+          isLoading={addUserMutation.isPending}
+          onSubmit={handleAddSubmit}
+          onCancel={() => setShowAddModal(false)}
+        />
+      </Modal>
+
+     
+      <Modal title="Edit User" isOpen={showEditModal} onClose={() => setShowEditModal(false)}>
+        <UserForm
+          user={selectedUserData || undefined}
+          isLoading={updateUserMutation.isPending || isLoadingUser}
+          onSubmit={handleEditSubmit}
+          onCancel={() => setShowEditModal(false)}
+        />
+      </Modal>
+
+   
+      <Modal title="User Profile" isOpen={showViewModal} onClose={() => setShowViewModal(false)}>
+        <UserProfile
+          user={selectedUserData}
+          isLoading={isLoadingUser}
+          onClose={() => setShowViewModal(false)}
+          onEdit={() => {
+            setShowViewModal(false)
+            setShowEditModal(true)
+          }}
+        />
+      </Modal>
+
+      {/* <Modal title="Delete User" isOpen={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
+        <div className="p-4">
+          <p>Are you sure you want to delete this user? This action cannot be undone.</p>
+          <div className="flex justify-end mt-4">
+            <button
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              onClick={confirmDelete}
+              disabled={deleteUserMutation.isPending}
+            >
+              {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
+            </button>
           </div>
-
-          <DataTable
-            columns={columns}
-            data={users}
-            actionMenu={actionMenu}
-            pagination={{ pageSize: 10, totalItems: users.length }}
-            searchable={true}
-            selectable={false}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6">
-        <div className="bg-white rounded-lg border">
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold">Add user</h2>
-          </div>
-
-          
-          <UserSearchForm
-      existingUsers={initialUsers}
-      onAddUser={() => console.log('Added user')}
-      onCancel={() => console.log("Cancelled")}
-    />
-        </div>
-
-        <div className="bg-white rounded-lg border">
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold">User permission</h2>
-          </div>
-
-          <div className="p-6">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500"></th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">View</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">Add</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">Edit</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">Delete</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {permissions.map((permission) => (
-                    <tr key={permission.id} className="border-b">
-                      <td className="py-3 px-4">{permission.name}</td>
-                      <td className="py-3 px-4 text-center">
-                        <Checkbox
-                          checked={permission.view}
-                          onCheckedChange={(checked) =>
-                            handlePermissionChange(permission.id, "view", checked as boolean)
-                          }
-                        />
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <Checkbox
-                          checked={permission.add}
-                          onCheckedChange={(checked) =>
-                            handlePermissionChange(permission.id, "add", checked as boolean)
-                          }
-                        />
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <Checkbox
-                          checked={permission.edit}
-                          onCheckedChange={(checked) =>
-                            handlePermissionChange(permission.id, "edit", checked as boolean)
-                          }
-                        />
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <Checkbox
-                          checked={permission.delete}
-                          onCheckedChange={(checked) =>
-                            handlePermissionChange(permission.id, "delete", checked as boolean)
-                          }
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+        </div> */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the user and remove their data from our
+              servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
