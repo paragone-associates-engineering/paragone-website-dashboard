@@ -1,222 +1,271 @@
-import React from "react";
-import { DataTable, StatusBadge } from "@/components/ui/data-table"
 
-export type ExampleUser = {
-  id: string;
-  fullName: string;
-  email: string;
-  phoneNumber: string;
-  status: 'active' | 'inactive' | 'pending';
-  joined: string;
-};
+import { useState } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { DataTable } from "@/components/shared/data-table"
+import { Badge } from "@/components/ui/badge"
+import { Eye, Pencil, Trash2, RefreshCw, Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { joinUsService, type JoinUs } from "@/services/join-us-service"
+import { EditModal } from "@/components/join-us/edit-modal"
+import { StatusChangeModal } from "@/components/join-us/status-change"
+import { DeleteConfirmation } from "@/components/join-us/delete-confirmation"
 
-// Sample data for the table
-const users: ExampleUser[] = [
-  {
-    id: "#001",
-    fullName: "Savannah Nguyen",
-    email: "bill.sanders@example.com",
-    phoneNumber: "(229) 555-0109",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#002",
-    fullName: "Bessie Cooper",
-    email: "deanna.curtis@example.com",
-    phoneNumber: "(209) 555-0104",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#003",
-    fullName: "Brooklyn Simmons",
-    email: "nathan.roberts@example.com",
-    phoneNumber: "(405) 555-0128",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#004",
-    fullName: "Jenny Wilson",
-    email: "jessica.hanson@example.com",
-    phoneNumber: "(907) 555-0101",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#005",
-    fullName: "Devon Lane",
-    email: "curtis.weaver@example.com",
-    phoneNumber: "(808) 555-0111",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#006",
-    fullName: "Dianne Russell",
-    email: "debra.holt@example.com",
-    phoneNumber: "(201) 555-0124",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#007",
-    fullName: "Esther Howard",
-    email: "georgia.young@example.com",
-    phoneNumber: "(217) 555-0113",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#008",
-    fullName: "Marvin McKinney",
-    email: "michelle.rivera@example.com",
-    phoneNumber: "(702) 555-0122",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#009",
-    fullName: "Jane Cooper",
-    email: "tanya.hill@example.com",
-    phoneNumber: "(208) 555-0112",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-  {
-    id: "#010",
-    fullName: "Ralph Edwards",
-    email: "willie.jennings@example.com",
-    phoneNumber: "(302) 555-0107",
-    status: "active",
-    joined: "26 Mar 2022",
-  },
-];
+export default function JoinUsPage() {
+  const queryClient = useQueryClient()
+  const [editingEntry, setEditingEntry] = useState<JoinUs | null>(null)
+  const [statusChangeEntry, setStatusChangeEntry] = useState<JoinUs | null>(null)
+  const [deletingEntry, setDeletingEntry] = useState<JoinUs | null>(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-export default function JoinUs() {
-  const [pageIndex, setPageIndex] = React.useState(0);
-  const [pageSize] = React.useState(5);
-  const [sortField, setSortField] = React.useState<keyof ExampleUser | null>(null);
-  const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc' | null>(null);
-  
-  const handleSortChange = (field: keyof ExampleUser, direction: 'asc' | 'desc') => {
-    setSortField(field);
-    setSortDirection(direction);
-  };
-  
-  const handlePageChange = (page: number) => {
-    setPageIndex(page);
-  };
-  
-  // Example columns configuration
+  const {
+    data: joinUsEntries,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["join-us"],
+    queryFn: () => joinUsService.getJoinUs(),
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const entries = joinUsEntries || []
+
+  const updateMutation = useMutation({
+     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: ({ id, data }: { id: string; data: any }) => joinUsService.updateJoinUs(id, data),
+    onSuccess: () => {
+      toast.success("Entry updated successfully")
+      queryClient.invalidateQueries({ queryKey: ["join-us"] })
+      setIsEditModalOpen(false)
+      setIsStatusModalOpen(false)
+      setEditingEntry(null)
+      setStatusChangeEntry(null)
+    },
+    onError: () => {
+      toast.error("Failed to update entry")
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => joinUsService.updateJoinUs(id, { isActive: false }),
+    onSuccess: () => {
+      toast.success("Entry deleted successfully")
+      queryClient.invalidateQueries({ queryKey: ["join-us"] })
+      setIsDeleteDialogOpen(false)
+      setDeletingEntry(null)
+    },
+    onError: () => {
+      toast.error("Failed to delete entry")
+    },
+  })
+
+  const handleEdit = (entry: JoinUs) => {
+    setEditingEntry(entry)
+    setIsEditModalOpen(true)
+  }
+
+  const handleChangeStatus = (entry: JoinUs) => {
+    setStatusChangeEntry(entry)
+    setIsStatusModalOpen(true)
+  }
+
+  const handleDelete = (entry: JoinUs) => {
+    setDeletingEntry(entry)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const handleViewDetails = (entry: JoinUs) => {
+    toast.info(`Viewing details for ${entry.name.first} ${entry.name.lastName}`)
+  }
+ // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSaveEdit = (id: string, data: any) => {
+    updateMutation.mutate({ id, data })
+  }
+
+  const handleSaveStatus = (id: string, status: string) => {
+    updateMutation.mutate({ id, data: { status } })
+  }
+
+  const handleConfirmDelete = () => {
+    if (deletingEntry) {
+      deleteMutation.mutate(deletingEntry.id)
+    }
+  }
+
+  const getStatusBadge = (status?: string) => {
+    const statusColors = {
+      Pending: "bg-yellow-100 text-yellow-800",
+      Approved: "bg-green-100 text-green-800",
+      Rejected: "bg-red-100 text-red-800",
+      "In Review": "bg-blue-100 text-blue-800",
+      Contacted: "bg-purple-100 text-purple-800",
+    }
+
+    const displayStatus = status || "Pending"
+
+    return (
+      <Badge className={statusColors[displayStatus as keyof typeof statusColors] || "bg-gray-100 text-gray-800"}>
+        {displayStatus}
+      </Badge>
+    )
+  }
+
   const columns = [
     {
       id: "id",
       header: "ID",
-      accessorKey: "id" as keyof ExampleUser,
-      sortable: true,
+      accessorKey: "id",
+      enableSorting: true,
     },
     {
       id: "fullName",
-      header: "Full name",
-      accessorKey: "fullName" as keyof ExampleUser,
-      sortable: true,
+      header: "Full Name",
+      accessorKey: "name",
+      cell: ( row: JoinUs ) => {
+        return `${row.name.first} ${row.name.lastName}`
+      },
+      enableSorting: true,
     },
     {
       id: "email",
       header: "Email",
-      accessorKey: "email" as keyof ExampleUser,
-      sortable: true,
+      accessorKey: "email",
+      enableSorting: true,
     },
     {
       id: "phoneNumber",
-      header: "Phone number",
-      accessorKey: "phoneNumber" as keyof ExampleUser,
-      sortable: false,
+      header: "Phone Number",
+      accessorKey: "phoneNumber",
+      enableSorting: false,
+    },
+    {
+      id: "location",
+      header: "Location",
+      accessorKey: "location",
+      enableSorting: true,
+    },
+    {
+      id: "participation",
+      header: "Participation",
+      accessorKey: "participation",
+      cell: ( row: JoinUs ) => {
+        const participation = row.participation
+        return participation.length > 30 ? `${participation.substring(0, 30)}...` : participation
+      },
+      enableSorting: false,
     },
     {
       id: "status",
       header: "Status",
-      accessorKey: "status" as keyof ExampleUser,
-      cell: (row: ExampleUser) => <StatusBadge status={row.status} />,
-      sortable: true,
+      accessorKey: "status",
+      cell: ( row: JoinUs ) => getStatusBadge(row.status),
+      enableSorting: true,
     },
     {
-      id: "joined",
+      id: "createdAt",
       header: "Joined",
-      accessorKey: "joined" as keyof ExampleUser,
-      sortable: true,
-    },
-  ];
-  
-  // Sort and paginate data
-  const processedData = React.useMemo(() => {
-    const data = [...users];
-    
-    // Apply sorting
-    if (sortField && sortDirection) {
-      data.sort((a, b) => {
-        const aValue = a[sortField];
-        const bValue = b[sortField];
-        
-        if (aValue < bValue) {
-          return sortDirection === 'asc' ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortDirection === 'asc' ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    
-    // Return paginated data
-    return data.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
-  }, [users, pageIndex, pageSize, sortField, sortDirection]);
-  
-  // Example actions for the table
-  const actions = [
-    {
-      label: "View Details",
-      onClick: (user: ExampleUser) => {
-        alert(`View details for ${user.fullName}`);
+      accessorKey: "createdAt",
+      cell: ( row: JoinUs ) => {
+        return new Date(row.createdAt).toLocaleDateString()
       },
+      enableSorting: true,
     },
     {
-      label: "Edit",
-      onClick: (user: ExampleUser) => {
-        alert(`Edit ${user.fullName}`);
-      },
+      id: "action",
+      header: "",
+      accessorKey: "id",
+      cell: () => null,
     },
-    {
-      label: "Delete",
-      onClick: (user: ExampleUser) => {
-        alert(`Delete ${user.fullName}`);
+  ]
+
+  const actionMenu = {
+    items: [
+      {
+        label: "View Details",
+        icon: <Eye className="h-4 w-4" />,
+        onClick: handleViewDetails,
       },
-    },
-  ];
-  
+      {
+        label: "Edit",
+        icon: <Pencil className="h-4 w-4" />,
+        onClick: handleEdit,
+      },
+      {
+        label: "Change Status",
+        icon: <RefreshCw className="h-4 w-4" />,
+        onClick: handleChangeStatus,
+      },
+      {
+        label: "Delete",
+        icon: <Trash2 className="h-4 w-4" />,
+        onClick: handleDelete,
+        className: "text-red-600",
+      },
+    ],
+  }
+
   return (
-    <div className="w-full p-6 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-semibold mb-6">Join Us</h2>
-      <DataTable
-        data={processedData}
-        columns={columns}
-        pagination={{
-          pageSize,
-          pageIndex,
-          pageCount: Math.ceil(users.length / pageSize),
-          onPageChange: handlePageChange,
+    <div className="p-6 max-w-full">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Join Us</h1>
+       
+      </div>
+
+      <div className="bg-white rounded-lg border overflow-hidden">
+        {isLoading ? (
+          <div className="flex justify-center items-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2">Loading Entries...</span>
+          </div>
+        ) : isError ? (
+          <div className="p-8 text-center text-red-500">Error loading entries. Please try again.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <DataTable
+              columns={columns}
+              data={entries}
+              actionMenu={actionMenu}
+              pagination={{ pageSize: 10, totalItems: entries.length }}
+              searchable={true}
+              selectable={true}
+            />
+          </div>
+        )}
+      </div>
+
+      <EditModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setEditingEntry(null)
         }}
-        sorting={{
-          field: sortField,
-          direction: sortDirection,
-          onSortChange: handleSortChange,
+        joinUsEntry={editingEntry}
+        onSave={handleSaveEdit}
+        isLoading={updateMutation.isPending}
+      />
+
+      <StatusChangeModal
+        isOpen={isStatusModalOpen}
+        onClose={() => {
+          setIsStatusModalOpen(false)
+          setStatusChangeEntry(null)
         }}
-        searchable
-        selectable
-        actions={actions}
+        joinUsEntry={statusChangeEntry}
+        onSave={handleSaveStatus}
+        isLoading={updateMutation.isPending}
+      />
+
+      <DeleteConfirmation
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false)
+          setDeletingEntry(null)
+        }}
+        joinUsEntry={deletingEntry}
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
       />
     </div>
-  );
+  )
 }

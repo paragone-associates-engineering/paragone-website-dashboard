@@ -6,13 +6,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Link } from "react-router-dom"
+import { useAuth } from "@/context/auth-context"
+import { getInitials } from "@/utils/initials"
 
 interface NavbarProps {
   children?: React.ReactNode
-  handleLogOut: () => void
+  
 }
 
-const Navbar = ({ children, handleLogOut }: NavbarProps) => {
+const Navbar = ({ children}: NavbarProps) => {
+  const { user } = useAuth()
+  //console.log(user)
+  const handleLogOut = () => {
+    console.log('logout')
+  }
   return (
     <header className="sticky top-0 z-30 flex h-20 py-4 items-center justify-between border-b bg-white px-4 md:px-6 w-full">
       <div className="flex items-center">
@@ -51,14 +58,14 @@ const Navbar = ({ children, handleLogOut }: NavbarProps) => {
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="/placeholder.svg" alt="Erwin Smith" />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarFallback>{getInitials(`${user?.firstName} ${user?.lastName}`)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <div className="flex items-center justify-start gap-2 p-2">
                 <div className="flex flex-col space-y-1 leading-none">
-                  <p className="font-medium">Jane Doe</p>
+                  <p className="font-medium capitalize">{user?.firstName} {user?.lastName}</p>
                   <p className="text-sm text-muted-foreground">Super Admin</p>
                 </div>
               </div>
