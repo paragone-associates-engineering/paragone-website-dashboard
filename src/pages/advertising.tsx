@@ -43,8 +43,8 @@ export default function AdvertisingPage() {
     staleTime: 1000 * 60 * 5,
   })
 
-  const ads = adsData || []
-  const metadata = adsData?.metadata?.[0] || { total: 0, totalPages: 0 }
+  //const ads = adsData || []
+  const metadata = { total: Array.isArray(adsData) ? adsData.length : 0, totalPages: 0 }
 
   const createMutation = useMutation({
     mutationFn: (data: AdFormData) => adsService.createAd(data),
@@ -244,7 +244,7 @@ export default function AdvertisingPage() {
             <div className="overflow-x-auto">
               <DataTable
                 columns={columns}
-                data={ads}
+                data={!isLoading && adsData ? adsData : []}
                 actionMenu={actionMenu}
                 pagination={{ pageSize: 10, totalItems: metadata.total }}
                 searchable={true}

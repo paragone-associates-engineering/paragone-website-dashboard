@@ -60,7 +60,8 @@ export interface AdFormData {
 
 export const adsService = {
   getAds: async (params?: { page?: number; limit?: number; search?: string }) => {
-    const response = await api.get<AdsResponse>("/ads/get-ads", { params })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response = await api.get<any>("/ads/get-ads", { params })
     return response.data
   },
 
