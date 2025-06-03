@@ -15,16 +15,24 @@ interface NavbarProps {
 }
 
 const Navbar = ({ children}: NavbarProps) => {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   //console.log(user)
-  const handleLogOut = () => {
-    console.log('logout')
+  const handleLogOut = async() => {
+   await logout();
   }
+
+   const getTimeGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
+
   return (
     <header className="sticky top-0 z-30 flex h-20 py-4 items-center justify-between border-b bg-white px-4 md:px-6 w-full">
       <div className="flex items-center">
         {children}
-        <h1 className="ml-14 lg:ml-2 text-xl font-semibold">Dashboard</h1>
+        <h1 className="ml-14 lg:ml-2 text-xl font-semibold"> {getTimeGreeting()}, {user?.firstName}</h1>
       </div>
       <div className="flex items-center gap-4">
         <div className="relative hidden md:block">

@@ -24,7 +24,7 @@ export const reviewService = {
 
   updateReview: async (reviewId: string, reviewData: UpdateReviewDTO) => {
     try {
-      const response = await api.patch<Review>(`/gsuite/update-review/${reviewId}`, reviewData)
+      const response = await api.post<Review>(`/gsuite/update-review/${reviewId}`, reviewData)
       return response.data
     } catch (error) {
       console.error("Error updating review:", error)

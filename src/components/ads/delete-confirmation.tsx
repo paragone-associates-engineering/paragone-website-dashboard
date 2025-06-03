@@ -1,31 +1,28 @@
 
 import { Loader2 } from "lucide-react"
-import type { PropertyRequest } from "@/services/property-request-service"
 import { Modal } from "../ui/modal"
 import { Button } from "../ui/button"
+
+import type { Ad } from "@/services/ads-service"
 
 interface DeleteConfirmationProps {
   isOpen: boolean
   onClose: () => void
-  property: PropertyRequest | null
+  ad: Ad | null
   onConfirm: () => void
   isLoading: boolean
 }
 
-export function DeleteConfirmation({ isOpen, onClose, property, onConfirm, isLoading }: DeleteConfirmationProps) {
-  if (!property) return null
-
+export function DeleteConfirmation({ isOpen, onClose, ad, onConfirm, isLoading }: DeleteConfirmationProps) {
+  if (!ad) return null
   return (
-   <Modal isOpen={isOpen} title='Delete Request' onClose={onClose}>
+   <Modal isOpen={isOpen} title='Delete user' onClose={onClose}>
          <div className='p-5'>
            <div>
              <h2 className='text-xl font-bold mb-3'>Are you sure?</h2>
           <div>
-            This will deactivate the property management request for{" "}
-            <span className="font-semibold">
-              {property.name.first} {property.name.lastName}
-            </span>
-            . This action cannot be undone.
+             This will permanently delete the advertisement <span className="font-semibold">"{ad.title}"</span>. This
+            action cannot be undone. This action cannot be undone.
           </div>
         </div>
          <div className='flex items-center justify-end gap-4 mt-4'>

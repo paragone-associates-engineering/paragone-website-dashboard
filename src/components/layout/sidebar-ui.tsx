@@ -3,7 +3,6 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard,
   Home,
-  Users,
   MessageSquare,
   MapPin,
   UserCircle,
@@ -68,11 +67,11 @@ const Sidebar = ({collapsed, setCollapsed}:{collapsed: boolean, setCollapsed: (v
         { label: 'Property management', path: '/property/management' },
       ] 
     },
-    { icon: <Users size={20} />, label: 'Customer', path: '/customer',
-      submenu: [
-        { label: 'Customers list', path: '/customer/list' },
-      ] 
-    },
+    // { icon: <Users size={20} />, label: 'Customer', path: '/customer',
+    //   submenu: [
+    //     { label: 'Customers list', path: '/customer/list' },
+    //   ] 
+    // },
     { icon: <MessageSquare size={20} />, label: 'Testimonials', path: '/testimonials',
       submenu: [
         { label: 'All testimonials', path: '/reviews' },

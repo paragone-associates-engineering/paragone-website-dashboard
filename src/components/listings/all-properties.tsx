@@ -4,15 +4,14 @@ import {useNavigate} from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { DataTable } from "@/components/shared/data-table"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Eye, Pencil, Trash2, RefreshCw, Loader2, Home, CheckCircle } from "lucide-react"
+import { Eye, Pencil, Trash2, RefreshCw, Loader2} from "lucide-react"
 import { toast } from "sonner"
 import { listingsService, type Listing } from "@/services/listings-service"
 import { StatusChangeModal } from "@/components/listings/status-change"
 //import { ViewDetailsModal } from "@/components/listings/view-details-modal"
 import { DeleteConfirmation } from "@/components/listings/delete-confirmation"
 
-export default function PropertyListingPage() {
+export default function PropertyListings() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [statusChangeListing, setStatusChangeListing] = useState<Listing | null>(null)
@@ -21,20 +20,14 @@ export default function PropertyListingPage() {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
   //const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
-  const [searchQuery, setSearchQuery] = useState("")
+
   const {
     data: listingsData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: ["listings"],
-    queryFn: () => listingsService.getListings({
-        page: currentPage,
-      limit: pageSize,
-      searchString: searchQuery || undefined
-    }),
+    queryFn: () => listingsService.getListings(),
     staleTime: 1000 * 60 * 5,
   })
 
@@ -87,20 +80,6 @@ const [currentPage, setCurrentPage] = useState(1)
     if (deletingListing) {
       updateMutation.mutate({ id: deletingListing.id, data: { isActive: false } })
     }
-  }
-
-   const handlePageChange = (page: number, newPageSize: number) => {
-    setCurrentPage(page)
-    if (newPageSize !== pageSize) {
-      setPageSize(newPageSize)
-      setCurrentPage(1) 
-    }
-  }
-
-  
-  const handleSearch = (query: string) => {
-    setSearchQuery(query)
-    setCurrentPage(1)
   }
 
   const formatNumber = (num: number) => {
@@ -242,40 +221,11 @@ const [currentPage, setCurrentPage] = useState(1)
     ],
   }
 
-  const activeListings = listings.filter((listing) => listing.isActive).length
+  //const activeListings = listings.filter((listing) => listing.isActive).length
 
   return (
-    <div className="p-6 lg:max-w-[980px] 2xl:max-w-full">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Property Listing</h1>
-      </div>
-
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <Card>
-          <CardContent className="p-6 flex items-center">
-            <div className="flex-1">
-              <h2 className="text-4xl font-bold">{metadata.total}</h2>
-              <p className="text-gray-500">Total Properties</p>
-            </div>
-            <div className="bg-gray-100 p-4 rounded-full">
-              <Home className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 flex items-center">
-            <div className="flex-1">
-              <h2 className="text-4xl font-bold">{activeListings}</h2>
-              <p className="text-gray-500">Active Properties</p>
-            </div>
-            <div className="bg-gray-100 p-4 rounded-full">
-              <CheckCircle className="h-6 w-6 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
+    <div className="">
+     
       <div className="bg-white rounded-lg border overflow-hidden">
         {isLoading ? (
           <div className="flex justify-center items-center p-8">
@@ -290,17 +240,9 @@ const [currentPage, setCurrentPage] = useState(1)
               columns={columns}
               data={listings}
               actionMenu={actionMenu}
-             pagination={{
-                  pageSize: pageSize,
-                  totalItems: metadata.total,
-                  initialPage: currentPage,
-                  serverSide: true,
-                  onPageChange: handlePageChange,
-                }}
-                searchable={true}
-                selectable={true}
-                onSearch={handleSearch}
-                loading={isLoading}
+              pagination={{ pageSize: 10, totalItems: metadata.total }}
+              searchable={true}
+              selectable={true}
             />
           </div>
         )}

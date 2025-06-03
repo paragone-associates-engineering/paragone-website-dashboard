@@ -6,7 +6,7 @@ import Navbar from "./navbar"
 import Sidebar from "./sidebar-ui"
 import { useAuth } from "@/context/auth-context"
 import { useLocation } from "react-router-dom"
-
+import { TokenValidator } from "../auth/token-validator"
 interface LayoutProps {
   children: React.ReactNode
 }
@@ -28,7 +28,7 @@ const Layout = ({ children }: LayoutProps) => {
       <main className={`${collapsed ? 'lg:ml-[100px]' : 'lg:ml-[250px]'} w-full mx-auto`}>
         <Navbar />
           <div className={`${collapsed ? 'max-w-[1150px]' : 'max-w-[1010px]' } 2xl:max-w-[1300px] xl:pl-5`}>
-          {children}
+<TokenValidator>{children}</TokenValidator>
           </div>
       </main>
     </div>

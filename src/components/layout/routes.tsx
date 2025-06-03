@@ -26,6 +26,7 @@ import UserManagementPage from "@/pages/users/management"
 import AdvertisingPage from "@/pages/advertising"
 import ContactUsListPage from "@/pages/contact-list"
 import PropertyDetailPage from "@/pages/property/details"
+import EditPropertyPage from "@/pages/property/edit"
 import PropertyManagementPage from "@/pages/property/management"
 import Subscribers from "@/pages/subscibers"
 import PropertyRequestPage from "@/pages/property/request"
@@ -53,6 +54,7 @@ const AppRoutes = () => {
     <Route path="/property" element={<PropertyListing />} />
       <Route path="/property/list" element={<PropertyListing />} />
       <Route path="/property/detail/:id" element={<PropertyDetailPage />} />
+      <Route path="/property/edit/:id" element={<EditPropertyPage />} />
       <Route path="/property/management" element={<PropertyManagementPage />} />
       <Route path="/property-request/list" element={<PropertyRequestPage />} />
       <Route path="/property/add" element={<AddPropertyPage />} />
