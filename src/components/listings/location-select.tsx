@@ -18,15 +18,19 @@ interface LocationSelectProps {
 export function LocationSelect({ value, onChange, label = "Location", required = false }: LocationSelectProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [isOpen, setIsOpen] = useState(false)
-
+// const [currentPage, setCurrentPage] = useState(1)
+//   const pageSize, setPageSize] = useState(10)
   const {
     data: regionsData,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["regions", searchTerm],
-    queryFn: () => listingsService.getRegions({ search: searchTerm }),
-    staleTime: 1000 * 60 * 5,
+     queryKey: ["regions",searchTerm],
+        queryFn: () => listingsService.getRegions({
+          searchString: searchTerm || undefined
+        }),
+        staleTime: 1000 * 60 * 5,
+   
   })
 
   const regions = regionsData?.results || []

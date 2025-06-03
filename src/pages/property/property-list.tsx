@@ -21,14 +21,20 @@ export default function PropertyListingPage() {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
   //const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-
+const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [searchQuery, setSearchQuery] = useState("")
   const {
     data: listingsData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: ["listings"],
-    queryFn: () => listingsService.getListings(),
+    queryFn: () => listingsService.getListings({
+        page: currentPage,
+      limit: pageSize,
+      searchString: searchQuery || undefined
+    }),
     staleTime: 1000 * 60 * 5,
   })
 
@@ -81,6 +87,20 @@ export default function PropertyListingPage() {
     if (deletingListing) {
       updateMutation.mutate({ id: deletingListing.id, data: { isActive: false } })
     }
+  }
+
+   const handlePageChange = (page: number, newPageSize: number) => {
+    setCurrentPage(page)
+    if (newPageSize !== pageSize) {
+      setPageSize(newPageSize)
+      setCurrentPage(1) 
+    }
+  }
+
+  
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    setCurrentPage(1)
   }
 
   const formatNumber = (num: number) => {
@@ -270,9 +290,17 @@ export default function PropertyListingPage() {
               columns={columns}
               data={listings}
               actionMenu={actionMenu}
-              pagination={{ pageSize: 10, totalItems: metadata.total }}
-              searchable={true}
-              selectable={true}
+             pagination={{
+                  pageSize: pageSize,
+                  totalItems: metadata.total,
+                  initialPage: currentPage,
+                  serverSide: true,
+                  onPageChange: handlePageChange,
+                }}
+                searchable={true}
+                selectable={true}
+                onSearch={handleSearch}
+                loading={isLoading}
             />
           </div>
         )}

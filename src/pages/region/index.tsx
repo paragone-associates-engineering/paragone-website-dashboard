@@ -1,4 +1,3 @@
-
 import type React from "react"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
@@ -16,22 +15,33 @@ const RegionPage = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
+  // Pagination and search state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [searchQuery, setSearchQuery] = useState("")
+
   const [formData, setFormData] = useState({
     country: "Nigeria",
     region: "",
     postalCode: "",
     city: "",
-    status:"active"
+    status: "active"
   })
 
   const {
     data: regionsData,
     isLoading,
     isError,
+    isFetching,
   } = useQuery({
-    queryKey: ["regions"],
-    queryFn: () => listingsService.getRegions(),
+    queryKey: ["regions", currentPage, pageSize, searchQuery],
+    queryFn: () => listingsService.getRegions({
+      page: currentPage,
+      limit: pageSize,
+      searchString: searchQuery || undefined
+    }),
     staleTime: 1000 * 60 * 5,
+   // keepPreviousData: true, // Keep previous data while fetching new data
   })
 
   const regions = regionsData?.results || []
@@ -49,7 +59,7 @@ const RegionPage = () => {
     onSuccess: () => {
       toast.success("Region created successfully")
       queryClient.invalidateQueries({ queryKey: ["regions"] })
-      setFormData({ country: "Nigeria", region: "", postalCode: "", city: "", status:"active" })
+      setFormData({ country: "Nigeria", region: "", postalCode: "", city: "", status: "active" })
     },
     onError: (error) => {
       console.error("Error creating region:", error)
@@ -64,7 +74,7 @@ const RegionPage = () => {
       queryClient.invalidateQueries({ queryKey: ["regions"] })
       setIsEditing(false)
       setEditingId(null)
-      setFormData({ country: "Nigeria", region: "", postalCode: "", city: "", status:"active" })
+      setFormData({ country: "Nigeria", region: "", postalCode: "", city: "", status: "active" })
     },
     onError: () => {
       toast.error("Failed to update region")
@@ -86,7 +96,7 @@ const RegionPage = () => {
           country: formData.country,
           postalCode: formData.postalCode,
           city: formData.city,
-         status:formData.status
+          status: formData.status
         },
       })
     } else {
@@ -95,7 +105,7 @@ const RegionPage = () => {
         country: formData.country,
         postalCode: formData.postalCode,
         city: formData.city,
-        status:formData.status
+        status: formData.status
       })
     }
   }
@@ -145,6 +155,21 @@ const RegionPage = () => {
     setEditingId(null)
   }
 
+  // Handle pagination change
+  const handlePageChange = (page: number, newPageSize: number) => {
+    setCurrentPage(page)
+    if (newPageSize !== pageSize) {
+      setPageSize(newPageSize)
+      setCurrentPage(1) 
+    }
+  }
+
+ 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    setCurrentPage(1) 
+  }
+
   const columns = [
     {
       id: "region",
@@ -168,8 +193,7 @@ const RegionPage = () => {
       id: "status",
       header: "Status",
       accessorKey: "status",
-      cell: (row:Region) => {
-      
+      cell: (row: Region) => {
         const currentStatus = row.status.toLowerCase()
 
         return (
@@ -238,7 +262,7 @@ const RegionPage = () => {
               <p className="text-sm text-gray-500">Total: {metadata.total} regions</p>
             </div>
 
-            {isLoading ? (
+            {isLoading && !isFetching ? (
               <div className="flex justify-center items-center p-8">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 <span className="ml-2">Loading Regions...</span>
@@ -250,9 +274,17 @@ const RegionPage = () => {
                 columns={columns}
                 data={regions}
                 actionMenu={actionMenu}
-                pagination={{ pageSize: 10, totalItems: metadata.total }}
+                pagination={{
+                  pageSize: pageSize,
+                  totalItems: metadata.total,
+                  initialPage: currentPage,
+                  serverSide: true,
+                  onPageChange: handlePageChange,
+                }}
                 searchable={true}
                 selectable={true}
+                onSearch={handleSearch}
+                loading={isFetching}
               />
             )}
           </div>
@@ -263,7 +295,7 @@ const RegionPage = () => {
             title={isEditing ? "Edit Region" : "Add Region"}
             onSubmit={handleSubmit}
             onCancel={handleCancel}
-            submitLabel={isEditing ? "Update Region" : "Create Region"}
+            submitLabel={isEditing ? "Update Region" : "Update Region"}
             isLoading={createRegionMutation.isPending || updateRegionMutation.isPending}
             className="w-full"
           >

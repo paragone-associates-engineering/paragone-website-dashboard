@@ -156,7 +156,7 @@ export interface RegionsResponse {
 }
 
 export const listingsService = {
-  getListings: async (params?: { page?: number; limit?: number; search?: string }) => {
+  getListings: async (params?: { page?: number; limit?: number; searchString?: string }) => {
     const response = await api.get<ListingsResponse>("/listings/get-listings", { params })
     return response.data
   },
@@ -219,12 +219,12 @@ updateListing: async (listingId: string, data: UpdateListingDTO) => {
   },
 
   // Region methods for location selection
-  getRegions: async (params?: { page?: number; limit?: number; search?: string }) => {
+  getRegions: async (params?: { page?: number; limit?: number; searchString?: string }) => {
     const response = await api.get<RegionsResponse>("/listings/get-locations", { params })
     return response.data
   },
  createRegion: async (data: CreateRegionDTO) => { 
-  const response = await api.post<Region>("/listings/create-locations", { locations: [data] }) 
+  const response = await api.post<Region>("/listings/create-location", data) 
  return response.data 
 },
 
