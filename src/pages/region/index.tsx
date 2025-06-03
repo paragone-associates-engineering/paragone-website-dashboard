@@ -1,4 +1,3 @@
-"use client"
 
 import type React from "react"
 import { useState } from "react"
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Pencil, Trash2, Loader2 } from "lucide-react"
 import { DataTable } from "@/components/shared/data-table"
 import { FormContainer, FormField } from "@/components/shared/form-container"
-import { listingService, type Region, type CreateRegionDTO, type UpdateRegionDTO } from "@/services/listings-service"
+import { listingsService, type Region, type CreateRegionDTO, type UpdateRegionDTO } from "@/services/listings-service"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
@@ -31,7 +30,7 @@ const RegionPage = () => {
     isError,
   } = useQuery({
     queryKey: ["regions"],
-    queryFn: () => listingService.getRegions(),
+    queryFn: () => listingsService.getRegions(),
     staleTime: 1000 * 60 * 5,
   })
 
@@ -45,7 +44,7 @@ const RegionPage = () => {
 
   const createRegionMutation = useMutation({
     mutationFn: (data: CreateRegionDTO) => {
-      return listingService.createRegion(data)
+      return listingsService.createRegion(data)
     },
     onSuccess: () => {
       toast.success("Region created successfully")
@@ -59,7 +58,7 @@ const RegionPage = () => {
   })
 
   const updateRegionMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateRegionDTO }) => listingService.updateRegion(id, data),
+    mutationFn: ({ id, data }: { id: string; data: UpdateRegionDTO }) => listingsService.updateRegion(id, data),
     onSuccess: () => {
       toast.success("Region updated successfully")
       queryClient.invalidateQueries({ queryKey: ["regions"] })

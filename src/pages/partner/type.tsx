@@ -1,222 +1,380 @@
 
 import { useState } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DataTable, StatusBadge } from "@/components/shared/data-table"
-import { Eye, Pencil, Trash2, Upload } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-interface Partner {
-  id: string
-  customerName: string
-  phoneNumber: string
-  emailAddress: string
-  propertyType: string
-  location: string
-  contactMethod: string
-  timeOfContact: string
-  whenSale: string
-  status: string
-}
+import { DataTable } from "@/components/shared/data-table"
+import { Badge } from "@/components/ui/badge"
+import { Eye, Pencil, Trash2, XCircle, Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { partnerService, type ConnectWithUs, type SellAsCompany } from "@/services/partner-service"
+import { IndividualStatusModal } from "@/components/partner/individual-status"
+import { CompanyStatusModal } from "@/components/partner/company-status"
+import { RejectionModal } from "@/components/partner/rejection-modal"
+import { DeleteConfirmation } from "@/components/partner/delete-confirmation"
 
-const initialPartners: Partner[] = [
-  {
-    id: "1",
-    customerName: "Stephani",
-    phoneNumber: "(308) 555-0121",
-    emailAddress: "alma@example.com",
-    propertyType: "Bungalow",
-    location: "Straight 22th London 51256",
-    contactMethod: "Call",
-    timeOfContact: "11:00AM",
-    whenSale: "1 month",
-    status: "Active",
-  },
-  {
-    id: "2",
-    customerName: "Sanji Fujiwara",
-    phoneNumber: "(225) 555-0118",
-    emailAddress: "jessica@example.com",
-    propertyType: "Apartment",
-    location: "Flat 2551 Center London 287223",
-    contactMethod: "Message",
-    timeOfContact: "10:00AM",
-    whenSale: "15 days",
-    status: "Active",
-  },
-  {
-    id: "3",
-    customerName: "Hawkins",
-    phoneNumber: "(405) 555-0128",
-    emailAddress: "debbie@example.com",
-    propertyType: "Duplex",
-    location: "Waves Street 1st London 2441",
-    contactMethod: "Email",
-    timeOfContact: "12:00PM",
-    whenSale: "20 days",
-    status: "Pending",
-  },
-  {
-    id: "4",
-    customerName: "Ilham Supriadi",
-    phoneNumber: "(252) 555-0126",
-    emailAddress: "georgia@example.com",
-    propertyType: "Apartment",
-    location: "Waves Street 1st London 2441",
-    contactMethod: "Rendy",
-    timeOfContact: "09:30AM",
-    whenSale: "3 months",
-    status: "In Progress",
-  },
-  {
-    id: "5",
-    customerName: "Samantha Jr.",
-    phoneNumber: "(316) 555-0116",
-    emailAddress: "michelle@example.com",
-    propertyType: "Duplex",
-    location: "Corner Street 5th London 126623",
-    contactMethod: "Message",
-    timeOfContact: "11:00AM",
-    whenSale: "2 months",
-    status: "In Progress",
-  },
-  {
-    id: "6",
-    customerName: "Yun-Yun",
-    phoneNumber: "(907) 555-0101",
-    emailAddress: "tanya@example.com",
-    propertyType: "Bungalow",
-    location: "Corner Street 5th London 126623",
-    contactMethod: "Call",
-    timeOfContact: "04:00PM",
-    whenSale: "15 days",
-    status: "Pending",
-  },
-  {
-    id: "7",
-    customerName: "James Witcwicky",
-    phoneNumber: "(684) 555-0102",
-    emailAddress: "michael@example.com",
-    propertyType: "Apartment",
-    location: "Flat 2551 Center London 287223",
-    contactMethod: "Email",
-    timeOfContact: "11:15AM",
-    whenSale: "1 month",
-    status: "In Progress",
-  },
-]
-
-const PartnerWithUsPage = () => {
-  const [partners, setPartners] = useState<Partner[]>(initialPartners)
+export default function PartnerWithUsPage() {
+  const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState("individual")
-  const [showAddPartner, setShowAddPartner] = useState(false)
-  const [newPartner, setNewPartner] = useState({
-    name: "",
-    type: "",
-    description: "",
-    logo: null as File | null,
+
+  const [statusChangeIndividual, setStatusChangeIndividual] = useState<ConnectWithUs | null>(null)
+  const [deletingIndividual, setDeletingIndividual] = useState<ConnectWithUs | null>(null)
+  const [isIndividualStatusModalOpen, setIsIndividualStatusModalOpen] = useState(false)
+  const [isIndividualDeleteDialogOpen, setIsIndividualDeleteDialogOpen] = useState(false)
+
+  const [statusChangeCompany, setStatusChangeCompany] = useState<SellAsCompany | null>(null)
+  const [rejectingCompany, setRejectingCompany] = useState<SellAsCompany | null>(null)
+  const [deletingCompany, setDeletingCompany] = useState<SellAsCompany | null>(null)
+  const [isCompanyStatusModalOpen, setIsCompanyStatusModalOpen] = useState(false)
+  const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false)
+  const [isCompanyDeleteDialogOpen, setIsCompanyDeleteDialogOpen] = useState(false)
+
+  const {
+    data: individualsData,
+    isLoading: individualsLoading,
+    isError: individualsError,
+  } = useQuery({
+    queryKey: ["connect-with-us"],
+    queryFn: () => partnerService.getConnectWithUs(),
+    staleTime: 1000 * 60 * 5,
   })
-  const handleDelete = (partner: Partner) => {
-    setPartners(partners.filter((p) => p.id !== partner.id))
+
+  const {
+    data: companiesData,
+    isLoading: companiesLoading,
+    isError: companiesError,
+  } = useQuery({
+    queryKey: ["sell-as-company"],
+    queryFn: () => partnerService.getSellAsCompany(),
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const individuals = individualsData?.results || []
+  const individualsMetadata = individualsData?.metadata?.[0] || { total: 0, totalPages: 0 }
+  const companies = Array.isArray(companiesData) ? companiesData : []
+
+ const updateIndividualMutation = useMutation({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: ({ id, data }: { id: string; data: any }) => partnerService.updateConnectWithUs(id, data),
+    onSuccess: () => {
+      toast.success("Individual request updated successfully")
+      queryClient.invalidateQueries({ queryKey: ["connect-with-us"] })
+      setIsIndividualStatusModalOpen(false)
+      setStatusChangeIndividual(null)
+    },
+    onError: () => {
+      toast.error("Failed to update individual request")
+    },
+  })
+
+  const deleteIndividualMutation = useMutation({
+    mutationFn: (id: string) => partnerService.updateConnectWithUs(id, { isActive: false }),
+    onSuccess: () => {
+      toast.success("Individual request deleted successfully")
+      queryClient.invalidateQueries({ queryKey: ["connect-with-us"] })
+      setIsIndividualDeleteDialogOpen(false)
+      setDeletingIndividual(null)
+    },
+    onError: () => {
+      toast.error("Failed to delete individual request")
+    },
+  })
+
+  // Company mutations
+  const updateCompanyMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: ({ id, data }: { id: string; data: any }) => partnerService.updateSellAsCompany(id, data),
+    onSuccess: () => {
+      toast.success("Company request updated successfully")
+      queryClient.invalidateQueries({ queryKey: ["sell-as-company"] })
+      setIsCompanyStatusModalOpen(false)
+      setStatusChangeCompany(null)
+    },
+    onError: () => {
+      toast.error("Failed to update company request")
+    },
+  })
+
+  const rejectCompanyMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: ({ id, data }: { id: string; data: any }) => partnerService.rejectSellAsCompany(id, data),
+    onSuccess: () => {
+      toast.success("Company application rejected successfully")
+      queryClient.invalidateQueries({ queryKey: ["sell-as-company"] })
+      setIsRejectionModalOpen(false)
+      setRejectingCompany(null)
+    },
+    onError: () => {
+      toast.error("Failed to reject company application")
+    },
+  })
+
+  const deleteCompanyMutation = useMutation({
+    mutationFn: (id: string) => partnerService.updateSellAsCompany(id, { isActive: false }),
+    onSuccess: () => {
+      toast.success("Company request deleted successfully")
+      queryClient.invalidateQueries({ queryKey: ["sell-as-company"] })
+      setIsCompanyDeleteDialogOpen(false)
+      setDeletingCompany(null)
+    },
+    onError: () => {
+      toast.error("Failed to delete company request")
+    },
+  })
+
+  // Individual handlers
+  const handleIndividualStatusChange = (individual: ConnectWithUs) => {
+    setStatusChangeIndividual(individual)
+    setIsIndividualStatusModalOpen(true)
   }
 
-  const handleEdit = (partner: Partner) => {
-    console.log("Edit partner:", partner)
-    // Implement edit functionality
+  const handleIndividualDelete = (individual: ConnectWithUs) => {
+    setDeletingIndividual(individual)
+    setIsIndividualDeleteDialogOpen(true)
   }
 
-  const handleView = (partner: Partner) => {
-    console.log("View partner:", partner)
-    // Implement view functionality
+  const handleIndividualView = (individual: ConnectWithUs) => {
+    toast.info(`Viewing details for ${individual.name.first} ${individual.name.lastName}`)
   }
 
-  const handleAddPartner = () => {
-    console.log("Adding partner:", newPartner)
-    setShowAddPartner(false)
-    setNewPartner({
-      name: "",
-      type: "",
-      description: "",
-      logo: null,
-    })
-   
+  // Company handlers
+  const handleCompanyStatusChange = (company: SellAsCompany) => {
+    setStatusChangeCompany(company)
+    setIsCompanyStatusModalOpen(true)
   }
-  const columns = [
+
+  const handleCompanyReject = (company: SellAsCompany) => {
+    setRejectingCompany(company)
+    setIsRejectionModalOpen(true)
+  }
+
+  const handleCompanyDelete = (company: SellAsCompany) => {
+    setDeletingCompany(company)
+    setIsCompanyDeleteDialogOpen(true)
+  }
+
+  const handleCompanyView = (company: SellAsCompany) => {
+    toast.info(`Viewing company details for ${company.email}`)
+  }
+
+  // Save handlers
+  const handleSaveIndividualStatus = (id: string, status: string) => {
+    updateIndividualMutation.mutate({ id, data: { status } })
+  }
+
+  const handleSaveCompanyStatus = (id: string, status: string) => {
+    updateCompanyMutation.mutate({ id, data: { status } })
+  }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSaveRejection = (id: string, data: any) => {
+    rejectCompanyMutation.mutate({ id, data })
+  }
+
+  const handleConfirmIndividualDelete = () => {
+    if (deletingIndividual) {
+      deleteIndividualMutation.mutate(deletingIndividual.id)
+    }
+  }
+
+  const handleConfirmCompanyDelete = () => {
+    if (deletingCompany) {
+      deleteCompanyMutation.mutate(deletingCompany.id)
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    const statusColors = {
+      Pending: "bg-yellow-100 text-yellow-800",
+      Approved: "bg-green-100 text-green-800",
+      Rejected: "bg-red-100 text-red-800",
+      "In Review": "bg-blue-100 text-blue-800",
+      Contacted: "bg-purple-100 text-purple-800",
+      Verified: "bg-green-100 text-green-800",
+    }
+
+    return (
+      <Badge className={statusColors[status as keyof typeof statusColors] || "bg-gray-100 text-gray-800"}>
+        {status}
+      </Badge>
+    )
+  }
+
+  // Individual columns
+  const individualColumns = [
     {
       id: "customerName",
-      header: "Customer name",
-      accessorKey: "customerName",
+      header: "Customer Name",
+      accessorKey: "name",
+      cell: ( row: ConnectWithUs ) => {
+        return `${row.name.first} ${row.name.lastName}`
+      },
       enableSorting: true,
     },
     {
       id: "phoneNumber",
-      header: "Phone number",
+      header: "Phone Number",
       accessorKey: "phoneNumber",
+      enableSorting: false,
     },
     {
-      id: "emailAddress",
-      header: "Email address",
-      accessorKey: "emailAddress",
+      id: "email",
+      header: "Email Address",
+      accessorKey: "email",
+      enableSorting: true,
     },
     {
       id: "propertyType",
-      header: "Property type",
+      header: "Property Type",
       accessorKey: "propertyType",
+      enableSorting: true,
     },
     {
-      id: "location",
-      header: "Location",
-      accessorKey: "location",
+      id: "address",
+      header: "Address",
+      accessorKey: "address",
+      enableSorting: true,
     },
     {
       id: "contactMethod",
-      header: "Contact method",
+      header: "Contact Method",
       accessorKey: "contactMethod",
+      enableSorting: true,
     },
     {
-      id: "timeOfContact",
-      header: "Time of contact",
-      accessorKey: "timeOfContact",
+      id: "contactTime",
+      header: "Contact Time",
+      accessorKey: "contactTime",
+      enableSorting: true,
     },
     {
-      id: "whenSale",
-      header: "When sale",
-      accessorKey: "whenSale",
+      id: "sellDate",
+      header: "Sell Date",
+      accessorKey: "sellDate",
+      enableSorting: true,
     },
     {
       id: "status",
       header: "Status",
       accessorKey: "status",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      cell: (info: any) => <StatusBadge status={info.status} />,
+      cell: ( row: ConnectWithUs ) => getStatusBadge(row.status),
+      enableSorting: true,
+    },
+    {
+      id: "action",
+      header: "",
+      accessorKey: "id",
+      cell: () => null,
     },
   ]
 
-  const actionMenu = {
+  // Company columns
+  const companyColumns = [
+    {
+      id: "email",
+      header: "Email",
+      accessorKey: "email",
+      enableSorting: true,
+    },
+    {
+      id: "phoneNumber",
+      header: "Phone Number",
+      accessorKey: "phoneNumber",
+      enableSorting: false,
+    },
+    {
+      id: "officeAddress",
+      header: "Office Address",
+      accessorKey: "officeAddress",
+      enableSorting: true,
+    },
+    {
+      id: "state",
+      header: "State",
+      accessorKey: "state",
+      enableSorting: true,
+    },
+    {
+      id: "country",
+      header: "Country",
+      accessorKey: "country",
+      enableSorting: true,
+    },
+    {
+      id: "contactMethod",
+      header: "Contact Method",
+      accessorKey: "contactMethod",
+      enableSorting: true,
+    },
+    {
+      id: "properties",
+      header: "Properties",
+      accessorKey: "properties",
+      cell: (row: SellAsCompany ) => row.properties.length,
+    },
+    {
+      id: "status",
+      header: "Status",
+      accessorKey: "status",
+      cell: (row: SellAsCompany ) => getStatusBadge(row.status),
+      enableSorting: true,
+    },
+    {
+      id: "action",
+      header: "",
+      accessorKey: "id",
+      cell: () => null,
+    },
+  ]
+
+  const individualActionMenu = {
     items: [
       {
         label: "View details",
         icon: <Eye className="h-4 w-4" />,
-        onClick: handleView,
+        onClick: handleIndividualView,
       },
       {
-        label: "Edit property",
+        label: "Change status",
         icon: <Pencil className="h-4 w-4" />,
-        onClick: handleEdit,
+        onClick: handleIndividualStatusChange,
       },
       {
         label: "Delete",
         icon: <Trash2 className="h-4 w-4" />,
-        onClick: handleDelete,
+        onClick: handleIndividualDelete,
+        className: "text-red-600",
+      },
+    ],
+  }
+
+  const companyActionMenu = {
+    items: [
+      {
+        label: "View details",
+        icon: <Eye className="h-4 w-4" />,
+        onClick: handleCompanyView,
+      },
+      {
+        label: "Change status",
+        icon: <Pencil className="h-4 w-4" />,
+        onClick: handleCompanyStatusChange,
+      },
+      {
+        label: "Reject",
+        icon: <XCircle className="h-4 w-4" />,
+        onClick: handleCompanyReject,
+        className: "text-orange-600",
+      },
+      {
+        label: "Delete",
+        icon: <Trash2 className="h-4 w-4" />,
+        onClick: handleCompanyDelete,
         className: "text-red-600",
       },
     ],
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 lg:max-w-[980px] 2xl:max-w-full overflow-x-hidden">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Partner With Us</h1>
       </div>
@@ -224,120 +382,119 @@ const PartnerWithUsPage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
           <TabsTrigger value="individual" className="flex-1">
-            Sell as an Individual
+            Sell as an Individual ({individualsMetadata.total})
           </TabsTrigger>
           <TabsTrigger value="company" className="flex-1">
-            Sell as a Company
+            Sell as a Company ({companies.length})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="individual">
-          <DataTable
-            columns={columns}
-            data={partners}
-            actionMenu={actionMenu}
-            pagination={{ pageSize: 10, totalItems: partners.length }}
-            searchable={true}
-            selectable={true}
-          />
+          <div className="bg-white rounded-lg border overflow-hidden">
+            {individualsLoading ? (
+              <div className="flex justify-center items-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="ml-2">Loading Individual Requests...</span>
+              </div>
+            ) : individualsError ? (
+              <div className="p-8 text-center text-red-500">Error loading individual requests. Please try again.</div>
+            ) : (
+              <div className="overflow-x-auto ">
+                <DataTable
+                  columns={individualColumns}
+                  data={individuals}
+                  actionMenu={individualActionMenu}
+                  pagination={{ pageSize: 10, totalItems: individualsMetadata.total }}
+                  searchable={true}
+                  selectable={true}
+                />
+              </div>
+            )}
+          </div>
         </TabsContent>
 
         <TabsContent value="company">
-          <DataTable
-            columns={columns}
-            data={partners.filter((p) => p.status === "Active")}
-            actionMenu={actionMenu}
-            pagination={{ pageSize: 10, totalItems: partners.filter((p) => p.status === "Active").length }}
-            searchable={true}
-            selectable={true}
-          />
+          <div className="bg-white rounded-lg border overflow-hidden">
+            {companiesLoading ? (
+              <div className="flex justify-center items-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="ml-2">Loading Company Requests...</span>
+              </div>
+            ) : companiesError ? (
+              <div className="p-8 text-center text-red-500">Error loading company requests. Please try again.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <DataTable
+                  columns={companyColumns}
+                  data={companies}
+                  actionMenu={companyActionMenu}
+                  pagination={{ pageSize: 10, totalItems: companies.length }}
+                  searchable={true}
+                  selectable={true}
+                />
+              </div>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
 
-      <Dialog open={showAddPartner} onOpenChange={setShowAddPartner}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Add partner</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6 py-4">
-            <div className="space-y-2">
-              <label htmlFor="partner-name" className="text-sm font-medium">
-                Partner name
-              </label>
-              <Input
-                id="partner-name"
-                placeholder="Affiliate or discount codes"
-                value={newPartner.name}
-                onChange={(e) => setNewPartner({ ...newPartner, name: e.target.value })}
-              />
-            </div>
+      {/* Individual Modals */}
+      <IndividualStatusModal
+        isOpen={isIndividualStatusModalOpen}
+        onClose={() => {
+          setIsIndividualStatusModalOpen(false)
+          setStatusChangeIndividual(null)
+        }}
+        individual={statusChangeIndividual}
+        onSave={handleSaveIndividualStatus}
+        isLoading={updateIndividualMutation.isPending}
+      />
 
-            <div className="space-y-2">
-              <label htmlFor="partner-type" className="text-sm font-medium">
-                Partner type
-              </label>
-              <Select value={newPartner.type} onValueChange={(value) => setNewPartner({ ...newPartner, type: value })}>
-                <SelectTrigger id="partner-type">
-                  <SelectValue placeholder="Select partner type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="affiliate">Affiliate</SelectItem>
-                  <SelectItem value="vendor">Vendor</SelectItem>
-                  <SelectItem value="reseller">Reseller</SelectItem>
-                  <SelectItem value="agency">Agency</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      {/* Company Modals */}
+      <CompanyStatusModal
+        isOpen={isCompanyStatusModalOpen}
+        onClose={() => {
+          setIsCompanyStatusModalOpen(false)
+          setStatusChangeCompany(null)
+        }}
+        company={statusChangeCompany}
+        onSave={handleSaveCompanyStatus}
+        isLoading={updateCompanyMutation.isPending}
+      />
 
-            <div className="space-y-2">
-              <label htmlFor="description" className="text-sm font-medium">
-                Description
-              </label>
-              <Textarea
-                id="description"
-                placeholder="Write description..."
-                value={newPartner.description}
-                onChange={(e) => setNewPartner({ ...newPartner, description: e.target.value })}
-                className="min-h-[100px]"
-              />
-            </div>
+      <RejectionModal
+        isOpen={isRejectionModalOpen}
+        onClose={() => {
+          setIsRejectionModalOpen(false)
+          setRejectingCompany(null)
+        }}
+        company={rejectingCompany}
+        onReject={handleSaveRejection}
+        isLoading={rejectCompanyMutation.isPending}
+      />
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Partner image/logo</label>
-              <div className="border border-dashed border-gray-300 rounded-md p-4">
-                <div
-                  className="w-24 h-24 flex flex-col items-center justify-center bg-gray-50 rounded-md cursor-pointer"
-                  onClick={() => document.getElementById("logo-upload")?.click()}
-                >
-                  <Upload className="h-6 w-6 text-gray-500" />
-                  <span className="text-sm text-gray-500 mt-2">Upload</span>
-                  <input
-                    type="file"
-                    id="logo-upload"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        setNewPartner({ ...newPartner, logo: e.target.files[0] })
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-end gap-3 mt-4">
-            <Button variant="outline" onClick={() => setShowAddPartner(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddPartner}>
-              Create partner
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Delete Confirmations */}
+      <DeleteConfirmation
+        isOpen={isIndividualDeleteDialogOpen}
+        onClose={() => {
+          setIsIndividualDeleteDialogOpen(false)
+          setDeletingIndividual(null)
+        }}
+        itemName={deletingIndividual ? `${deletingIndividual.name.first} ${deletingIndividual.name.lastName}` : ""}
+        onConfirm={handleConfirmIndividualDelete}
+        isLoading={deleteIndividualMutation.isPending}
+      />
+
+      <DeleteConfirmation
+        isOpen={isCompanyDeleteDialogOpen}
+        onClose={() => {
+          setIsCompanyDeleteDialogOpen(false)
+          setDeletingCompany(null)
+        }}
+        itemName={deletingCompany ? deletingCompany.email : ""}
+        onConfirm={handleConfirmCompanyDelete}
+        isLoading={deleteCompanyMutation.isPending}
+      />
     </div>
   )
 }
-
-export default PartnerWithUsPage

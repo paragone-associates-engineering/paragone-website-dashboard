@@ -1,19 +1,20 @@
 
 import { Loader2 } from "lucide-react"
-import type { PropertyRequest } from "@/services/property-request-service"
 import { Modal } from "../ui/modal"
 import { Button } from "../ui/button"
+
+import type { Listing } from "@/services/listings-service"
 
 interface DeleteConfirmationProps {
   isOpen: boolean
   onClose: () => void
-  property: PropertyRequest | null
+  listing: Listing | null
   onConfirm: () => void
   isLoading: boolean
 }
 
-export function DeleteConfirmation({ isOpen, onClose, property, onConfirm, isLoading }: DeleteConfirmationProps) {
-  if (!property) return null
+export function DeleteConfirmation({ isOpen, onClose, listing, onConfirm, isLoading }: DeleteConfirmationProps) {
+  if (!listing) return null
 
   return (
    <Modal isOpen={isOpen} title='Delete Request' onClose={onClose}>
@@ -21,11 +22,8 @@ export function DeleteConfirmation({ isOpen, onClose, property, onConfirm, isLoa
            <div>
              <h2 className='text-xl font-bold mb-3'>Are you sure?</h2>
           <div>
-            This will deactivate the property management request for{" "}
-            <span className="font-semibold">
-              {property.name.first} {property.name.lastName}
-            </span>
-            . This action cannot be undone.
+             This will deactivate the property listing <span className="font-semibold">"{listing.propertyName}"</span>.
+            This action can be reversed by changing the status back to active.
           </div>
         </div>
          <div className='flex items-center justify-end gap-4 mt-4'>

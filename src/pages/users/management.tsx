@@ -29,7 +29,7 @@ const UserManagementPage = () => {
   const queryClient = useQueryClient()
 const navigate = useNavigate()
  
-  const isAdmin = hasPermission("user", "view")
+  const isAdmin = hasPermission("admin", "edit") || hasPermission("admin", "view") || hasPermission("admin", "add") || hasPermission("admin", "delete")
 
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)

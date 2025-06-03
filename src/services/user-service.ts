@@ -28,6 +28,7 @@ export const getUsers = async (page = 1, limit = 30, search = ""): Promise<UserR
 // }
 
 // Add a new user
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const addUser = async (userData: AddUserRequest): Promise<any> => {
  const response = await api.post<AddUserRequest>("/user/add-user", userData)
    return response.data
