@@ -7,7 +7,7 @@ const UnauthorizedPage = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center p-4 text-center">
+    <div className="flex h-screen flex-col -mt-10 items-center justify-center px-4 text-center overflow-hidden">
       <ShieldAlert className="h-24 w-24 text-primary mb-6" />
       <h1 className="text-4xl font-bold mb-2">Access Denied</h1>
       <p className="text-gray-600 mb-8 max-w-md">
@@ -15,9 +15,6 @@ const UnauthorizedPage = () => {
         error.
       </p>
       <div className="flex gap-4">
-        <Button onClick={() => navigate(-1)} variant="outline">
-          Go Back
-        </Button>
         <Button onClick={() => navigate("/")} >
           Go to Dashboard
         </Button>

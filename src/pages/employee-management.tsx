@@ -12,8 +12,9 @@ import EmployeeProfile from "@/components/employees/profile"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
+
 const EmployeeManagement = () => {
-  const queryClient = useQueryClient()
+    const queryClient = useQueryClient()
   const [showAddForm, setShowAddForm] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
@@ -29,27 +30,7 @@ const EmployeeManagement = () => {
     type: "",
   })
 
-  // Fetch single employee for editing
-  // const { data: editEmployee, isLoading: isLoadingEditEmployee } = useQuery({
-  //   queryKey: ["employee", editEmployeeId],
-  //   queryFn: () => (editEmployeeId ? getEmployee(editEmployeeId) : null),
-  //   enabled: !!editEmployeeId,
-  //   onSuccess: (data) => {
-  //     if (data) {
-  //       setFormData({
-  //         firstName: data.firstName,
-  //         lastName: data.lastName,
-  //         phoneNumber: data.phoneNumber || "",
-  //         email: data.email,
-  //         designation: data.designation,
-  //         role: data.role,
-  //         type: data.type,
-  //       })
-  //     }
-  //   },
-  // })
-
-  // Fetch single employee for viewing
+ 
   const { data: viewEmployee, isLoading: isLoadingViewEmployee } = useQuery({
     queryKey: ["employee-view", viewEmployeeId],
     queryFn: () => (viewEmployeeId ? getEmployee(viewEmployeeId) : null),

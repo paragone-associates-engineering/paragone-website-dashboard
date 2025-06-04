@@ -211,6 +211,7 @@ export default function InspectionBookingsPage() {
     ],
   }
 
+  
   return (
     <div className="p-6 max-w-full">
       <div className="mb-6">

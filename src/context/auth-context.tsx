@@ -9,6 +9,7 @@ import { toast } from "sonner"
 interface AuthContextType {
   user: User | null
   isLoading: boolean
+  isAdmin: boolean
   isAuthenticated: boolean
   logout: () => void
   setUser: (user: User) => void
@@ -22,7 +23,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+
   const navigate = useNavigate()
+const isAdmin = typeof user?.role === "string" &&
+  (
+    user.role === "admin" ||
+    user.role === "super-admin"
+  );
 
   const logout = useCallback(() => {
     clearAuth()
@@ -70,7 +77,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return true
     } catch (error) {
       console.error("Token validation error:", error)
-      logout()
       return false
     }
   }, [logout])
@@ -111,8 +117,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       async () => {
         await checkTokenValidity()
       },
-      5 * 60 * 1000,
-    ) // 5 minutes
+     2 * 24 * 60 * 60 * 1000,
+
+    )
 
     return () => clearInterval(interval)
   }, [user, checkTokenValidity])
@@ -147,6 +154,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const value = {
     user,
+    isAdmin,
     isLoading,
     isAuthenticated: !!user,
     logout,

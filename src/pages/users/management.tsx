@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { useAuth } from "@/context/auth-context"
 import { addUser, updateUser, deleteUser } from "@/services/user-service"
-import { getEmployees } from "@/services/employee-service"
 import UserList from "@/components/users/list"
 import UserForm from "@/components/users/form"
 import UserProfile from "@/components/users/profile"
@@ -25,25 +24,25 @@ import {
 import type { User, Permission } from "@/types/user"
 
 const UserManagementPage = () => {
-  const { hasPermission } = useAuth()
+  const { isAdmin } = useAuth()
   const queryClient = useQueryClient()
 const navigate = useNavigate()
- 
-  const isAdmin = hasPermission("admin", "edit") || hasPermission("admin", "view") || hasPermission("admin", "add") || hasPermission("admin", "delete")
 
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+   const [selectedUser, setSelectedUser] = useState<User | null>(null)
+   
 
  
-  const { data: selectedUserData, isLoading: isLoadingUser } = useQuery({
-    queryKey: ["user", selectedUserId],
-    queryFn: () => (selectedUserId ? getEmployees(Number(selectedUserId)) : null),
-    enabled: !!selectedUserId,
-  })
+  // const { data: selectedUserData, isLoading: isLoadingUser } = useQuery({
+  //   queryKey: ["user", selectedUserId],
+  //   queryFn: () => (selectedUserId ? getEmployees(Number(selectedUserId)) : null),
+  //   enabled: !!selectedUserId,
+  // })
 
+ // console.log('selecteduser', selectedUser)
   const addUserMutation = useMutation({
     mutationFn: addUser,
     onSuccess: () => {
@@ -57,13 +56,14 @@ const navigate = useNavigate()
   })
 
   const updateUserMutation = useMutation({
-    mutationFn: ({ userId, data }: { userId: string; data: { employeeId: string; permissions: Permission[] } }) =>
-      updateUser(userId, data),
+    mutationFn: ({ userId, data }: { userId: string; data: {firstName:string; lastName:string; email:string; employeeId: string; permissions: Permission[] } }) =>
+      //console.log('userdataaa', data),
+     updateUser(userId, data),
     onSuccess: () => {
       toast.success("User updated successfully")
       setShowEditModal(false)
       queryClient.invalidateQueries({ queryKey: ["users"] })
-      queryClient.invalidateQueries({ queryKey: ["user", selectedUserId] })
+      queryClient.invalidateQueries({ queryKey: ["user", selectedUser?.id] })
     },
     onError: (error: any) => {
       toast.error(`Failed to update user: ${error.message}`)
@@ -87,17 +87,17 @@ const navigate = useNavigate()
   }
 
   const handleViewUser = (user: User) => {
-    setSelectedUserId(user.id)
+    setSelectedUser(user)
     setShowViewModal(true)
   }
 
   const handleEditUser = (user: User) => {
-    setSelectedUserId(user.id)
+    setSelectedUser(user)
     setShowEditModal(true)
   }
 
   const handleDeleteUser = (user: User) => {
-    setSelectedUserId(user.id)
+    setSelectedUser(user)
     setShowDeleteDialog(true)
   }
 
@@ -105,15 +105,15 @@ const navigate = useNavigate()
     addUserMutation.mutate(data)
   }
 
-  const handleEditSubmit = (data: { employeeId: string; permissions: Permission[] }) => {
-    if (selectedUserId) {
-      updateUserMutation.mutate({ userId: selectedUserId, data })
+  const handleEditSubmit = (data: {firstName:string; lastName:string; email:string; employeeId: string; permissions: Permission[] }) => {
+    if (selectedUser) {
+      updateUserMutation.mutate({ userId: selectedUser.id, data })
     }
   }
 
   const confirmDelete = () => {
-    if (selectedUserId) {
-      deleteUserMutation.mutate(selectedUserId)
+    if (selectedUser) {
+      deleteUserMutation.mutate(selectedUser.id)
     }
   }
 
@@ -148,8 +148,8 @@ const navigate = useNavigate()
      
       <Modal title="Edit User" isOpen={showEditModal} onClose={() => setShowEditModal(false)}>
         <UserForm
-          user={selectedUserData || undefined}
-          isLoading={updateUserMutation.isPending || isLoadingUser}
+          user={selectedUser || undefined}
+          isLoading={updateUserMutation.isPending }
           onSubmit={handleEditSubmit}
           onCancel={() => setShowEditModal(false)}
         />
@@ -158,8 +158,8 @@ const navigate = useNavigate()
    
       <Modal title="User Profile" isOpen={showViewModal} onClose={() => setShowViewModal(false)}>
         <UserProfile
-          user={selectedUserData}
-          isLoading={isLoadingUser}
+          user={selectedUser}
+          isLoading={false}
           onClose={() => setShowViewModal(false)}
           onEdit={() => {
             setShowViewModal(false)

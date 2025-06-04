@@ -25,6 +25,8 @@ import {
   ChevronRight,
   ChevronLeft
 } from 'lucide-react';
+import { notificationService } from '@/services/notification-service';
+import { useQuery } from '@tanstack/react-query';
 
 const Sidebar = ({collapsed, setCollapsed}:{collapsed: boolean, setCollapsed: (value: boolean) => void}) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,7 +34,15 @@ const Sidebar = ({collapsed, setCollapsed}:{collapsed: boolean, setCollapsed: (v
   const location = useLocation();
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState('/dashboard');
-  
+   const {
+    data: notificationsData,
+  } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: () => notificationService.getNotifications(),
+    staleTime: 1000 * 60 * 2, 
+  })
+
+  const metadata = notificationsData?.metadata?.[0] || { total: 0, totalPages: 0 }
   // Close sidebar on mobile when route changes
   useEffect(() => {
     if (window.innerWidth < 1024) {
@@ -92,7 +102,7 @@ const Sidebar = ({collapsed, setCollapsed}:{collapsed: boolean, setCollapsed: (v
       submenu: [
         { label: 'All notification', path: '/notification/all' },
       ],
-      badge: 27
+      badge: metadata?.total || 0,
     },
     { icon: <Newspaper size={20} />, label: 'Advertising', path: '/advertising',
       submenu: [
@@ -107,7 +117,8 @@ const Sidebar = ({collapsed, setCollapsed}:{collapsed: boolean, setCollapsed: (v
     { icon: <Handshake size={20} />, label: 'Partner', path: '/partner',
       submenu: [
         { label: 'Associate Partner list', path: '/partner/associate-list' },
-        { label: 'Sell Property list', path: '/partner/individual' },
+        { label: 'Sell As An Individual list', path: '/partner/individual' },
+         { label: 'Sell As A Company list', path: '/partner/sell-as-a-company' },
       ] 
     },
     { icon: <FileText size={20} />, label: 'Blog/News', path: '/blog',

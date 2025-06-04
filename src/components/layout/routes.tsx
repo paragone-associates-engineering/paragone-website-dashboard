@@ -33,6 +33,8 @@ import PropertyRequestPage from "@/pages/property/request"
 import ReviewsPage from "@/pages/reviews"
 import UnauthorizedPage from "@/pages/auth/unauthorized"
 import ProtectedRoute from "@/components/layout/protected-routes"
+import SellAsACompanyPage from "@/pages/partner/sell-as-company"
+import { AdminGuard } from "../auth/role-guard"
 
 const AppRoutes = () => {
   
@@ -42,11 +44,11 @@ const AppRoutes = () => {
      <Route path="/unauthorized" element={<UnauthorizedPage />} />
      <Route element={<ProtectedRoute />}>
      <Route path="/" element={<Dashboard />} />
-    <Route path="/inspection-bookings" element={<InspectionBookings />} />
-    <Route path="/inspection/list" element={<InspectionBookings />} />
+    <Route path="/inspection-bookings" element={<AdminGuard><InspectionBookings /></AdminGuard>} />
+    <Route path="/inspection/list" element={<AdminGuard><InspectionBookings /></AdminGuard>} />
     <Route path="/users/profile" element={<UserProfile />} />
-    <Route path="/employee-management" element={<EmployeeManagement />} />
-    <Route path="/employee/management" element={<EmployeeManagement />} />
+    <Route path="/employee-management" element={<AdminGuard><EmployeeManagement /></AdminGuard>} />
+    <Route path="/employee/management" element={<AdminGuard><EmployeeManagement /></AdminGuard>} />
     <Route path="/subscription" element={<Subscriptions />} />
     <Route path="/subscription/list" element={<Subscriptions />} />
     <Route path="/partner" element={<PartnerList />} />
@@ -56,14 +58,14 @@ const AppRoutes = () => {
       <Route path="/property/detail/:id" element={<PropertyDetailPage />} />
       <Route path="/property/edit/:id" element={<EditPropertyPage />} />
       <Route path="/property/management" element={<PropertyManagementPage />} />
-      <Route path="/property-request/list" element={<PropertyRequestPage />} />
+      <Route path="/property-request/list" element={<AdminGuard><PropertyRequestPage /></AdminGuard>} />
       <Route path="/property/add" element={<AddPropertyPage />} />
       <Route path="/customer/list" element={<CustomersGrid />} />
       <Route path="/customer/list" element={<CustomerList />} />
-      <Route path="/refer/list" element={<ReferAndEarn />} />
+      <Route path="/refer/list" element={<AdminGuard><ReferAndEarn /></AdminGuard>} />
       <Route path="/region/list" element={<RegionPage />} />
       <Route path="/join/list" element={<JoinUs />} />
-      <Route path="/notification/all" element={<NotificationPage />} />
+      <Route path="/notification/all" element={<AdminGuard><NotificationPage /></AdminGuard>} />
       <Route path="/blog/list" element={<BlogPage />} />
       <Route path="/blog/create" element={<CreateBlog />} />
       <Route path="/blog/edit/:id" element={<EditBlogPage />} />
@@ -71,10 +73,11 @@ const AppRoutes = () => {
       <Route path="/career/add" element={<AddJobPage />} />
        <Route path="/career/edit/:id" element={<EditJobPage />} />
       <Route path="/partner/individual" element={<PartnerWithUsPage />} />
+      <Route path="/partner/sell-as-a-company" element={<SellAsACompanyPage />} />
       <Route path="/reviews" element={<ReviewsPage />} />
-      <Route path="/users" element={<UserManagementPage />} />
-      <Route path="/users/list" element={<UserManagementPage />} />
-      <Route path="/advertising/list" element={<AdvertisingPage />} />
+      <Route path="/users" element={<AdminGuard><UserManagementPage /></AdminGuard>} />
+      <Route path="/users/list" element={<AdminGuard><UserManagementPage /></AdminGuard>} />
+      <Route path="/advertising/list" element={<AdminGuard><AdvertisingPage /></AdminGuard>} />
       <Route path="/contact/list" element={<ContactUsListPage />} />
       <Route path="/subscriber/list" element={<Subscribers />} />
  </Route>

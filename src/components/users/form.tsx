@@ -12,16 +12,17 @@ interface UserFormProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user?: any
   isLoading: boolean
-  onSubmit: (data: { employeeId: string; permissions: Permission[] }) => void
+  onSubmit: (data: {firstName:string; lastName:string; email:string; employeeId: string; permissions: Permission[] }) => void
   onCancel: () => void
 }
 
 const UserForm = ({ user, isLoading, onSubmit, onCancel }: UserFormProps) => {
   const [employeeId, setEmployeeId] = useState(user?.employeeId || "")
   const [permissions, setPermissions] = useState<Permission[]>(user?.permissions || [])
-
+const [userData, setUserData] = useState(user || null)
   useEffect(() => {
     if (user) {
+      setUserData(user)
       setEmployeeId(user.employeeId)
       setPermissions(user.permissions)
     }
@@ -29,16 +30,26 @@ const UserForm = ({ user, isLoading, onSubmit, onCancel }: UserFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Remove _id field from permissions before sending to backend
+    const cleanedPermissions = permissions.map(permission => {
+      const { _id, ...permissionWithoutId } = permission
+      return permissionWithoutId
+    })
+    
     onSubmit({
+      email: userData?.email || "",
+      firstName: userData?.firstName || "",
+      lastName: userData?.lastName || "",
       employeeId,
-      permissions,
+      permissions: cleanedPermissions,
     })
   }
 
   const handlePermissionsChange = (updatedPermissions: Permission[]) => {
     setPermissions(updatedPermissions)
   }
-
+ //console.log('user', user)
   return (
     <form onSubmit={handleSubmit}>
       <div className="p-6">
