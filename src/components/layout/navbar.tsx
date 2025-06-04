@@ -1,6 +1,6 @@
 import type React from "react"
-import { Bell, Search, User} from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { Bell} from "lucide-react"
+//import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -17,6 +17,8 @@ interface NavbarProps {
 const Navbar = ({ children}: NavbarProps) => {
   const { user, logout } = useAuth()
   //console.log(user)
+
+  
   const handleLogOut = async() => {
    await logout();
   }
@@ -29,18 +31,18 @@ const Navbar = ({ children}: NavbarProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 py-4 items-center justify-between border-b bg-white px-4 md:px-6 w-full">
+    <header className="sticky top-0 z-30 flex h-20 py-4 items-center justify-between border-b bg-white px-4 md:px-6 max-w-full w-full">
       <div className="flex items-center">
         {children}
-        <h1 className="ml-14 lg:ml-2 text-xl font-semibold"> {getTimeGreeting()}, {user?.firstName}</h1>
+        <h1 className="ml-14 lg:ml-2 text-xl font-semibold capitalize"> {getTimeGreeting()}, {user?.firstName}</h1>
       </div>
       <div className="flex items-center gap-4">
-        <div className="relative hidden md:block">
+        {/* <div className="relative hidden md:block">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
           <Input type="search" placeholder="Search here..." className="w-[300px] pl-8" />
-        </div>
+        </div> */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="relative">
+          {/* <Button variant="ghost" size="icon" className="relative">
             <User className="h-5 w-5" />
             <Badge
               className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
@@ -48,7 +50,7 @@ const Navbar = ({ children}: NavbarProps) => {
             >
               38
             </Badge>
-          </Button>
+          </Button> */}
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
             <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary hover:bg-primary/90">
@@ -74,7 +76,7 @@ const Navbar = ({ children}: NavbarProps) => {
               <div className="flex items-center justify-start gap-2 p-2">
                 <div className="flex flex-col space-y-1 leading-none">
                   <p className="font-medium capitalize">{user?.firstName} {user?.lastName}</p>
-                  <p className="text-sm text-muted-foreground">Super Admin</p>
+                  <p className="text-sm text-muted-foreground capitalize">{user?.role}</p>
                 </div>
               </div>
              <Link to='/user/profile'><DropdownMenuItem>Profile Settings</DropdownMenuItem></Link>

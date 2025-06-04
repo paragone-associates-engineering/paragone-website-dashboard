@@ -27,7 +27,7 @@ const Layout = ({ children }: LayoutProps) => {
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       <main className={`${collapsed ? 'lg:ml-[100px]' : 'lg:ml-[250px]'} w-full mx-auto`}>
         <Navbar />
-          <div className={`${collapsed ? 'max-w-[1150px]' : 'max-w-[1010px]' } 2xl:max-w-[1300px] xl:pl-5`}>
+          <div className={`max-w-full w-full xl:pl-5`}>
 <TokenValidator>{children}</TokenValidator>
           </div>
       </main>

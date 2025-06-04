@@ -6,7 +6,7 @@ interface CircleProgressProps {
   strokeWidth?: number;
 }
 
-const CircleProgress: React.FC<CircleProgressProps> = ({
+const OverviewCircleProgress: React.FC<CircleProgressProps> = ({
   percentage,
   size = 100,
   strokeWidth = 15,
@@ -43,4 +43,4 @@ const CircleProgress: React.FC<CircleProgressProps> = ({
   );
 };
 
-export default CircleProgress;
+export default OverviewCircleProgress;

@@ -245,7 +245,7 @@ const [currentPage, setCurrentPage] = useState(1)
   const activeListings = listings.filter((listing) => listing.isActive).length
 
   return (
-    <div className="p-6 lg:max-w-[980px] 2xl:max-w-full">
+    <div className="p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Property Listing</h1>
       </div>

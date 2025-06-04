@@ -189,7 +189,7 @@ export default function PropertyRequestPage() {
   }
 
   return (
-    <div className="p-6 max-w-full">
+    <div className="py-6  max-w-full">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Property Request</h1>
         
