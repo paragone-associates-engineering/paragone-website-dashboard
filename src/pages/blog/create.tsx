@@ -3,7 +3,7 @@ import type React from "react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+//import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FormContainer, FormField, FormImageUpload, FormTagsInput } from "@/components/shared/form-container"
 import { LexicalEditor } from "@/components/shared/rich-text-editor"
 import { blogService } from "@/services/blog-service"
@@ -56,6 +56,7 @@ const CreateBlog = () => {
     },
   })
 
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -67,10 +68,6 @@ const CreateBlog = () => {
     setErrors((prev) => ({ ...prev, content: false }))
   }
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    setErrors((prev) => ({ ...prev, [name]: false }))
-  }
 
   const validateForm = () => {
     const newErrors: Record<string, boolean> = {}
@@ -140,17 +137,13 @@ const CreateBlog = () => {
               </FormField>
 
               <FormField label="Blog category" required>
-                <Select value={formData.category} onValueChange={(value) => handleSelectChange("category", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Villa" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Villa">Villa</SelectItem>
-                    <SelectItem value="Apartment">Apartment</SelectItem>
-                    <SelectItem value="House">House</SelectItem>
-                    <SelectItem value="Land">Land</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  placeholder="Enter blog category"
+                  className={errors.title ? "border-red-500" : ""}
+                />
               </FormField>
             </div>
 

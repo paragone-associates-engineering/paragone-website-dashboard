@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+//import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { FormContainer, FormField, FormImageUpload } from "@/components/shared/form-container"
 import { LexicalEditor } from "@/components/shared/rich-text-editor"
@@ -94,11 +94,6 @@ const BlogEditPage = () => {
     setErrors((prev) => ({ ...prev, content: false }))
   }
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    setErrors((prev) => ({ ...prev, [name]: false }))
-  }
-
   const handleSwitchChange = (checked: boolean) => {
     setFormData((prev) => ({ ...prev, isActive: checked }))
   }
@@ -179,19 +174,15 @@ const BlogEditPage = () => {
                 {errors.title && <p className="text-sm text-red-500 mt-1">Title is required</p>}
               </FormField>
 
-              <FormField label="Blog category">
-                <Select value={formData.category} onValueChange={(value) => handleSelectChange("category", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Villa">Villa</SelectItem>
-                    <SelectItem value="Apartment">Apartment</SelectItem>
-                    <SelectItem value="House">House</SelectItem>
-                    <SelectItem value="Land">Land</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormField>
+              <FormField label="Blog category" required>
+                              <Input
+                                name="category"
+                                value={formData.category}
+                                onChange={handleInputChange}
+                                placeholder="Enter blog category"
+                                className={errors.category ? "border-red-500" : ""}
+                              />
+                            </FormField>
             </div>
 
             <FormField label="Header" required className="mt-4">

@@ -8,24 +8,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
 import { Modal } from "../ui/modal"
-
+import { STATUS } from "@/services/listings-service"
 import type { Listing } from "@/services/listings-service"
 
 interface StatusChangeModalProps {
   isOpen: boolean
   onClose: () => void
   listing: Listing | null
-  onSave: (id: string, isActive: boolean) => void
+  onSave?: (id: string, status: STATUS) => void
   isLoading: boolean
 }
 
-export function StatusChangeModal({ isOpen, onClose, listing, onSave, isLoading }: StatusChangeModalProps) {
-  const [selectedStatus, setSelectedStatus] = useState<boolean>(true)
+export function StatusChangeModal({ isOpen, onClose, listing, isLoading }: StatusChangeModalProps) {
+  const [selectedStatus, setSelectedStatus] = useState<STATUS>(STATUS.PENDING)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (listing) {
-      onSave(listing.id, selectedStatus)
+      console.log('saved')
+      //onSave(listing.id, selectedStatus)
     }
   }
 
@@ -44,15 +45,19 @@ export function StatusChangeModal({ isOpen, onClose, listing, onSave, isLoading 
             
             <Label htmlFor="status">New Status</Label>
             <Select
-              value={selectedStatus ? "active" : "inactive"}
-              onValueChange={(value) => setSelectedStatus(value === "active")}
+              value={selectedStatus}
+              onValueChange={(value) => setSelectedStatus(value as STATUS)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select new status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
+               <SelectItem value={STATUS.PENDING}>Pending</SelectItem>
+                               <SelectItem value={STATUS.NEGOTIATION}>Negotiation</SelectItem>
+                                 <SelectItem value={STATUS.INSPECTION}>Inspection</SelectItem>
+                               <SelectItem value={STATUS.OFFMARKET}>Off Market</SelectItem>
+                               <SelectItem value={STATUS.PAID}>Paid</SelectItem>
+                               <SelectItem value={STATUS.CLOSED}>Closed</SelectItem>
               </SelectContent>
             </Select>
           </div>

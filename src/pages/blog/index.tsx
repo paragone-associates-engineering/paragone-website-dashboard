@@ -29,6 +29,7 @@ const BlogListPage = () => {
   })
 
   
+  
   const deleteBlogMutation = useMutation({
     mutationFn: (postId: string) => blogService.deletePost(postId),
     onSuccess: () => {

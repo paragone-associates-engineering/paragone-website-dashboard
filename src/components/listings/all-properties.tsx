@@ -79,9 +79,9 @@ export default function PropertyListings() {
     setIsDeleteDialogOpen(true)
   }
 
-  const handleSaveStatus = (id: string, isActive: boolean) => {
-    updateMutation.mutate({ id, data: { isActive } })
-  }
+  // const handleSaveStatus = (id: string, isActive: boolean) => {
+  //   updateMutation.mutate({ id, data: { isActive } })
+  // }
 
   const handleConfirmDelete = () => {
     if (deletingListing) {
@@ -93,16 +93,16 @@ export default function PropertyListings() {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
   }
 
-  const getStatusBadge = (isActive: boolean) => {
-    return (
-      <Badge
-        variant={isActive ? "default" : "secondary"}
-        className={isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}
-      >
-        {isActive ? "Active" : "Inactive"}
-      </Badge>
-    )
-  }
+  // const getStatusBadge = (isActive: STATUS) => {
+  //   return (
+  //     <Badge
+  //       variant={isActive ? "default" : "secondary"}
+  //       className={isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}
+  //     >
+  //       {isActive ? "Active" : "Inactive"}
+  //     </Badge>
+  //   )
+  // }
 
   const getListingTypeBadge = (listingType: string) => {
     const colors = {
@@ -178,13 +178,13 @@ export default function PropertyListings() {
       cell: (row: Listing ) => row.area.toLocaleString(),
       enableSorting: true,
     },
-    {
-      id: "status",
-      header: "Status",
-      accessorKey: "isActive",
-      cell: ( row: Listing ) => getStatusBadge(row.isActive),
-      enableSorting: true,
-    },
+    // {
+    //   id: "status",
+    //   header: "Status",
+    //   accessorKey: "isActive",
+    //   cell: ( row: Listing ) => getStatusBadge(row.isActive),
+    //   enableSorting: true,
+    // },
     {
       id: "createdAt",
       header: "Created",
@@ -282,7 +282,7 @@ export default function PropertyListings() {
           setStatusChangeListing(null)
         }}
         listing={statusChangeListing}
-        onSave={handleSaveStatus}
+        //onSave={handleSaveStatus}
         isLoading={updateMutation.isPending}
       />
 

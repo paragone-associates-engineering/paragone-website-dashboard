@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Eye, Pencil, Trash2, RefreshCw, Loader2, Home, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
-import { listingsService, type Listing } from "@/services/listings-service"
+import { listingsService, STATUS, type Listing } from "@/services/listings-service"
 import { StatusChangeModal } from "@/components/listings/status-change"
 //import { ViewDetailsModal } from "@/components/listings/view-details-modal"
 import { DeleteConfirmation } from "@/components/listings/delete-confirmation"
@@ -79,8 +79,8 @@ const [currentPage, setCurrentPage] = useState(1)
     setIsDeleteDialogOpen(true)
   }
 
-  const handleSaveStatus = (id: string, isActive: boolean) => {
-    updateMutation.mutate({ id, data: { isActive } })
+  const handleSaveStatus = (id: string, status: STATUS) => {
+    updateMutation.mutate({ id, data: { status } })
   }
 
   const handleConfirmDelete = () => {

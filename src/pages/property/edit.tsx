@@ -1,7 +1,6 @@
-
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Input } from "@/components/ui/input"
@@ -22,10 +21,9 @@ import {
   type PropertyDetail,
   ListingType,
   PropertyCategory,
+  propertyTypesByCategory
 } from "@/services/listings-service"
 import { Button } from "@/components/ui/button"
-
-const propertyTypes = ["Bungalow", "Apartment", "Duplex", "Villa", "Penthouse", "Mansion", "Studio", "Townhouse"]
 
 export default function EditPropertyPage() {
   const { id } = useParams<{ id: string }>()
@@ -57,7 +55,23 @@ export default function EditPropertyPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [existingImages, setExistingImages] = useState<string[]>([])
 
+  // Get available property types based on selected category
+  const availablePropertyTypes = useMemo(
+    () =>
+      propertyTypesByCategory[formData.propertyCategory as keyof typeof propertyTypesByCategory] ||
+      [],
+    [formData.propertyCategory]
+  )
+
+  // Reset property type when category changes (but only after initial load)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   
+  useEffect(() => {
+    if (!isInitialLoad && formData.propertyType && !availablePropertyTypes.includes(formData.propertyType)) {
+      setFormData((prev) => ({ ...prev, propertyType: "" }))
+    }
+  }, [formData.propertyCategory, formData.propertyType, availablePropertyTypes, isInitialLoad])
+
   const {
     data: listing,
     isLoading,
@@ -126,6 +140,9 @@ export default function EditPropertyPage() {
         setExistingImages(listing.images)
         setImagePreviews(listing.images)
       }
+
+      // Mark initial load as complete
+      setIsInitialLoad(false)
     }
   }, [listing])
 
@@ -274,26 +291,6 @@ export default function EditPropertyPage() {
                   />
                 </FormField>
 
-                <FormField label="Property Type" required>
-                  <Select
-                    value={formData.propertyType}
-                    onValueChange={(value) => handleSelectChange("propertyType", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select property type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {propertyTypes.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormField>
-              </FormRow>
-
-              <FormRow className="mt-4">
                 <FormField label="Property Category" required>
                   <Select
                     value={formData.propertyCategory}
@@ -305,8 +302,27 @@ export default function EditPropertyPage() {
                     <SelectContent>
                       <SelectItem value={PropertyCategory.RESIDENTIAL}>Residential</SelectItem>
                       <SelectItem value={PropertyCategory.COMMERCIAL}>Commercial</SelectItem>
-                      <SelectItem value={PropertyCategory.INDUSTRIAL}>Industrial</SelectItem>
                       <SelectItem value={PropertyCategory.LAND}>Land</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormField>
+              </FormRow>
+
+              <FormRow className="mt-4">
+                <FormField label="Property Type" required>
+                  <Select
+                    value={formData.propertyType}
+                    onValueChange={(value) => handleSelectChange("propertyType", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select property type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availablePropertyTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </FormField>

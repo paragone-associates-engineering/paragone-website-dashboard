@@ -1,5 +1,5 @@
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect,useMemo } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -19,9 +19,9 @@ import {
   type PropertyDetail,
   ListingType,
   PropertyCategory,
+  propertyTypesByCategory
 } from "@/services/listings-service"
 
-const propertyTypes = ["Bungalow", "Apartment", "Duplex", "Villa", "Penthouse", "Mansion", "Studio", "Townhouse"]
 
 export default function AddPropertyPage() {
   const queryClient = useQueryClient()
@@ -47,6 +47,18 @@ export default function AddPropertyPage() {
   })
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+
+  
+  const availablePropertyTypes = useMemo(
+    () => propertyTypesByCategory[formData.propertyCategory as keyof typeof propertyTypesByCategory] || [],
+    [formData.propertyCategory]
+  )
+
+  useEffect(() => {
+    if (formData.propertyType && !availablePropertyTypes.includes(formData.propertyType)) {
+      setFormData((prev) => ({ ...prev, propertyType: "" }))
+    }
+  }, [formData.propertyCategory, formData.propertyType, availablePropertyTypes])
 
   const createListingMutation = useMutation({
     mutationFn: (data: ListingFormData) => listingsService.createListing(data),
@@ -168,26 +180,6 @@ export default function AddPropertyPage() {
                   />
                 </FormField>
 
-                <FormField label="Property Type" required>
-                  <Select
-                    value={formData.propertyType}
-                    onValueChange={(value) => handleSelectChange("propertyType", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select property type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {propertyTypes.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormField>
-              </FormRow>
-
-              <FormRow className="mt-4">
                 <FormField label="Property Category" required>
                   <Select
                     value={formData.propertyCategory}
@@ -199,8 +191,27 @@ export default function AddPropertyPage() {
                     <SelectContent>
                       <SelectItem value={PropertyCategory.RESIDENTIAL}>Residential</SelectItem>
                       <SelectItem value={PropertyCategory.COMMERCIAL}>Commercial</SelectItem>
-                      <SelectItem value={PropertyCategory.INDUSTRIAL}>Industrial</SelectItem>
                       <SelectItem value={PropertyCategory.LAND}>Land</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormField>
+              </FormRow>
+
+              <FormRow className="mt-4">
+                <FormField label="Property Type" required>
+                  <Select
+                    value={formData.propertyType}
+                    onValueChange={(value) => handleSelectChange("propertyType", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select property type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availablePropertyTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </FormField>

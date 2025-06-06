@@ -155,6 +155,42 @@ export interface RegionsResponse {
   results: Region[]
 }
 
+export enum STATUS {
+  PENDING = "Pending",
+  NEGOTIATION = "Negotiation",
+  INSPECTION = "Inspection",
+  CLOSED= "Closed",
+  OFFMARKET = "Off Market",
+  PAID = "Paid",
+}
+
+export const propertyTypesByCategory: Record<PropertyCategory.RESIDENTIAL | PropertyCategory.COMMERCIAL | PropertyCategory.LAND, string[]> = {
+  [PropertyCategory.RESIDENTIAL]: [
+    "Bungalow", 
+    "Apartment", 
+    "Townhouse", 
+    "Duplex", 
+    "Semi Detached", 
+    "Detached", 
+    "Terrace", 
+    "Penthouse", 
+    "Maisonette", 
+    "Triplex", 
+    "Mixed Used"
+  ],
+  [PropertyCategory.COMMERCIAL]: [
+    "Co-working", 
+    "Retail", 
+    "Office Building", 
+    "Special Purpose", 
+    "Mix Used Development"
+  ],
+  [PropertyCategory.LAND]: [
+    "Residential", 
+    "Commercial", 
+    "Agriculture"
+  ]
+}
 export const listingsService = {
   getListings: async (params?: { page?: number; limit?: number; searchString?: string }) => {
     const response = await api.get<ListingsResponse>("/listings/get-listings", { params })

@@ -48,10 +48,9 @@ export function IndividualStatusModal({ isOpen, onClose, individual, onSave, isL
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="Approved">Approved</SelectItem>
-                <SelectItem value="Rejected">Rejected</SelectItem>
-                <SelectItem value="In Review">In Review</SelectItem>
-                <SelectItem value="Contacted">Contacted</SelectItem>
+                <SelectItem value="In Progress">In Progress</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
+                
               </SelectContent>
             </Select>
           </div>

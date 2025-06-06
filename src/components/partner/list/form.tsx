@@ -99,14 +99,11 @@ export function PartnerFormModal({ isOpen, onClose, partner, onSave, isLoading }
                 <SelectValue placeholder="Select partner type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Technology">Technology</SelectItem>
-                <SelectItem value="Finance">Finance</SelectItem>
-                <SelectItem value="Real Estate">Real Estate</SelectItem>
-                <SelectItem value="Construction">Construction</SelectItem>
-                <SelectItem value="Marketing">Marketing</SelectItem>
-                <SelectItem value="Hospitality">Hospitality</SelectItem>
-                <SelectItem value="Healthcare">Healthcare</SelectItem>
-                <SelectItem value="Education">Education</SelectItem>
+                <SelectItem value="Corporate Partner">Corporate Partner</SelectItem>
+                <SelectItem value="Service Partner">Service Partner</SelectItem>
+                <SelectItem value="Affiliate/ Referral Partner">Affiliate/ Referral Partner</SelectItem>
+                <SelectItem value="Investment Partner">Investment Partner</SelectItem>
+                <SelectItem value="Vendor Partner">Vendor Partner</SelectItem>
                 <SelectItem value="Other">Other</SelectItem>
               </SelectContent>
             </Select>
