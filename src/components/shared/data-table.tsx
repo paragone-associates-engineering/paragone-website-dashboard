@@ -61,6 +61,7 @@ export function DataTable({
   searchable = true,
   selectable = true,
   className,
+  isFeatured=false,
   onSearch,
   loading = false,
 }: DataTableProps) {
@@ -274,6 +275,7 @@ export function DataTable({
                 className={onRowClick ? "cursor-pointer" : ""}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
+                {isFeatured &&(
                 <TableCell onClick={(e) => {
                   e.stopPropagation();
                   removeFeatured?.(row?.id)
@@ -282,6 +284,7 @@ export function DataTable({
     <Star className="fill-primary stroke-primary text-sm" />
   )}
 </TableCell>
+)}
                 {selectable && (
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox

@@ -331,7 +331,7 @@ const [currentPage, setCurrentPage] = useState(1)
                 searchable={true}
                 selectable={true}
                 removeFeatured={ (id:string) => handleRemoveFeatured(id)}
-                //isFeatured={lis}
+                isFeatured={true}
                 onSearch={handleSearch}
                 loading={isLoading}
             />
