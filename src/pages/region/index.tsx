@@ -15,7 +15,7 @@ const RegionPage = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  // Pagination and search state
+  
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [searchQuery, setSearchQuery] = useState("")
@@ -41,7 +41,7 @@ const RegionPage = () => {
       searchString: searchQuery || undefined
     }),
     staleTime: 1000 * 60 * 5,
-   // keepPreviousData: true, // Keep previous data while fetching new data
+   
   })
 
   const regions = regionsData?.results || []

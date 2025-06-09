@@ -81,19 +81,14 @@ const EmployeeForm = ({
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Role</label>
-          <Select value={formData.role} onValueChange={(value) => onSelectChange("role", value)} required>
-            <SelectTrigger>
-              <SelectValue placeholder="Select role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="manager">Manager</SelectItem>
-              <SelectItem value="employee">Employee</SelectItem>
-              <SelectItem value="super_admin">Super Admin</SelectItem>
-              <SelectItem value="accounts">Accounts</SelectItem>
-              <SelectItem value="operator">Operator</SelectItem>
-            </SelectContent>
-          </Select>
+          <Input
+            name="role"
+            value={formData.role}
+            onChange={onInputChange}
+            placeholder="Enter role"
+            required
+          />
+          
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Type</label>

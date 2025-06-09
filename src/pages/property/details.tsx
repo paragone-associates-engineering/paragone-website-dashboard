@@ -84,6 +84,16 @@ export default function PropertyDetailPage() {
         >
           {listing.isActive ? "Active" : "Inactive"}
         </Badge>
+        { listing.featured && (
+          <Badge
+          className={`absolute top-12 right-4 z-10 ${
+            listing.featured ? "bg-yellow-500 hover:bg-green-600" : "bg-gray-500 hover:bg-gray-600"
+          }`}
+        >
+          {listing.featured ? "Featured" : ""}
+        </Badge>
+        )}
+        
 
         {listing.images && listing.images.length > 0 ? (
           <div className="relative h-[500px] w-full overflow-hidden rounded-lg">
@@ -280,6 +290,27 @@ export default function PropertyDetailPage() {
               </div>
             </div>
           )}
+        <div className="grid md:grid-cols-2 gap-3">
+{listing?.propertyOwner?.name && (
+          <div className="bg-[#EFF3F5] max-w-sm rounded-2xl p-5 space-y-2"> 
+         <h3 className="font-semibold text-lg capitalize">{listing?.propertyOwner?.name}</h3>
+         <h4 className="text-green-500 font-semibold uppercase">Owner</h4>
+         <p>{listing?.propertyOwner?.address}</p>
+         <p>{listing?.propertyOwner?.phone}</p>
+          <a className="text-blue-600 hover:text-blue-800 underline" href={listing?.propertyOwner?.link}>Social link</a>
+          </div>
+          )}
+
+          {listing?.propertyAgent?.name && (
+          <div className="bg-[#EFF3F5] max-w-sm rounded-2xl p-5 space-y-2"> 
+         <h3 className="font-semibold text-lg capitalize">{listing?.propertyAgent?.name}</h3>
+         <h4 className="text-green-500 font-semibold">AGENT</h4>
+         <p>{listing?.propertyAgent?.address}</p>
+         <p>{listing?.propertyAgent?.phone}</p>
+          <a className="text-blue-600 hover:text-blue-800 underline" href={listing?.propertyAgent?.link}>Social link</a>
+          </div>
+          )}
+          </div>
         </div>
 
         <div>

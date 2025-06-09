@@ -1,10 +1,10 @@
-
 import type React from "react"
 import { createContext, useContext, useEffect, useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import type { User } from "@/types/auth"
 import { clearAuth, getStoredUser, hasPermission, isAuthenticated, validateToken, storeUser } from "@/lib/auth"
 import { toast } from "sonner"
+import { setAuthErrorHandler } from "@/lib/api" // Updated import path
 
 interface AuthContextType {
   user: User | null
@@ -25,11 +25,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true)
 
   const navigate = useNavigate()
-const isAdmin = typeof user?.role === "string" &&
-  (
-    user.role === "admin" ||
-    user.role === "super-admin"
-  );
+  const isAdmin = typeof user?.role === "string" &&
+    (
+      user.role === "admin" ||
+      user.role === "super-admin"
+    );
 
   const logout = useCallback(() => {
     clearAuth()
@@ -77,29 +77,42 @@ const isAdmin = typeof user?.role === "string" &&
       return true
     } catch (error) {
       console.error("Token validation error:", error)
+      // Don't logout on network errors - only on actual auth failures
       return false
     }
   }, [logout])
 
+  // Handle auth errors (called by API interceptor)
+  const handleAuthError = useCallback(() => {
+    clearAuth()
+    setUser(null)
+    toast.error("Your session has expired. Please log in again.")
+    navigate("/login")
+  }, [navigate])
+
   useEffect(() => {
+    // Set up the auth error handler for API interceptor
+    setAuthErrorHandler(handleAuthError)
+
     const checkAuth = async () => {
       if (isAuthenticated()) {
-        const { isValid, user: freshUserData } = await validateToken()
-
-        if (isValid) {
-          if (freshUserData) {
-            setUser(freshUserData)
-            storeUser(freshUserData)
-          } else {
-            const storedUser = getStoredUser()
-            if (storedUser) {
-              setUser(storedUser)
+        const storedUser = getStoredUser()
+        if (storedUser) {
+          setUser(storedUser)
+        } else {
+          // Only validate token if we don't have stored user data
+          try {
+            const { isValid, user: freshUserData } = await validateToken()
+            if (isValid && freshUserData) {
+              setUser(freshUserData)
+              storeUser(freshUserData)
             } else {
               clearAuth()
             }
+          } catch (error) {
+            console.error("Initial auth check failed:", error)
+            clearAuth()
           }
-        } else {
-          clearAuth()
         }
       }
 
@@ -107,46 +120,13 @@ const isAdmin = typeof user?.role === "string" &&
     }
 
     checkAuth()
-  }, [])
+  }, [handleAuthError])
 
-  // Set up periodic token validation (every 5 minutes)
-  useEffect(() => {
-    if (!user) return
-
-    const interval = setInterval(
-      async () => {
-        await checkTokenValidity()
-      },
-     2 * 24 * 60 * 60 * 1000,
-
-    )
-
-    return () => clearInterval(interval)
-  }, [user, checkTokenValidity])
-
-  // Check token validity when the page becomes visible (user switches back to tab)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible" && user) {
-        checkTokenValidity()
-      }
-    }
-
-    document.addEventListener("visibilitychange", handleVisibilityChange)
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
-  }, [user, checkTokenValidity])
-
-  // Check token validity when the page gains focus
-  useEffect(() => {
-    const handleFocus = () => {
-      if (user) {
-        checkTokenValidity()
-      }
-    }
-
-    window.addEventListener("focus", handleFocus)
-    return () => window.removeEventListener("focus", handleFocus)
-  }, [user, checkTokenValidity])
+  // Remove all the aggressive token checking intervals and event listeners
+  // Token validation should only happen:
+  // 1. On initial load (above)
+  // 2. When we get a 401 error from an API call (handleAuthError)
+  // 3. When explicitly called by the app (checkTokenValidity)
 
   const checkPermission = (feature: string, action: "view" | "edit" | "add" | "delete") => {
     return hasPermission(user, feature, action)

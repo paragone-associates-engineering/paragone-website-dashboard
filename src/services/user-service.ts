@@ -5,7 +5,6 @@ import type {  UserResponse, AddUserRequest, UpdateUserRequest } from "@/types/u
 
 const API_URL = "https://paragone-website-backend.onrender.com"
 
-// Get all users with pagination and search
 export const getUsers = async (page = 1, limit = 30, search = ""): Promise<UserResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -20,21 +19,12 @@ export const getUsers = async (page = 1, limit = 30, search = ""): Promise<UserR
   return response.data
 }
 
-
-// Get a single user by ID
-// export const getEmployee = async (employeeId: string): Promise<Employee> => {
-//   const response = await api.get<{ employee: Employee }>(`/employee/get-employee/${employeeId}`)
-//   return response.data.employee
-// }
-
-// Add a new user
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const addUser = async (userData: AddUserRequest): Promise<any> => {
  const response = await api.post<AddUserRequest>("/user/add-user", userData)
    return response.data
 }
 
-// Update an existing user
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const updateUser = async (userId: string, userData: UpdateUserRequest): Promise<any> => {
     const response = await api.post<UpdateUserRequest>(`/user/update-user/${userId}`, userData)
@@ -49,7 +39,8 @@ export const deleteUser = async (userId: string): Promise<void> => {
       throw new Error("No authentication token found")
     }
 
-    await axios.delete(`${API_URL}/user/delete-user/${userId}`, {
+    await axios.delete(`${API_URL}/user/update-user/${userId}`, {
+      data: { isActive: false },
       headers: {
         Authorization: `Bearer ${token}`,
       },

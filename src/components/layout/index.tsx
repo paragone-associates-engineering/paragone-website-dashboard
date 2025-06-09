@@ -17,7 +17,7 @@ const Layout = ({ children }: LayoutProps) => {
   const location = useLocation()
 
  
-  const isLoginPage = location.pathname === "/login"
+  const isLoginPage = location.pathname === "/login" || location.pathname === "/forgot-password"
 
   if (isLoginPage || !isAuthenticated) {
     return <>{children}</>

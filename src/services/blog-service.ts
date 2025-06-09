@@ -89,7 +89,9 @@ export const blogService = {
 
   deletePost: async (postId: string) => {
     try {
-      const response = await api.delete(`/blog/delete-post/${postId}`)
+      const formData = new FormData()
+       formData.append("metadata", JSON.stringify({isActive:false}))
+      const response = await api.post(`/blog/update-post/${postId}`,formData)
       return response.data
     } catch (error) {
       console.error(`Error deleting blog post ${postId}:`, error)

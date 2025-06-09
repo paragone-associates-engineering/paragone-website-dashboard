@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-import { MoreVertical, ChevronLeft, ChevronRight } from "lucide-react"
+import { MoreVertical, ChevronLeft, ChevronRight, Star } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+
 
 export interface Column {
   id: string
@@ -40,6 +41,8 @@ interface DataTableProps {
     onPageChange?: (page: number, pageSize: number) => void
     serverSide?: boolean
   }
+  isFeatured?:boolean
+   removeFeatured?: (id:string) => void
   searchable?: boolean
   selectable?: boolean
   className?: string
@@ -53,10 +56,12 @@ export function DataTable({
   onRowClick,
   onRowSelect,
   actionMenu,
+  removeFeatured,
   pagination = { pageSize: 10, initialPage: 1, serverSide: false },
   searchable = true,
   selectable = true,
   className,
+  isFeatured=false,
   onSearch,
   loading = false,
 }: DataTableProps) {
@@ -66,7 +71,7 @@ export function DataTable({
   const [sortBy, setSortBy] = useState<{ column: string; direction: "asc" | "desc" } | null>(null)
   const [itemsPerPage, setItemsPerPage] = useState(pagination.pageSize || 10)
 
-  // Reset page when search changes for server-side operations
+ 
   useEffect(() => {
     if (pagination.serverSide && searchQuery !== "") {
       setCurrentPage(1)
@@ -179,6 +184,7 @@ export function DataTable({
     }
   }
 
+  
   // Handle page size change
   const handlePageSizeChange = (newPageSize: number) => {
     setItemsPerPage(newPageSize)
@@ -269,6 +275,16 @@ export function DataTable({
                 className={onRowClick ? "cursor-pointer" : ""}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
+                {isFeatured &&(
+                <TableCell onClick={(e) => {
+                  e.stopPropagation();
+                  removeFeatured?.(row?.id)
+                  }}>
+  {row?.featured && (
+    <Star className="fill-primary stroke-primary text-sm" />
+  )}
+</TableCell>
+)}
                 {selectable && (
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
@@ -277,6 +293,7 @@ export function DataTable({
                     />
                   </TableCell>
                 )}
+                
                 {columns.map((column) => (
                   <TableCell key={`${row.id}-${column.id}`}>
                     {column.cell ? column.cell(row) : row[column.accessorKey]}

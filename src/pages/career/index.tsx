@@ -200,11 +200,14 @@ const CareerPage = () => {
 
       {/* Delete Confirmation Modal */}
       <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Confirm Delete">
-        <div className="py-4">
-          <p>Are you sure you want to delete this job?</p>
-          <p className="font-medium mt-2">{jobToDelete?.title}</p>
+        <div className="p-4">
+          This will deactivate the join us entry for{" "}
+            <span className="font-semibold">
+              {jobToDelete?.title} 
+            </span>
+            . This action cannot be undone.
         </div>
-        <div className="flex justify-end gap-2 mt-4">
+        <div className="flex justify-end gap-2 m-4 mb-6">
           <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
             Cancel
           </Button>
@@ -217,7 +220,7 @@ const CareerPage = () => {
       {/* View Job Modal */}
       <Modal isOpen={showViewModal} onClose={() => setShowViewModal(false)} title="Job Details">
         {selectedJob && (
-          <div className="py-4">
+          <div className="p-5">
             <div className="flex justify-between items-start mb-4">
               <h2 className="text-xl font-bold">{selectedJob.title}</h2>
               <Badge className={selectedJob.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
@@ -272,7 +275,7 @@ const CareerPage = () => {
             </div>
           </div>
         )}
-        <div className="flex justify-end gap-2 mt-4">
+        <div className="flex justify-end gap-2 mt-3 mb-5">
           <Button variant="outline" onClick={() => setShowViewModal(false)}>
             Close
           </Button>

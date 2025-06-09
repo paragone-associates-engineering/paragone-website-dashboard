@@ -5,21 +5,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { DataTable } from "@/components/shared/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Eye, Pencil, Trash2, RefreshCw, Loader2, Home, CheckCircle } from "lucide-react"
+import { Eye, Pencil, Trash2, RefreshCw, Loader2, Home, CheckCircle, Star } from "lucide-react"
 import { toast } from "sonner"
-import { listingsService, type Listing } from "@/services/listings-service"
+import { listingsService, STATUS, type Listing } from "@/services/listings-service"
 import { StatusChangeModal } from "@/components/listings/status-change"
-//import { ViewDetailsModal } from "@/components/listings/view-details-modal"
 import { DeleteConfirmation } from "@/components/listings/delete-confirmation"
 
 export default function PropertyListingPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [statusChangeListing, setStatusChangeListing] = useState<Listing | null>(null)
- // const [viewDetailsListing, setViewDetailsListing] = useState<Listing | null>(null)
   const [deletingListing, setDeletingListing] = useState<Listing | null>(null)
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
-  //const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -57,6 +54,21 @@ const [currentPage, setCurrentPage] = useState(1)
     },
   })
 
+   const updateStatusMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: ({ id, data }: { id: string; data: any }) => listingsService.updateListingStatus(id, data),
+    onSuccess: () => {
+      toast.success("Listing updated successfully")
+      queryClient.invalidateQueries({ queryKey: ["listings"] })
+      setIsStatusModalOpen(false)
+      setIsDeleteDialogOpen(false)
+      setStatusChangeListing(null)
+      setDeletingListing(null)
+    },
+    onError: () => {
+      toast.error("Failed to update listing")
+    },
+  })
  
 
   const handleChangeStatus = (listing: Listing) => {
@@ -70,22 +82,28 @@ const [currentPage, setCurrentPage] = useState(1)
 
   
   const handleViewDetails = (listing: Listing) => {
-   // setViewDetailsListing(listing)
     navigate(`/property/detail/${listing.id}`)
-   // setIsViewModalOpen(true)
+   
   }
   const handleDelete = (listing: Listing) => {
     setDeletingListing(listing)
     setIsDeleteDialogOpen(true)
   }
 
-  const handleSaveStatus = (id: string, isActive: boolean) => {
-    updateMutation.mutate({ id, data: { isActive } })
+  const handleSaveStatus = (id: string, status: STATUS) => {
+     updateStatusMutation.mutate({ id, data: { status } })
+  }
+ const handleMakeFeatured = (listing: Listing) => {
+  const id = listing?.id
+     updateStatusMutation.mutate({ id, data: { featured: true } })
+  }
+  const handleRemoveFeatured = (id:string) => {
+     updateStatusMutation.mutate({ id, data: { featured: false } })
   }
 
   const handleConfirmDelete = () => {
     if (deletingListing) {
-      updateMutation.mutate({ id: deletingListing.id, data: { isActive: false } })
+      updateStatusMutation.mutate({ id: deletingListing.id, data: { isActive: false } })
     }
   }
 
@@ -107,16 +125,24 @@ const [currentPage, setCurrentPage] = useState(1)
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
   }
 
-  const getStatusBadge = (isActive: boolean) => {
-    return (
-      <Badge
-        variant={isActive ? "default" : "secondary"}
-        className={isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}
-      >
-        {isActive ? "Active" : "Inactive"}
-      </Badge>
-    )
-  }
+  const getStatusBadge = (status?: string) => {
+     const statusColors = {
+       Pending: "bg-yellow-100 text-yellow-800",
+       Negotiation: "bg-blue-100 text-blue-800",
+       Inspection: "bg-blue-100 text-green-800",
+      "Off Market": "bg-red-100 text-green-800",
+        Paid: "bg-green-100 text-green-800",
+       Closed: "bg-gray-100 text-gray-800",
+     }
+ 
+     const displayStatus = status || "Pending"
+ 
+     return (
+       <Badge className={statusColors[displayStatus as keyof typeof statusColors] || "bg-gray-100 text-gray-800"}>
+         {displayStatus}
+       </Badge>
+     )
+   }
 
   const getListingTypeBadge = (listingType: string) => {
     const colors = {
@@ -196,7 +222,7 @@ const [currentPage, setCurrentPage] = useState(1)
       id: "status",
       header: "Status",
       accessorKey: "isActive",
-      cell: ( row: Listing ) => getStatusBadge(row.isActive),
+      cell: ( row: Listing ) => getStatusBadge(row?.status),
       enableSorting: true,
     },
     {
@@ -227,6 +253,11 @@ const [currentPage, setCurrentPage] = useState(1)
         label: "Edit property",
         icon: <Pencil className="h-4 w-4" />,
         onClick: handleEdit,
+      },
+       {
+        label: "Make Featured",
+        icon: <Star className="h-4 w-4" />,
+        onClick:  handleMakeFeatured,
       },
       {
         label: "Change status",
@@ -299,6 +330,8 @@ const [currentPage, setCurrentPage] = useState(1)
                 }}
                 searchable={true}
                 selectable={true}
+                removeFeatured={ (id:string) => handleRemoveFeatured(id)}
+                isFeatured={true}
                 onSearch={handleSearch}
                 loading={isLoading}
             />
@@ -316,6 +349,7 @@ const [currentPage, setCurrentPage] = useState(1)
         onSave={handleSaveStatus}
         isLoading={updateMutation.isPending}
       />
+
 
       <DeleteConfirmation
         isOpen={isDeleteDialogOpen}

@@ -1,4 +1,3 @@
-"use client"
 
 import type React from "react"
 import { useState } from "react"
@@ -6,39 +5,38 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
-import type { ConnectWithUs } from "@/services/partner-service"
- import { Modal } from "../ui/modal"
- 
-interface IndividualStatusModalProps {
+import type { Contact } from "@/services/contact-service"
+import { Modal } from "../ui/modal"
+
+interface StatusChangeModalProps {
   isOpen: boolean
   onClose: () => void
-  individual: ConnectWithUs | null
+  contact: Contact | null
   onSave: (id: string, status: string) => void
   isLoading: boolean
 }
 
-export function IndividualStatusModal({ isOpen, onClose, individual, onSave, isLoading }: IndividualStatusModalProps) {
+export function StatusChangeModal({ isOpen, onClose, contact, onSave, isLoading }: StatusChangeModalProps) {
   const [selectedStatus, setSelectedStatus] = useState("Pending")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (individual) {
-      onSave(individual.id, selectedStatus)
+    if (contact) {
+      onSave(contact.id, selectedStatus)
     }
   }
 
-  if (!individual) return null
+  if (!contact) return null
 
   return (
-  
- <Modal isOpen={isOpen} title='Change Company Status' onClose={onClose}>
-      <div className="sm:max-w-[400px] p-5">
+     <Modal isOpen={isOpen} title='Change Status' onClose={onClose}>
+          <div className="sm:max-w-[400px] p-5">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <p className="text-sm text-gray-600 mb-4">
-              Change status for{" "}
+              Change status for inquiry from{" "}
               <span className="font-semibold">
-                {individual.name.first} {individual.name.lastName}
+                {contact.name.first} {contact.name.lastName}
               </span>
             </p>
             <Label htmlFor="status">New Status</Label>
@@ -50,7 +48,8 @@ export function IndividualStatusModal({ isOpen, onClose, individual, onSave, isL
                 <SelectItem value="Pending">Pending</SelectItem>
                 <SelectItem value="In Progress">In Progress</SelectItem>
                 <SelectItem value="Completed">Completed</SelectItem>
-                
+                <SelectItem value="Resolved">Resolved</SelectItem>
+                <SelectItem value="Closed">Closed</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -65,7 +64,8 @@ export function IndividualStatusModal({ isOpen, onClose, individual, onSave, isL
             </Button>
           </div>
         </form>
-     </div>
-    </Modal>
+    </div>
+        </Modal>
+      
   )
 }

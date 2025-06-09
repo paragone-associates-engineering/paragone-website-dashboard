@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+//import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
 import type { JoinUs } from "@/services/join-us-service"
@@ -14,21 +14,28 @@ interface EditModalProps {
   isOpen: boolean
   onClose: () => void
   joinUsEntry: JoinUs | null
-  onSave: (id: string, data: { status: string; location: string; participation: string }) => void
+  onSave: (id: string, data: { email:string, firstName:string, lastName:string, phoneNumber:string, location: string; participation: string }) => void
   isLoading: boolean
 }
 
 export function EditModal({ isOpen, onClose, joinUsEntry, onSave, isLoading }: EditModalProps) {
   const [formData, setFormData] = useState({
-    status: "",
+    email:"",
+    firstName:"",
+    lastName:"",
     location: "",
     participation: "",
+    phoneNumber: ""
   })
 
   useEffect(() => {
     if (joinUsEntry) {
       setFormData({
-        status: joinUsEntry.status || "Pending",
+         email:joinUsEntry.email,
+    firstName:joinUsEntry.name.first,
+    lastName: joinUsEntry.name.lastName,
+    phoneNumber: joinUsEntry.phoneNumber,
+       // status: joinUsEntry.status || "Pending",
         location: joinUsEntry.location,
         participation: joinUsEntry.participation,
       })
@@ -45,9 +52,12 @@ export function EditModal({ isOpen, onClose, joinUsEntry, onSave, isLoading }: E
   const handleClose = () => {
     onClose()
     setFormData({
-      status: "",
+      email:"",
+    firstName:"",
+    lastName:"",
       location: "",
       participation: "",
+      phoneNumber: ""
     })
   }
 
@@ -55,28 +65,28 @@ export function EditModal({ isOpen, onClose, joinUsEntry, onSave, isLoading }: E
 
   return (
     <Modal isOpen={isOpen} title='Edit Join Us Entry' onClose={onClose}>
-         <div className="sm:max-w-[400px] p-5">
+         <div className=" p-5 w-full">
           
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-4 w-full">
+          <div className="grid grid-cols-2 gap-4 w-full">
             <div>
               <Label htmlFor="firstName">First Name</Label>
-              <Input id="firstName" value={joinUsEntry.name.first} disabled className="bg-gray-50" />
+              <Input id="firstName" value={formData.firstName} className="bg-gray-50" />
             </div>
             <div>
               <Label htmlFor="lastName">Last Name</Label>
-              <Input id="lastName" value={joinUsEntry.name.lastName} disabled className="bg-gray-50" />
+              <Input id="lastName" value={formData.lastName} className="bg-gray-50" />
             </div>
           </div>
 
           <div>
             <Label htmlFor="email">Email</Label>
-            <Input id="email" value={joinUsEntry.email} disabled className="bg-gray-50" />
+            <Input id="email" value={formData.email}  className="bg-gray-50" />
           </div>
 
           <div>
             <Label htmlFor="phoneNumber">Phone Number</Label>
-            <Input id="phoneNumber" value={joinUsEntry.phoneNumber} disabled className="bg-gray-50" />
+            <Input id="phoneNumber" value={formData.phoneNumber} className="bg-gray-50" />
           </div>
 
           <div>
@@ -100,7 +110,7 @@ export function EditModal({ isOpen, onClose, joinUsEntry, onSave, isLoading }: E
             />
           </div>
 
-          <div>
+          {/* <div>
             <Label htmlFor="status">Status</Label>
             <Select
               value={formData.status}
@@ -117,7 +127,7 @@ export function EditModal({ isOpen, onClose, joinUsEntry, onSave, isLoading }: E
                 <SelectItem value="Contacted">Contacted</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={handleClose}>

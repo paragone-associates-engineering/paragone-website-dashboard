@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge"
 import { Phone, Mail, MessageSquare, Tag, Calendar } from "lucide-react"
 import type { Contact } from "@/services/contact-service"
 import { Modal } from "../ui/modal"
+import { listingsService } from "@/services/listings-service"
+import { useQuery } from "@tanstack/react-query"
 
 interface ViewDetailsModalProps {
   isOpen: boolean
@@ -12,6 +14,14 @@ interface ViewDetailsModalProps {
 }
 
 export function ViewDetailsModal({ isOpen, onClose, contact }: ViewDetailsModalProps) {
+   const {
+    data: listing,
+  } = useQuery({
+    queryKey: ["listing", contact?.listingId],
+    queryFn: () => contact ? listingsService.getListing(contact.listingId!) : Promise.resolve(undefined),
+    enabled: !!contact?.listingId,
+    staleTime: 1000 * 60 * 5,
+  })
   if (!contact) return null
 
   const getStatusBadge = (status?: string) => {
@@ -42,7 +52,7 @@ export function ViewDetailsModal({ isOpen, onClose, contact }: ViewDetailsModalP
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <span className="font-medium">Name:</span>
-                <span>
+                <span className="capitalize">
                   {contact.name.first} {contact.name.lastName}
                 </span>
               </div>
@@ -78,9 +88,14 @@ export function ViewDetailsModal({ isOpen, onClose, contact }: ViewDetailsModalP
                 <span className="text-sm">{contact.id}</span>
               </div>
               {contact.listingId && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">Listing ID:</span>
-                  <span className="text-sm">{contact.listingId}</span>
+                <div className="flex space-x-2">
+                  <span className="text-sm text-gray-500">Property:</span>
+                  <div className="flex flex-col gap-1 font-bold">
+                  <span className="text-sm ">{contact.listingId}</span>
+                   <span className="text-sm capitalize">{listing && listing?.propertyName}</span>
+                    <span className="text-sm capitalize">{listing && listing?.listingType}</span>
+                    <span className="text-sm capitalize ">{listing && listing?.propertyType}</span>
+                   </div>
                 </div>
               )}
             </div>

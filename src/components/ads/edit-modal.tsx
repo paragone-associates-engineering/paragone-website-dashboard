@@ -84,7 +84,7 @@ export function EditModal({ isOpen, onClose, ad, onSave, isLoading }: EditModalP
   if (!ad) return null
 return (
   <Modal isOpen={isOpen} title='Edit Advertisement' onClose={onClose}>
-         <div className="sm:max-w-[400px] p-5">
+         <div className="p-5">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="title">Title</Label>

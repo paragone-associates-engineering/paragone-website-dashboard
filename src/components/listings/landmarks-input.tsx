@@ -48,6 +48,7 @@ export function LandmarksInput({ value, onChange, label = "Landmarks" }: Landmar
   const removeLandmark = (index: number) => {
     onChange(value.filter((_, i) => i !== index))
   }
+  console.log('value', value)
 
   return (
     <div className="space-y-4">

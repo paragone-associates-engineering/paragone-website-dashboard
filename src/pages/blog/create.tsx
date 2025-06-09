@@ -3,20 +3,21 @@ import type React from "react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+//import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FormContainer, FormField, FormImageUpload, FormTagsInput } from "@/components/shared/form-container"
-import { LexicalEditor } from "@/components/shared/rich-text-editor"
+//import { LexicalEditor } from "@/components/shared/rich-text-editor"
 import { blogService } from "@/services/blog-service"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-
+import RichTextEditor from "@/components/tiptap/rich-text-editor"
+import "@/components/tiptap/tiptap-styles.css";
 const CreateBlog = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const [formData, setFormData] = useState({
     title: "",
-    category: "Villa",
+    category: "",
     content: "",
     header: "",
     url: "",
@@ -56,6 +57,7 @@ const CreateBlog = () => {
     },
   })
 
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -67,10 +69,6 @@ const CreateBlog = () => {
     setErrors((prev) => ({ ...prev, content: false }))
   }
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    setErrors((prev) => ({ ...prev, [name]: false }))
-  }
 
   const validateForm = () => {
     const newErrors: Record<string, boolean> = {}
@@ -140,17 +138,13 @@ const CreateBlog = () => {
               </FormField>
 
               <FormField label="Blog category" required>
-                <Select value={formData.category} onValueChange={(value) => handleSelectChange("category", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Villa" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Villa">Villa</SelectItem>
-                    <SelectItem value="Apartment">Apartment</SelectItem>
-                    <SelectItem value="House">House</SelectItem>
-                    <SelectItem value="Land">Land</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  placeholder="Enter blog category"
+                  className={errors.title ? "border-red-500" : ""}
+                />
               </FormField>
             </div>
 
@@ -165,7 +159,7 @@ const CreateBlog = () => {
               {errors.header && <p className="text-sm text-red-500 mt-1">Header is required</p>}
             </FormField>
 
-            <FormField label="Content" required className="mt-4">
+            {/* <FormField label="Content" required className="mt-4">
               <LexicalEditor
                 value={formData.content}
                 onChange={handleContentChange}
@@ -173,6 +167,14 @@ const CreateBlog = () => {
                 error={errors.content}
                 minHeight="200px"
               />
+            </FormField> */}
+
+            <FormField  label="Content" required className="mt-4">
+              <RichTextEditor
+						content={formData.content}
+						onChange={handleContentChange}
+						placeholder="Write your blog content here...."
+					/>
             </FormField>
 
             <FormField label="Add URL" className="mt-4">

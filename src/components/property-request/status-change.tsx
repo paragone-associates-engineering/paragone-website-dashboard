@@ -52,8 +52,6 @@ export function StatusChangeModal({ isOpen, onClose, property, onSave, isLoading
                 <SelectItem value={STATUS.PENDING}>Pending</SelectItem>
                 <SelectItem value={STATUS.IN_PROGRESS}>In Progress</SelectItem>
                 <SelectItem value={STATUS.COMPLETED}>Completed</SelectItem>
-                <SelectItem value={STATUS.APPROVED}>Approved</SelectItem>
-                <SelectItem value={STATUS.REJECTED}>Rejected</SelectItem>
               </SelectContent>
             </Select>
           </div>
