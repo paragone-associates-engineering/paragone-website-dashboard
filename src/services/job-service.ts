@@ -34,8 +34,5 @@ export const jobService = {
     }
   },
 
-  // deleteJob: async (jobId: string) => {
-  //   const response = await api.delete<{ success: boolean }>(`/jobs/delete-job/${jobId}`)
-  //   return response.data
-  // },
+ 
 }

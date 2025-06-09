@@ -151,6 +151,7 @@ const Sidebar = ({collapsed, setCollapsed}:{collapsed: boolean, setCollapsed: (v
     { icon: <Mail size={20} />, label: 'Contact us', path: '/contact',
       submenu: [
         { label: 'Contact us list', path: '/contact/list' },
+        { label: 'Get In Touch', path: '/get-in-touch' },
       ] 
     },
     { icon: <Scroll size={20} />, label: 'Subscription', path: '/subscription',

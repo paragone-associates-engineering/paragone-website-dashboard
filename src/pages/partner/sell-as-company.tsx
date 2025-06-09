@@ -256,9 +256,6 @@ export default function SellAsACompanyPage() {
             )}
           </div>
         
-      
-
-      {/* Company Modals */}
       <CompanyStatusModal
         isOpen={isCompanyStatusModalOpen}
         onClose={() => {
@@ -280,8 +277,6 @@ export default function SellAsACompanyPage() {
         onReject={handleSaveRejection}
         isLoading={rejectCompanyMutation.isPending}
       />
-
-      {/* Delete Confirmations */}
 
       <DeleteConfirmation
         isOpen={isCompanyDeleteDialogOpen}

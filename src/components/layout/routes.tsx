@@ -35,12 +35,15 @@ import UnauthorizedPage from "@/pages/auth/unauthorized"
 import ProtectedRoute from "@/components/layout/protected-routes"
 import SellAsACompanyPage from "@/pages/partner/sell-as-company"
 import { AdminGuard } from "../auth/role-guard"
+import ForgotPassword from "@/pages/auth/forgot-password"
+import GetInTouchList from "@/pages/get-in-touch"
 
 const AppRoutes = () => {
   
   return (
     <Routes>
     <Route path="/login" element={<Login />} />
+     <Route path="/forgot-password" element={<ForgotPassword />} />
      <Route path="/unauthorized" element={<UnauthorizedPage />} />
      <Route element={<ProtectedRoute />}>
      <Route path="/" element={<Dashboard />} />
@@ -79,6 +82,7 @@ const AppRoutes = () => {
       <Route path="/users/list" element={<AdminGuard><UserManagementPage /></AdminGuard>} />
       <Route path="/advertising/list" element={<AdminGuard><AdvertisingPage /></AdminGuard>} />
       <Route path="/contact/list" element={<ContactUsListPage />} />
+       <Route path="/get-in-touch" element={<GetInTouchList />} />
       <Route path="/subscriber/list" element={<Subscribers />} />
  </Route>
 

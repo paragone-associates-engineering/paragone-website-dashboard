@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Link } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import { getInitials } from "@/utils/initials"
+import { notificationService } from '@/services/notification-service';
+import { useQuery } from '@tanstack/react-query';
 
 interface NavbarProps {
   children?: React.ReactNode
@@ -17,7 +19,15 @@ interface NavbarProps {
 const Navbar = ({ children}: NavbarProps) => {
   const { user, logout } = useAuth()
   //console.log(user)
+const {
+    data: notificationsData,
+  } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: () => notificationService.getNotifications(),
+    staleTime: 1000 * 60 * 2, 
+  })
 
+  const metadata = notificationsData?.metadata?.[0] || { total: 0, totalPages: 0 }
   
   const handleLogOut = async() => {
    await logout();
@@ -54,7 +64,7 @@ const Navbar = ({ children}: NavbarProps) => {
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
             <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary hover:bg-primary/90">
-              12
+              {metadata.total || 0}
             </Badge>
           </Button>
           {/* <Button variant="ghost" size="icon" className="relative">
@@ -84,6 +94,7 @@ const Navbar = ({ children}: NavbarProps) => {
              <DropdownMenuItem onClick={handleLogOut}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          
         </div>
       </div>
     </header>

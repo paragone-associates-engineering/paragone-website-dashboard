@@ -39,6 +39,10 @@ export interface UpdateContactDTO {
 
 export const contactService = {
   getContacts: async (params?: { page?: number; limit?: number; search?: string }) => {
+    const response = await api.get<ContactResponse>("/form/get-contact-us", { params })
+    return response.data
+  },
+ getInTouch: async (params?: { page?: number; limit?: number; search?: string }) => {
     const response = await api.get<ContactResponse>("/form/get-get-in-touch", { params })
     return response.data
   },

@@ -1,7 +1,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useMutation } from "@tanstack/react-query"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -133,9 +133,9 @@ const LoginPage = () => {
                     Remember me
                   </label>
                 </div>
-                <a href="#" className="text-sm text-yellow-500 hover:text-yellow-600">
+                <Link to="/forgot-password" className="text-sm text-yellow-500 hover:text-yellow-600">
                   Forgot Password?
-                </a>
+                </Link>
               </div>
 
               <Button
@@ -145,13 +145,6 @@ const LoginPage = () => {
               >
                 {loginMutation.isPending ? "Signing in..." : "Sign In"}
               </Button>
-
-              <div className="text-center text-sm">
-                <span className="text-gray-600">Don't have an account?</span>{" "}
-                <a href="#" className="text-primary hover:text-yellow-600 font-medium">
-                  Sign Up
-                </a>
-              </div>
             </div>
           </form>
         </div>

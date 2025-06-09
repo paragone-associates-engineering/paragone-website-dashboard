@@ -57,7 +57,7 @@ export function EditModal({ isOpen, onClose, referral, onSave, isLoading }: Edit
 
   return (
     <Modal isOpen={isOpen} title='Edit Referral' onClose={handleClose}>
-      <div className="sm:max-w-[500px] p-5">
+      <div className="p-5">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>

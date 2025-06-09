@@ -27,11 +27,11 @@ export interface PropertyDetail {
 }
 
 export interface LocationDTO {
-  id: string
-  country: string
-  region: string
-  city: string
-  postalCode: string
+  id?: string
+  country?: string
+  region?: string
+  city?: string
+  postalCode?: string
 }
 
 export interface Listing {
@@ -42,11 +42,15 @@ export interface Listing {
   propertyCategory: PropertyCategory
   propertyType: string
   propertyName: string
-  location: LocationDTO
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  location:any
   listingType: ListingType
   images: string[]
   description: string
+  propertyAgent?:PropertyOwnerAgent
+    propertyOwner?:PropertyOwnerAgent
   landmarks?: Landmarks[]
+  status?:string;
   propertyDetails: PropertyDetail[]
   videoUrl: string
   featured?: boolean
@@ -76,6 +80,8 @@ export interface CreateListingDTO {
   location: LocationDTO
   listingType: ListingType
   description: string
+   propertyAgent?:PropertyOwnerAgent
+    propertyOwner?:PropertyOwnerAgent
   landmarks?: Landmarks[]
   propertyDetails: PropertyDetail[]
 }
@@ -87,16 +93,23 @@ export interface ListingFormData {
   propertyCategory: PropertyCategory
   videoUrl: string
   propertyType: string
-  location: LocationDTO
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  location:any
   listingType: ListingType
+   featured?:boolean;
+  status?:string;
   description: string
+   propertyAgent?:PropertyOwnerAgent
+    propertyOwner?:PropertyOwnerAgent
   landmarks?: Landmarks[]
-  propertyDetails: PropertyDetail[]
+  propertyDetails?: PropertyDetail[]
+   propertyDetail?: PropertyDetail[]
   images?: File[]
 }
 
 export interface UpdateListingStatusDTO {
   status?: string
+  featured?:boolean
   isActive?: boolean
 }
 
@@ -107,11 +120,15 @@ export interface UpdateListingDTO {
   propertyCategory?: PropertyCategory
   videoUrl?: string
   propertyType?: string
-  location?: LocationDTO
+  status?:string;
+  featured?:boolean;
+  location?: string;
   listingType?: ListingType
   description?: string
+   propertyAgent?:PropertyOwnerAgent
+    propertyOwner?:PropertyOwnerAgent
   landmarks?: Landmarks[]
-  propertyDetails?: PropertyDetail[]
+  propertyDetail?: PropertyDetail[]
   isActive?: boolean
 }
 export interface Region {
@@ -128,6 +145,12 @@ export interface Region {
   createdAt: string
   updatedAt: string
   __v: number
+}
+export interface PropertyOwnerAgent {
+   name?: string;
+    address?: string;
+    phone?: string;
+    link?: string;
 }
 
 export interface CreateRegionDTO { 
@@ -214,10 +237,12 @@ export const listingsService = {
         videoUrl: listingData.videoUrl,
         propertyType: listingData.propertyType,
         location: listingData.location,
+        propertyAgent:{name: listingData?.propertyAgent?.name, address:listingData?.propertyAgent?.address, phone:listingData?.propertyAgent?.phone, link:listingData?.propertyAgent?.link},
+        propertyOwner:{name: listingData?.propertyOwner?.name, address:listingData?.propertyOwner?.address, phone:listingData?.propertyOwner?.phone, link:listingData?.propertyOwner?.link},
         listingType: listingData.listingType,
         description: listingData.description,
         landmarks: listingData.landmarks,
-        propertyDetails: listingData.propertyDetails,
+        propertyDetails: listingData?.propertyDetails || [],
       }
 
       formData.append("metadata", JSON.stringify(listingDTO))
@@ -240,17 +265,60 @@ export const listingsService = {
       throw error
     }
   },
-updateListing: async (listingId: string, data: UpdateListingDTO) => {
-    const response = await api.patch<Listing>(`/listings/update-listing/${listingId}`, data)
-    return response.data
+  updateListing: async (listingId: string, listingData: ListingFormData) => {
+    try {
+      const formData = new FormData()
+
+      const listingDTO: UpdateListingDTO = {
+        amount: listingData.amount,
+        propertyName: listingData.propertyName,
+        area: listingData.area,
+        status:listingData.status,
+        propertyCategory: listingData.propertyCategory,
+        videoUrl: listingData.videoUrl,
+        propertyType: listingData.propertyType,
+        location: listingData.location.id,
+        propertyAgent:{name: listingData?.propertyAgent?.name, address:listingData?.propertyAgent?.address, phone:listingData?.propertyAgent?.phone, link:listingData?.propertyAgent?.link},
+        propertyOwner:{name: listingData?.propertyOwner?.name, address:listingData?.propertyOwner?.address, phone:listingData?.propertyOwner?.phone, link:listingData?.propertyOwner?.link},
+        listingType: listingData.listingType,
+        description: listingData.description,
+        landmarks: listingData.landmarks,
+        propertyDetail: listingData.propertyDetails,
+      }
+
+      formData.append("metadata", JSON.stringify(listingDTO))
+
+      if (listingData.images && listingData.images.length > 0) {
+        listingData.images.forEach((image) => {
+          formData.append("images", image)
+        })
+      }
+
+      const response = await api.post(`/listings/update/${listingId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+
+      return response.data
+    } catch (error) {
+      console.error("Error creating listing:", error)
+      throw error
+    }
   },
+// updateListing: async (listingId: string, data: UpdateListingDTO) => {
+//     const response = await api.post<Listing>(`/listings/update/${listingId}`, data)
+//     return response.data
+//   },
   updateListingStatus: async (listingId: string, data: UpdateListingStatusDTO) => {
-    const response = await api.post<Listing>(`/listings/update-listing/${listingId}`, data)
+    const formData = new FormData()
+       formData.append("metadata", JSON.stringify(data))
+    const response = await api.post<Listing>(`/listings/update/${listingId}`, formData)
     return response.data
   },
 
   deleteListing: async (listingId: string) => {
-    const response = await api.delete<{ success: boolean }>(`/listings/delete-listing/${listingId}`)
+    const response = await api.delete<{ success: boolean }>(`/listings/update/${listingId}`)
     return response.data
   },
 

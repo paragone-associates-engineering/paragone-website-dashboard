@@ -41,6 +41,8 @@ export default function AddPropertyPage() {
       city: "",
       postalCode: "",
     },
+    propertyAgent:{name: "", address:"", phone:"", link:""},
+    propertyOwner:{name: "", address:"", phone:"", link:""},
     landmarks: [],
     propertyDetails: [],
     images: [],
@@ -89,6 +91,8 @@ export default function AddPropertyPage() {
         city: "",
         postalCode: "",
       },
+      propertyAgent:{name: "", address:"", phone:"", link:""},
+      propertyOwner:{name: "", address:"", phone:"", link:""},
       landmarks: [],
       propertyDetails: [],
       images: [],
@@ -113,6 +117,28 @@ export default function AddPropertyPage() {
   const handleLandmarksChange = (landmarks: Landmarks[]) => {
     setFormData((prev) => ({ ...prev, landmarks }))
   }
+
+  const handleAgentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { name, value } = e.target
+  setFormData((prev) => ({
+    ...prev,
+    propertyAgent: {
+      ...prev.propertyAgent,
+      [name]: value,
+    },
+  }))
+}
+
+const handleOwnerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { name, value } = e.target
+  setFormData((prev) => ({
+    ...prev,
+    propertyOwner: {
+      ...prev.propertyOwner,
+      [name]: value,
+    },
+  }))
+}
 
   const handlePropertyDetailsChange = (propertyDetails: PropertyDetail[]) => {
     setFormData((prev) => ({ ...prev, propertyDetails }))
@@ -140,7 +166,7 @@ export default function AddPropertyPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
+console.log(formData)
     if (!formData.propertyName || !formData.propertyType || !formData.location.id) {
       toast.error("Please fill in all required fields")
       return
@@ -170,7 +196,7 @@ export default function AddPropertyPage() {
             isLoading={createListingMutation.isPending}
           >
             <FormSection title="Property Information">
-              <FormRow>
+              <FormRow className='w-full !grid-cols-2'>
                 <FormField label="Property Name" required>
                   <Input
                     name="propertyName"
@@ -197,7 +223,7 @@ export default function AddPropertyPage() {
                 </FormField>
               </FormRow>
 
-              <FormRow className="mt-4">
+              <FormRow className="mt-4 w-full !grid-cols-2">
                 <FormField label="Property Type" required>
                   <Select
                     value={formData.propertyType}
@@ -255,7 +281,7 @@ export default function AddPropertyPage() {
             </FormSection>
 
             <FormSection title="Property Specifications" collapsible>
-              <FormRow>
+              <FormRow className="w-full !grid-cols-2">
                 <FormField label="Price Amount" required>
                   <Input
                     name="amount"
@@ -279,11 +305,58 @@ export default function AddPropertyPage() {
             </FormSection>
 
             <FormSection title="Property Details" collapsible>
-              <PropertyDetailsInput value={formData.propertyDetails} onChange={handlePropertyDetailsChange} />
+              <PropertyDetailsInput value={formData.propertyDetails || []} onChange={handlePropertyDetailsChange} />
             </FormSection>
-
+ <FormSection title="Property Area">
+ <FormField label="Area (sq ft)" required>
+                  <Input
+                    name="area"
+                    type="number"
+                    value={formData.area || ""}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, area: Number.parseInt(e.target.value) || 0 }))}
+                    placeholder="Enter area"
+                  />
+                </FormField>
+ </FormSection>
             <FormSection title="Landmarks" collapsible>
               <LandmarksInput value={formData.landmarks || []} onChange={handleLandmarksChange} />
+            </FormSection>
+
+            <FormSection title="Property Owner" collapsible>
+              <FormRow className="mt-4 !grid-cols-2">
+                    <FormField label="Owner name">
+                <Input
+                 name="name"
+                  value={formData?.propertyOwner?.name}
+                  onChange={handleOwnerChange}
+                  placeholder="Owner name here"
+                />
+              </FormField>
+              <FormField label="Owner Address">
+                <Input
+                 name="address"
+                  value={formData?.propertyOwner?.address}
+                 onChange={handleOwnerChange}
+                  placeholder="Enter address"
+                />
+              </FormField>
+              <FormField label="Owner contact number">
+                <Input
+                  name="phone"
+                  value={formData?.propertyOwner?.phone}
+                  onChange={handleOwnerChange}
+                  placeholder="Enter contact number"
+                />
+              </FormField>
+              <FormField label="Owner social link">
+                <Input
+                 name="link"
+                  value={formData?.propertyOwner?.link}
+                  onChange={handleOwnerChange}
+                  placeholder="Enter link"
+                />
+              </FormField>
+                  </FormRow>
             </FormSection>
 
             <FormSection title="Property Video" collapsible>
@@ -295,6 +368,43 @@ export default function AddPropertyPage() {
                   placeholder="https://www.youtube.com/watch?v=..."
                 />
               </FormField>
+            </FormSection>
+
+            <FormSection title="Property Agent" collapsible>
+              <FormRow className="mt-4 !grid-cols-2">
+                    <FormField label="Agent name">
+                <Input
+                  name="name"
+                  value={formData?.propertyAgent?.name}
+                  onChange={handleAgentChange}
+                  placeholder="Agent name here"
+                />
+              </FormField>
+              <FormField label="Agent Address">
+                <Input
+                  name="address"
+                  value={formData?.propertyAgent?.address}
+                  onChange={handleAgentChange}
+                  placeholder="Enter address"
+                />
+              </FormField>
+              <FormField label="Agent contact number">
+                <Input
+                  name="phone"
+                  value={formData?.propertyAgent?.phone}
+                   onChange={handleAgentChange}
+                  placeholder="Enter contact number"
+                />
+              </FormField>
+              <FormField label="Agent social link">
+                <Input
+                  name="link"
+                  value={formData?.propertyAgent?.link}
+                  onChange={handleAgentChange}
+                  placeholder="Enter link"
+                />
+              </FormField>
+                  </FormRow>
             </FormSection>
           </FormContainer>
         </div>

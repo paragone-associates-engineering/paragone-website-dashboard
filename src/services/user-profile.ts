@@ -33,7 +33,7 @@ export const userService = {
   },
 
 resetPassword: async (email:string) => {
-    const response = await api.post(`/authenticate/reset-password`, email)
+    const response = await api.post(`/authenticate/reset-password`, {email:email})
     return response.data
   },
 }

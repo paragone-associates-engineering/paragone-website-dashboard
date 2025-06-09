@@ -24,6 +24,7 @@ import {
   propertyTypesByCategory
 } from "@/services/listings-service"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 
 export default function EditPropertyPage() {
   const { id } = useParams<{ id: string }>()
@@ -39,6 +40,8 @@ export default function EditPropertyPage() {
     area: 0,
     listingType: ListingType.FOR_SALE,
     videoUrl: "",
+     status:"Pending",
+     featured:false,
     location: {
       id: "",
       country: "",
@@ -46,6 +49,8 @@ export default function EditPropertyPage() {
       city: "",
       postalCode: "",
     },
+    propertyAgent:{name: "", address:"", phone:"", link:""},
+    propertyOwner:{name: "", address:"", phone:"", link:""},
     landmarks: [],
     propertyDetails: [],
     images: [],
@@ -55,7 +60,6 @@ export default function EditPropertyPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [existingImages, setExistingImages] = useState<string[]>([])
 
-  // Get available property types based on selected category
   const availablePropertyTypes = useMemo(
     () =>
       propertyTypesByCategory[formData.propertyCategory as keyof typeof propertyTypesByCategory] ||
@@ -63,7 +67,7 @@ export default function EditPropertyPage() {
     [formData.propertyCategory]
   )
 
-  // Reset property type when category changes (but only after initial load)
+
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   
   useEffect(() => {
@@ -84,12 +88,13 @@ export default function EditPropertyPage() {
     staleTime: 1000 * 60 * 5,
   })
 
-  // Update listing
+
   const updateMutation = useMutation({
-    mutationFn: (data: ListingFormData) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: (data: any) => {
       if (!id) throw new Error("No listing ID provided")
 
-      // Create update DTO from form data
+      
       const updateData = {
         propertyName: data.propertyName,
         propertyType: data.propertyType,
@@ -97,11 +102,15 @@ export default function EditPropertyPage() {
         description: data.description,
         amount: data.amount,
         area: data.area,
+        status: data.status,
+        featured:data.featured,
         listingType: data.listingType,
         videoUrl: data.videoUrl,
-        location: data.location,
+        location: data.location.id, 
+        propertyAgent: { name: data?.propertyAgent?.name, address: data?.propertyAgent?.address, phone: data?.propertyAgent?.phone, link: data?.propertyAgent?.link },
+        propertyOwner: { name: data?.propertyOwner?.name, address: data?.propertyOwner?.address, phone: data?.propertyOwner?.phone, link: data?.propertyOwner?.link },
         landmarks: data.landmarks,
-        propertyDetails: data.propertyDetails,
+        propertyDetail: data.propertyDetails,
       }
 
       return listingsService.updateListing(id, updateData)
@@ -110,14 +119,14 @@ export default function EditPropertyPage() {
       toast.success("Property listing updated successfully")
       queryClient.invalidateQueries({ queryKey: ["listings"] })
       queryClient.invalidateQueries({ queryKey: ["listing", id] })
-      navigate(`/property-detail/${id}`)
+      navigate(`/property/detail/${id}`)
     },
     onError: () => {
       toast.error("Failed to update property listing")
     },
   })
 
-  // Populate form with existing data when listing is loaded
+  
   useEffect(() => {
     if (listing) {
       setFormData({
@@ -127,21 +136,25 @@ export default function EditPropertyPage() {
         description: listing.description,
         amount: listing.amount,
         area: listing.area,
+        featured:listing.featured,
+         status:listing?.status || 'Pending',
         listingType: listing.listingType,
         videoUrl: listing.videoUrl || "",
         location: listing.location,
         landmarks: listing.landmarks || [],
+        propertyAgent:{name: listing?.propertyAgent?.name, address:listing?.propertyAgent?.address, phone:listing?.propertyAgent?.phone, link:listing?.propertyAgent?.link},
+        propertyOwner:{name: listing?.propertyOwner?.name, address:listing?.propertyOwner?.address, phone:listing?.propertyOwner?.phone, link:listing?.propertyOwner?.link},
         propertyDetails: listing.propertyDetails || [],
         images: [],
       })
 
-      // Set existing images
+     
       if (listing.images && listing.images.length > 0) {
         setExistingImages(listing.images)
         setImagePreviews(listing.images)
       }
 
-      // Mark initial load as complete
+     
       setIsInitialLoad(false)
     }
   }, [listing])
@@ -163,6 +176,28 @@ export default function EditPropertyPage() {
     setFormData((prev) => ({ ...prev, landmarks }))
   }
 
+  const handleAgentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      propertyAgent: {
+        ...prev.propertyAgent,
+        [name]: value,
+      },
+    }))
+  }
+  
+  const handleOwnerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      propertyOwner: {
+        ...prev.propertyOwner,
+        [name]: value,
+      },
+    }))
+  }
+  
   const handlePropertyDetailsChange = (propertyDetails: PropertyDetail[]) => {
     setFormData((prev) => ({ ...prev, propertyDetails }))
   }
@@ -178,20 +213,20 @@ export default function EditPropertyPage() {
   }
 
   const removeImage = (index: number) => {
-    // Check if it's an existing image or a new one
+  
     if (index < existingImages.length) {
-      // It's an existing image
+     
       setExistingImages((prev) => prev.filter((_, i) => i !== index))
     } else {
-      // It's a new image
+     
       const adjustedIndex = index - existingImages.length
       setImageFiles((prev) => prev.filter((_, i) => i !== adjustedIndex))
     }
 
-    // Remove from previews
+   
     setImagePreviews((prev) => {
       const newPreviews = prev.filter((_, i) => i !== index)
-      // Revoke the URL to prevent memory leaks
+     
       if (index >= existingImages.length) {
         URL.revokeObjectURL(prev[index])
       }
@@ -199,6 +234,9 @@ export default function EditPropertyPage() {
     })
   }
 
+  const handleSwitchChange = (checked: boolean) => {
+    setFormData((prev) => ({ ...prev, featured: checked }))
+  }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -262,13 +300,23 @@ export default function EditPropertyPage() {
     )
   }
 
+  //console.log(formData)
   return (
     <div className="p-6 max-w-full">
-      <div className="mb-6 flex items-center">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="mr-2">
+      <div className="mb-6 flex items-center justify-between">
+      <div className="flex items-center">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="mr-2">
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-2xl font-bold">Edit Property: {listing.propertyName}</h1>
+      </div>
+        
+              <FormField label="Make Featured">
+                <div className="flex items-center space-x-2">
+                  <Switch checked={formData.featured} onCheckedChange={handleSwitchChange} />
+                  <span className='text-sm'>{formData.featured ? "Featured" : "Not Featured"}</span>
+                </div>
+              </FormField>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -390,13 +438,48 @@ export default function EditPropertyPage() {
             </FormSection>
 
             <FormSection title="Property Details" collapsible>
-              <PropertyDetailsInput value={formData.propertyDetails} onChange={handlePropertyDetailsChange} />
+              <PropertyDetailsInput value={formData.propertyDetails || []} onChange={handlePropertyDetailsChange} />
             </FormSection>
 
             <FormSection title="Landmarks" collapsible>
               <LandmarksInput value={formData.landmarks || []} onChange={handleLandmarksChange} />
             </FormSection>
-
+ <FormSection title="Property Agent" collapsible>
+              <FormRow className="mt-4 !grid-cols-2">
+                    <FormField label="Agent name">
+                <Input
+                  name="name"
+                  value={formData?.propertyAgent?.name}
+                  onChange={handleAgentChange}
+                  placeholder="Agent name here"
+                />
+              </FormField>
+              <FormField label="Agent Address">
+                <Input
+                  name="address"
+                  value={formData?.propertyAgent?.address}
+                  onChange={handleAgentChange}
+                  placeholder="Enter address"
+                />
+              </FormField>
+              <FormField label="Agent contact number">
+                <Input
+                  name="phone"
+                  value={formData?.propertyAgent?.phone}
+                   onChange={handleAgentChange}
+                  placeholder="Enter contact number"
+                />
+              </FormField>
+              <FormField label="Agent social link">
+                <Input
+                  name="link"
+                  value={formData?.propertyAgent?.link}
+                  onChange={handleAgentChange}
+                  placeholder="Enter link"
+                />
+              </FormField>
+                  </FormRow>
+            </FormSection>
             <FormSection title="Property Video" collapsible>
               <FormField label="Video URL">
                 <Input
@@ -407,6 +490,42 @@ export default function EditPropertyPage() {
                 />
               </FormField>
             </FormSection>
+             <FormSection title="Property Owner" collapsible>
+                          <FormRow className="mt-4 !grid-cols-2">
+                                <FormField label="Owner name">
+                            <Input
+                             name="name"
+                              value={formData?.propertyOwner?.name}
+                              onChange={handleOwnerChange}
+                              placeholder="Owner name here"
+                            />
+                          </FormField>
+                          <FormField label="Owner Address">
+                            <Input
+                             name="address"
+                              value={formData?.propertyOwner?.address}
+                             onChange={handleOwnerChange}
+                              placeholder="Enter address"
+                            />
+                          </FormField>
+                          <FormField label="Owner contact number">
+                            <Input
+                              name="phone"
+                              value={formData?.propertyOwner?.phone}
+                              onChange={handleOwnerChange}
+                              placeholder="Enter contact number"
+                            />
+                          </FormField>
+                          <FormField label="Owner social link">
+                            <Input
+                             name="link"
+                              value={formData?.propertyOwner?.link}
+                              onChange={handleOwnerChange}
+                              placeholder="Enter link"
+                            />
+                          </FormField>
+                              </FormRow>
+                        </FormSection>
           </FormContainer>
         </div>
 

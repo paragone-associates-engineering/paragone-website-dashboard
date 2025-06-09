@@ -2,8 +2,8 @@
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { DataTable } from "@/components/shared/data-table"
-import { Badge } from "@/components/ui/badge"
-import { Eye, Pencil, Trash2, RefreshCw, Loader2 } from "lucide-react"
+//import { Badge } from "@/components/ui/badge"
+import { Pencil, Trash2,  Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { joinUsService, type JoinUs } from "@/services/join-us-service"
 import { EditModal } from "@/components/join-us/edit-modal"
@@ -65,19 +65,19 @@ export default function JoinUsPage() {
     setIsEditModalOpen(true)
   }
 
-  const handleChangeStatus = (entry: JoinUs) => {
-    setStatusChangeEntry(entry)
-    setIsStatusModalOpen(true)
-  }
+  // const handleChangeStatus = (entry: JoinUs) => {
+  //   setStatusChangeEntry(entry)
+  //   setIsStatusModalOpen(true)
+  // }
 
   const handleDelete = (entry: JoinUs) => {
     setDeletingEntry(entry)
     setIsDeleteDialogOpen(true)
   }
 
-  const handleViewDetails = (entry: JoinUs) => {
-    toast.info(`Viewing details for ${entry.name.first} ${entry.name.lastName}`)
-  }
+  // const handleViewDetails = (entry: JoinUs) => {
+  //   toast.info(`Viewing details for ${entry.name.first} ${entry.name.lastName}`)
+  // }
  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSaveEdit = (id: string, data: any) => {
     updateMutation.mutate({ id, data })
@@ -93,23 +93,23 @@ export default function JoinUsPage() {
     }
   }
 
-  const getStatusBadge = (status?: string) => {
-    const statusColors = {
-      Pending: "bg-yellow-100 text-yellow-800",
-      Approved: "bg-green-100 text-green-800",
-      Rejected: "bg-red-100 text-red-800",
-      "In Review": "bg-blue-100 text-blue-800",
-      Contacted: "bg-purple-100 text-purple-800",
-    }
+  // const getStatusBadge = (status?: string) => {
+  //   const statusColors = {
+  //     Pending: "bg-yellow-100 text-yellow-800",
+  //     Approved: "bg-green-100 text-green-800",
+  //     Rejected: "bg-red-100 text-red-800",
+  //     "In Review": "bg-blue-100 text-blue-800",
+  //     Contacted: "bg-purple-100 text-purple-800",
+  //   }
 
-    const displayStatus = status || "Pending"
+  //   const displayStatus = status || "Pending"
 
-    return (
-      <Badge className={statusColors[displayStatus as keyof typeof statusColors] || "bg-gray-100 text-gray-800"}>
-        {displayStatus}
-      </Badge>
-    )
-  }
+  //   return (
+  //     <Badge className={statusColors[displayStatus as keyof typeof statusColors] || "bg-gray-100 text-gray-800"}>
+  //       {displayStatus}
+  //     </Badge>
+  //   )
+  // }
 
   const columns = [
     {
@@ -156,13 +156,6 @@ export default function JoinUsPage() {
       enableSorting: false,
     },
     {
-      id: "status",
-      header: "Status",
-      accessorKey: "status",
-      cell: ( row: JoinUs ) => getStatusBadge(row.status),
-      enableSorting: true,
-    },
-    {
       id: "createdAt",
       header: "Joined",
       accessorKey: "createdAt",
@@ -181,21 +174,21 @@ export default function JoinUsPage() {
 
   const actionMenu = {
     items: [
-      {
-        label: "View Details",
-        icon: <Eye className="h-4 w-4" />,
-        onClick: handleViewDetails,
-      },
+      // {
+      //   label: "View Details",
+      //   icon: <Eye className="h-4 w-4" />,
+      //   onClick: handleViewDetails,
+      // },
       {
         label: "Edit",
         icon: <Pencil className="h-4 w-4" />,
         onClick: handleEdit,
       },
-      {
-        label: "Change Status",
-        icon: <RefreshCw className="h-4 w-4" />,
-        onClick: handleChangeStatus,
-      },
+      // {
+      //   label: "Change Status",
+      //   icon: <RefreshCw className="h-4 w-4" />,
+      //   onClick: handleChangeStatus,
+      // },
       {
         label: "Delete",
         icon: <Trash2 className="h-4 w-4" />,

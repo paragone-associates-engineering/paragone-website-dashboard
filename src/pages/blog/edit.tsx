@@ -7,11 +7,13 @@ import { Input } from "@/components/ui/input"
 //import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { FormContainer, FormField, FormImageUpload } from "@/components/shared/form-container"
-import { LexicalEditor } from "@/components/shared/rich-text-editor"
+//import { LexicalEditor } from "@/components/shared/rich-text-editor"
 import { blogService } from "@/services/blog-service"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import RichTextEditor from "@/components/tiptap/rich-text-editor"
+import "@/components/tiptap/tiptap-styles.css";
 
 const BlogEditPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -41,7 +43,7 @@ const BlogEditPage = () => {
     if (blogPost) {
       setFormData({
         title: blogPost?.title || "",
-        category: blogPost?.category || "Villa",
+        category: blogPost?.category || "",
         content: blogPost?.content || "",
         header: blogPost?.header || "",
         datePosted: new Date(blogPost.datePosted).toISOString().split("T")[0],
@@ -147,6 +149,7 @@ const BlogEditPage = () => {
     )
   }
 
+  //console.log(formData)
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -196,7 +199,7 @@ const BlogEditPage = () => {
               {errors.header && <p className="text-sm text-red-500 mt-1">Header is required</p>}
             </FormField>
 
-            <FormField label="Content" required className="mt-4">
+            {/* <FormField label="Content" required className="mt-4">
               <LexicalEditor
                key={formData.content ? "editor-loaded" : "editor-initial"}
                 value={formData.content}
@@ -205,8 +208,15 @@ const BlogEditPage = () => {
                 error={errors.content}
                 minHeight="200px"
               />
+            </FormField> */}
+ <FormField  label="Content" required className="mt-4">
+              <RichTextEditor
+            content={formData.content}
+            onChange={handleContentChange}
+            editable={true}
+            placeholder="Write your blog content here...."
+          />
             </FormField>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
               <FormField label="Publication Date" required>
                 <Input name="datePosted" value={formData.datePosted} onChange={handleInputChange} type="date" />

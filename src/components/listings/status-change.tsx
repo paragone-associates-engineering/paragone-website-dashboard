@@ -19,19 +19,21 @@ interface StatusChangeModalProps {
   isLoading: boolean
 }
 
-export function StatusChangeModal({ isOpen, onClose, listing, isLoading }: StatusChangeModalProps) {
+export function StatusChangeModal({ isOpen, onClose, listing, onSave, isLoading }: StatusChangeModalProps) {
   const [selectedStatus, setSelectedStatus] = useState<STATUS>(STATUS.PENDING)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (listing) {
-      console.log('saved')
-      //onSave(listing.id, selectedStatus)
+      //console.log('saved')
+      if (onSave) {
+        onSave(listing?.id, selectedStatus)
+      }
     }
   }
 
   if (!listing) return null
-
+//console.log('list',listing)
 
   return (
     <Modal isOpen={isOpen} title='Change Status' onClose={onClose}>
