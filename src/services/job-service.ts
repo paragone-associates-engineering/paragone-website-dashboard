@@ -24,9 +24,9 @@ export const jobService = {
 
   deleteJob: async (jobId: string) => {
     try {
-      const formData = new FormData()
-       formData.append("metadata", JSON.stringify({isActive:false}))
-      const response = await api.post(`/jobs/update-job/${jobId}`,formData)
+      // const formData = new FormData()
+      //  formData.append("metadata", JSON.stringify({isActive:false}))
+      const response = await api.post(`/jobs/update-job/${jobId}`,{isActive:false})
       return response.data
     } catch (error) {
       console.error(`Error deleting blog post ${jobId}:`, error)

@@ -31,5 +31,5 @@ export const updateEmployee = async (employeeId: string, employeeData: Partial<E
 }
 
 export const deleteEmployee = async (employeeId: string): Promise<void> => {
-  await api.delete(`/employee/delete-employee/${employeeId}`)
+  await api.post(`/employee/update-employee/${employeeId}`,{isActive: false })
 }

@@ -61,12 +61,14 @@ const {
               38
             </Badge>
           </Button> */}
-          <Button variant="ghost" size="icon" className="relative">
+          <Link to='/notification/all'>
+          <Button variant="ghost" size="icon" className="relative cursor-pointer">
             <Bell className="h-5 w-5" />
             <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary hover:bg-primary/90">
               {metadata.total || 0}
             </Badge>
           </Button>
+          </Link>
           {/* <Button variant="ghost" size="icon" className="relative">
             <ShoppingCart className="h-5 w-5" />
             <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-red-500 hover:bg-red-600">
@@ -89,7 +91,7 @@ const {
                   <p className="text-sm text-muted-foreground capitalize">{user?.role}</p>
                 </div>
               </div>
-             <Link to='/user/profile'><DropdownMenuItem>Profile Settings</DropdownMenuItem></Link>
+             <Link to='/users/profile'><DropdownMenuItem>Profile Settings</DropdownMenuItem></Link>
               <Link to='/property/list'><DropdownMenuItem>Properties</DropdownMenuItem></Link>
              <DropdownMenuItem onClick={handleLogOut}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
