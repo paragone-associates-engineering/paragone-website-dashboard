@@ -25,11 +25,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true)
 
   const navigate = useNavigate()
-  const isAdmin = typeof user?.role === "string" &&
-    (
-      user.role === "admin" ||
-      user.role === "super-admin"
-    );
+  const userRole = user?.role?.toLowerCase?.() || "";
+const isAdmin = ["admin", "super-admin", "super admin"].includes(userRole);
 
   const logout = useCallback(() => {
     clearAuth()

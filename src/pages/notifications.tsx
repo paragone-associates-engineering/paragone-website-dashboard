@@ -1,22 +1,20 @@
-
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Bell, BellOff, RefreshCw } from "lucide-react"
-//import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import { notificationService } from "@/services/notification-service"
 import { SelectableNotificationItem } from "@/components/notifications/selectable-item"
 import { BulkActions } from "@/components/notifications/bulk-action"
-//import { toast } from "sonner"
 
 export default function NotificationPage() {
   const { user } = useAuth()
-  //const navigate = useNavigate()
+  
   const [filter, setFilter] = useState<"all" | "unread" | "read">("all")
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [autoRefresh, setAutoRefresh] = useState(true) 
 
   const {
     data: notificationsData,
@@ -27,7 +25,10 @@ export default function NotificationPage() {
   } = useQuery({
     queryKey: ["notifications"],
     queryFn: () => notificationService.getNotifications(),
-    staleTime: 1000 * 60 * 2, 
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchInterval: autoRefresh ? 60000 : false, // Refetch every 60 seconds (1 minute) when autoRefresh is true
+    refetchIntervalInBackground: true, // Continue refetching when tab is not focused
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
   })
 
   const notifications = notificationsData?.results || []
@@ -107,6 +108,11 @@ export default function NotificationPage() {
     setSelectedIds([])
   }
 
+  // Toggle auto-refresh
+  const toggleAutoRefresh = () => {
+    setAutoRefresh(!autoRefresh)
+  }
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -146,10 +152,22 @@ export default function NotificationPage() {
             <h1 className="text-2xl font-bold">Notifications</h1>
             <p className="text-gray-600">
               {metadata.total} total notifications • {getUnreadCount()} unread
+              {autoRefresh && <span className="text-green-600 ml-2">• Auto-refresh enabled</span>}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Auto-refresh toggle */}
+            <Button 
+              variant={autoRefresh ? "default" : "outline"} 
+              size="sm" 
+              onClick={toggleAutoRefresh}
+              className="text-xs"
+            >
+              {autoRefresh ? "Auto ON" : "Auto OFF"}
+            </Button>
+            
+            {/* Manual refresh button */}
             <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
               {isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
             </Button>

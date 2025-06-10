@@ -1,6 +1,5 @@
-
 import { useState } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient, useQueries } from "@tanstack/react-query"
 import { DataTable } from "@/components/shared/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Eye, Phone, Trash2, Mail, RefreshCw, Loader2 } from "lucide-react"
@@ -9,6 +8,7 @@ import { contactService, type Contact } from "@/services/contact-service"
 import { StatusChangeModal } from "@/components/get-in-touch/status-change"
 import { ViewDetailsModal } from "@/components/get-in-touch/view-details"
 import { DeleteConfirmation } from "@/components/get-in-touch/delete-confirmation"
+import { listingsService } from "@/services/listings-service"
 
 export default function GetInTouchList() {
   const queryClient = useQueryClient()
@@ -32,12 +32,39 @@ export default function GetInTouchList() {
   const contacts = contactData?.results || []
   const metadata = contactData?.metadata?.[0] || { total: 0, totalPages: 0 }
 
+  // Get unique listing IDs from contacts
+  const listingIds = [...new Set(contacts.map(contact => contact.listingId).filter(Boolean))]
+
+  // Fetch all listings for the contacts
+  const listingQueries = useQueries({
+    queries: listingIds.map(listingId => ({
+      queryKey: ["listing", listingId],
+      queryFn: () => listingsService.getListing(listingId!),
+      staleTime: 1000 * 60 * 5,
+      enabled: !!listingId,
+    }))
+  })
+
+  // Create a map of listing ID to listing data
+  const listingsMap = new Map()
+  listingQueries.forEach((query, index) => {
+    if (query.data && listingIds[index]) {
+      listingsMap.set(listingIds[index], query.data)
+    }
+  })
+
+  const getListingName = (listingId?: string) => {
+    if (!listingId) return "N/A"
+    const listing = listingsMap.get(listingId)
+    return listing || "Loading..."
+  }
+
   const updateMutation = useMutation({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: ({ id, data }: { id: string; data: any }) => contactService.updateContact(id, data),
     onSuccess: () => {
       toast.success("Contact updated successfully")
-      queryClient.invalidateQueries({ queryKey: ["contacts"] })
+      queryClient.invalidateQueries({ queryKey: ["get-in-touch"] })
       setIsStatusModalOpen(false)
       setStatusChangeContact(null)
     },
@@ -50,7 +77,7 @@ export default function GetInTouchList() {
     mutationFn: (id: string) => contactService.updateContact(id, { isActive: false }),
     onSuccess: () => {
       toast.success("Contact deleted successfully")
-      queryClient.invalidateQueries({ queryKey: ["contacts"] })
+      queryClient.invalidateQueries({ queryKey: ["get-in-touch"] })
       setIsDeleteDialogOpen(false)
       setDeletingContact(null)
     },
@@ -75,7 +102,6 @@ export default function GetInTouchList() {
   }
 
   const handleEmail = (contact: Contact) => {
-   
     window.open(`mailto:${contact.email}`)
   }
 
@@ -123,7 +149,7 @@ export default function GetInTouchList() {
       id: "createdAt",
       header: "Date",
       accessorKey: "createdAt",
-      cell: ( row: Contact ) => {
+      cell: (row: Contact) => {
         return new Date(row.createdAt).toLocaleDateString()
       },
       enableSorting: true,
@@ -132,7 +158,7 @@ export default function GetInTouchList() {
       id: "customerName",
       header: "Customer Name",
       accessorKey: "name",
-      cell: ( row: Contact ) => {
+      cell: (row: Contact) => {
         return `${row.name.first} ${row.name.lastName}`
       },
       enableSorting: true,
@@ -150,10 +176,25 @@ export default function GetInTouchList() {
       enableSorting: false,
     },
     {
+      id: "listingName",
+      header: "Property",
+      accessorKey: "listingId",
+      cell: (row: Contact) => {
+        const listings = getListingName(row?.listingId)
+        return (
+          <div className="max-w-[150px] truncate" title={listings?.propertyName}>
+           <div className="font-medium">{listings?.propertyName}</div>
+            <div className="text-sm text-gray-500">{listings?.location?.city}</div>
+          </div>
+        )
+      },
+      enableSorting: false,
+    },
+    {
       id: "reason",
       header: "Reason",
       accessorKey: "reason",
-      cell: ( row: Contact) => (
+      cell: (row: Contact) => (
         <Badge variant="outline" className="text-xs">
           {row.reason}
         </Badge>
@@ -164,7 +205,7 @@ export default function GetInTouchList() {
       id: "message",
       header: "Message",
       accessorKey: "message",
-      cell: ( row: Contact ) => {
+      cell: (row: Contact) => {
         const message = row.message
         return message.length > 50 ? `${message.substring(0, 50)}...` : message
       },
@@ -173,7 +214,7 @@ export default function GetInTouchList() {
       id: "status",
       header: "Status",
       accessorKey: "status",
-      cell: ( row: Contact ) => getStatusBadge(row.status),
+      cell: (row: Contact) => getStatusBadge(row.status),
       enableSorting: true,
     },
     {
@@ -218,7 +259,7 @@ export default function GetInTouchList() {
   return (
     <div className="p-6 max-w-full">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Contact Us List</h1>
+        <h1 className="text-2xl font-bold">Get In Touch List</h1>
         <p className="text-sm text-gray-500">Total: {metadata.total} inquiries</p>
       </div>
 

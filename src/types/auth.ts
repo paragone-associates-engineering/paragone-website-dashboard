@@ -13,7 +13,7 @@ export interface User {
   isActive: boolean
   firstName: string
   lastName: string
-  role: boolean
+  role: string
   employeeId: string
   permissions: Permission[]
   createdAt: string

@@ -1,4 +1,3 @@
-
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import FontFamily from "@tiptap/extension-font-family";
 import Image from "@tiptap/extension-image";
@@ -14,7 +13,7 @@ import typescript from "highlight.js/lib/languages/typescript";
 import html from "highlight.js/lib/languages/xml";
 import { createLowlight } from "lowlight";
 import MenuBar from "./menu-bar";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const lowlight = createLowlight();
 
@@ -36,6 +35,8 @@ export default function RichTextEditor({
 	placeholder = "Start writing...",
 	editable = true,
 }: RichTextEditorProps) {
+	const isInternalUpdate = useRef(false);
+
 	const editor = useEditor({
 		extensions: [
 			StarterKit.configure({
@@ -70,6 +71,7 @@ export default function RichTextEditor({
 		content,
 		editable,
 		onUpdate: ({ editor: currentEditor }) => {
+			isInternalUpdate.current = true;
 			onChange(currentEditor.getHTML());
 		},
 		editorProps: {
@@ -81,10 +83,14 @@ export default function RichTextEditor({
 	});
 
 	useEffect(() => {
-  if (editor && typeof content === "string") {
-    editor.commands.setContent(content, false); 
-  }
-}, [editor, content]);
+		if (editor && typeof content === "string" && !isInternalUpdate.current) {
+			const currentContent = editor.getHTML();
+			if (currentContent !== content) {
+				editor.commands.setContent(content, false);
+			}
+		}
+		isInternalUpdate.current = false;
+	}, [editor, content]);
 
 	return (
 		<div className="border border-border rounded-md">
