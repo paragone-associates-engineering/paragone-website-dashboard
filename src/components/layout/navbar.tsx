@@ -91,7 +91,7 @@ const {
                   <p className="text-sm text-muted-foreground capitalize">{user?.role}</p>
                 </div>
               </div>
-             <Link to='/user/profile'><DropdownMenuItem>Profile Settings</DropdownMenuItem></Link>
+             <Link to='/users/profile'><DropdownMenuItem>Profile Settings</DropdownMenuItem></Link>
               <Link to='/property/list'><DropdownMenuItem>Properties</DropdownMenuItem></Link>
              <DropdownMenuItem onClick={handleLogOut}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
