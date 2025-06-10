@@ -67,8 +67,9 @@ export default function PartnerList() {
       queryClient.invalidateQueries({ queryKey: ["partners"] })
       setIsFormModalOpen(false)
     },
-    onError: () => {
-      toast.error("Failed to create partner")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error:any) => {
+      toast.error(error?.response?.data?.message || "Failed to create partner")
     },
   })
 
