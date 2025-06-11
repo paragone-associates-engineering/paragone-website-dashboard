@@ -1,3 +1,5 @@
+"use client"
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type React from "react"
@@ -11,7 +13,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { MoreVertical, ChevronLeft, ChevronRight, Star } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-
 
 export interface Column {
   id: string
@@ -41,12 +42,13 @@ interface DataTableProps {
     onPageChange?: (page: number, pageSize: number) => void
     serverSide?: boolean
   }
-  isFeatured?:boolean
-   removeFeatured?: (id:string) => void
+  isFeatured?: boolean
+  removeFeatured?: (id: string) => void
   searchable?: boolean
   selectable?: boolean
   className?: string
   onSearch?: (query: string) => void
+  searchValue?: string // Add this new prop
   loading?: boolean
 }
 
@@ -61,17 +63,17 @@ export function DataTable({
   searchable = true,
   selectable = true,
   className,
-  isFeatured=false,
+  isFeatured = false,
   onSearch,
+  searchValue = "", // Add default value
   loading = false,
 }: DataTableProps) {
   const [selectedRows, setSelectedRows] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(pagination.initialPage || 1)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState(searchValue) // Initialize with prop value
   const [sortBy, setSortBy] = useState<{ column: string; direction: "asc" | "desc" } | null>(null)
   const [itemsPerPage, setItemsPerPage] = useState(pagination.pageSize || 10)
 
- 
   useEffect(() => {
     if (pagination.serverSide && searchQuery !== "") {
       setCurrentPage(1)
@@ -88,12 +90,17 @@ export function DataTable({
     }
   }, [searchQuery, onSearch, pagination.serverSide])
 
+  // Sync internal search state with prop value
+  useEffect(() => {
+    setSearchQuery(searchValue)
+  }, [searchValue])
+
   // Handle page changes for server-side pagination
   useEffect(() => {
     if (pagination.serverSide && pagination.onPageChange) {
       pagination.onPageChange(currentPage, itemsPerPage)
     }
-  }, [currentPage, itemsPerPage, pagination])
+  }, [currentPage, itemsPerPage, pagination.serverSide, pagination.onPageChange])
 
   // Client-side filtering and processing
   const processedData = (() => {
@@ -103,13 +110,14 @@ export function DataTable({
     }
 
     // Client-side processing
-    let filteredData = searchQuery
-      ? data.filter((item) =>
-          Object.values(item).some(
-            (value) => value && value.toString().toLowerCase().includes(searchQuery.toLowerCase()),
-          ),
-        )
-      : data
+    let filteredData = data
+    if (!pagination.serverSide && searchQuery) {
+      filteredData = data.filter((item) =>
+        Object.values(item).some(
+          (value) => value && value.toString().toLowerCase().includes(searchQuery.toLowerCase()),
+        ),
+      )
+    }
 
     // Sort data if sortBy is set (client-side only)
     if (sortBy) {
@@ -133,19 +141,19 @@ export function DataTable({
   })()
 
   // Calculate pagination info
-  const totalItems = pagination.serverSide 
-    ? (pagination.totalItems || 0) 
-    : (searchQuery 
-        ? data.filter((item) =>
-            Object.values(item).some(
-              (value) => value && value.toString().toLowerCase().includes(searchQuery.toLowerCase()),
-            ),
-          ).length
-        : data.length)
-  
+  const totalItems = pagination.serverSide
+    ? pagination.totalItems || 0
+    : searchQuery
+      ? data.filter((item) =>
+          Object.values(item).some(
+            (value) => value && value.toString().toLowerCase().includes(searchQuery.toLowerCase()),
+          ),
+        ).length
+      : data.length
+
   const totalPages = Math.ceil(totalItems / itemsPerPage)
   const startIndex = pagination.serverSide ? (currentPage - 1) * itemsPerPage : (currentPage - 1) * itemsPerPage
-  const endIndex = pagination.serverSide 
+  const endIndex = pagination.serverSide
     ? Math.min(startIndex + itemsPerPage, totalItems)
     : Math.min(startIndex + processedData.length, totalItems)
 
@@ -176,7 +184,7 @@ export function DataTable({
   // Handle sorting (only for client-side)
   const handleSort = (column: string) => {
     if (pagination.serverSide) return // Don't sort on client-side for server-side pagination
-    
+
     if (sortBy?.column === column) {
       setSortBy(sortBy.direction === "asc" ? { column, direction: "desc" } : null)
     } else {
@@ -184,11 +192,10 @@ export function DataTable({
     }
   }
 
-  
   // Handle page size change
   const handlePageSizeChange = (newPageSize: number) => {
     setItemsPerPage(newPageSize)
-    setCurrentPage(1) 
+    setCurrentPage(1)
   }
 
   // Handle page change
@@ -230,10 +237,14 @@ export function DataTable({
       <Table>
         <TableHeader>
           <TableRow>
+            
             {selectable && (
               <TableHead className="w-12">
                 <Checkbox
-                  checked={selectedRows.length > 0 && selectedRows.length === (pagination.serverSide ? data.length : processedData.length)}
+                  checked={
+                    selectedRows.length > 0 &&
+                    selectedRows.length === (pagination.serverSide ? data.length : processedData.length)
+                  }
                   onCheckedChange={toggleAllRows}
                 />
               </TableHead>
@@ -242,7 +253,9 @@ export function DataTable({
               <TableHead
                 key={column.id}
                 className={column.enableSorting && !pagination.serverSide ? "cursor-pointer" : ""}
-                onClick={column.enableSorting && !pagination.serverSide ? () => handleSort(column.accessorKey) : undefined}
+                onClick={
+                  column.enableSorting && !pagination.serverSide ? () => handleSort(column.accessorKey) : undefined
+                }
               >
                 <div className="flex items-center">
                   {column.header}
@@ -258,13 +271,19 @@ export function DataTable({
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={columns.length + (selectable ? 1 : 0) + (actionMenu ? 1 : 0)} className="text-center py-8">
+              <TableCell
+                colSpan={columns.length + (selectable ? 1 : 0) + (actionMenu ? 1 : 0)}
+                className="text-center py-8"
+              >
                 Loading...
               </TableCell>
             </TableRow>
           ) : processedData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={columns.length + (selectable ? 1 : 0) + (actionMenu ? 1 : 0)} className="text-center py-8">
+              <TableCell
+                colSpan={columns.length + (selectable ? 1 : 0) + (actionMenu ? 1 : 0)}
+                className="text-center py-8"
+              >
                 No data found
               </TableCell>
             </TableRow>
@@ -275,16 +294,19 @@ export function DataTable({
                 className={onRowClick ? "cursor-pointer" : ""}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
-                {isFeatured &&(
-                <TableCell onClick={(e) => {
-                  e.stopPropagation();
-                  removeFeatured?.(row?.id)
-                  }}>
-  {row?.featured && (
-    <Star className="fill-primary stroke-primary text-sm" />
-  )}
-</TableCell>
-)}
+                {isFeatured && (
+                  <TableCell
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (row?.featured) {
+                        removeFeatured?.(row?.id)
+                      }
+                    }}
+                  >
+                    {row?.featured && <Star className="fill-primary stroke-primary text-sm" />}
+                  </TableCell>
+                )}
+
                 {selectable && (
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
@@ -293,12 +315,13 @@ export function DataTable({
                     />
                   </TableCell>
                 )}
-                
+
                 {columns.map((column) => (
                   <TableCell key={`${row.id}-${column.id}`}>
                     {column.cell ? column.cell(row) : row[column.accessorKey]}
                   </TableCell>
                 ))}
+
                 {actionMenu && (
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>

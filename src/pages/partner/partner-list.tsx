@@ -59,7 +59,6 @@ export default function PartnerList() {
   const currentPartners = filteredPartners.slice(indexOfFirstPartner, indexOfLastPartner)
   const totalPages = Math.ceil(filteredPartners.length / partnersPerPage)
 
-  // Mutations
   const createPartnerMutation = useMutation({
     mutationFn: (data: PartnerFormData) => partnerListService.createPartner(data),
     onSuccess: () => {

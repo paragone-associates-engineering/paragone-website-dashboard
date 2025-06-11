@@ -75,7 +75,7 @@ export function PartnerFormModal({ isOpen, onClose, partner, onSave, isLoading }
     setFormData((prev) => ({ ...prev, logo: undefined }))
     setImagePreview("")
   }
-
+console.log(formData)
   return (
   <Modal isOpen={isOpen} title={isEditing ? "Edit Partner" : "Add Partner"} onClose={onClose}>
              <div className='p-5'>
@@ -94,7 +94,7 @@ export function PartnerFormModal({ isOpen, onClose, partner, onSave, isLoading }
 
           <div>
             <Label htmlFor="partner-type">Partner Type</Label>
-            <Select value={formData.type} onValueChange={(value) => setFormData((prev) => ({ ...prev, type: value }))}>
+            <Select  key={partner?.id || 'new-partner'} value={formData.type} onValueChange={(value) => setFormData((prev) => ({ ...prev, type: value }))}>
               <SelectTrigger id="partner-type">
                 <SelectValue placeholder="Select partner type" />
               </SelectTrigger>

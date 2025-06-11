@@ -5,8 +5,10 @@ import { userService } from '@/services/user-profile'
 import { useMutation } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {toast} from 'sonner'
 const ForgotPassword = () => {
+  const navigate =  useNavigate();
     const [resetPasswordEmail, setResetPasswordEmail] = useState("")
     const resetPasswordMutation = useMutation({
     mutationFn: (email: string) => userService.resetPassword(email),
@@ -31,7 +33,14 @@ const ForgotPassword = () => {
       resetPasswordMutation.mutate(resetPasswordEmail)
     }
 
-  
+ const handleCancel = () => {
+      if (!resetPasswordEmail) {
+        navigate('/login')
+      }
+      else{
+        setResetPasswordEmail('')
+      }
+ }
 
     return (
         <div className='flex min-h-screen'>
@@ -92,7 +101,6 @@ const ForgotPassword = () => {
                           <ul className="list-disc pl-5 space-y-1">
                             <li>A new password will be automatically generated</li>
                             <li>You will receive the new password via email</li>
-                            <li>You will be logged out to login with new details your new password after reset</li>
                           </ul>
                         </div>
                       </div>
@@ -100,7 +108,7 @@ const ForgotPassword = () => {
                   </div>
 
                   <div className="flex justify-end gap-2">
-                    <Button type="button" variant="outline" onClick={() => setResetPasswordEmail("")}>
+                    <Button type="button" variant="outline" onClick={handleCancel}>
                       Cancel
                     </Button>
                     <Button type="submit" disabled={resetPasswordMutation.isPending}>
