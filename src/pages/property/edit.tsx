@@ -30,10 +30,21 @@ export default function EditPropertyPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+ const {
+    data: listing,
+    isLoading,
+    isError,
+    
+  } = useQuery({
+    queryKey: ["listing", id],
+    queryFn: () => listingsService.getListing(id!),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+  })
 
   const [formData, setFormData] = useState<ListingFormData>({
     propertyName: "",
-    propertyType: "",
+    propertyType: listing?.propertyType || "",
     propertyCategory: PropertyCategory.RESIDENTIAL,
     description: "",
     amount: 0,
@@ -59,6 +70,7 @@ export default function EditPropertyPage() {
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [existingImages, setExistingImages] = useState<string[]>([])
+//const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   const availablePropertyTypes = useMemo(
     () =>
@@ -67,27 +79,14 @@ export default function EditPropertyPage() {
     [formData.propertyCategory]
   )
 
-
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
   
-  useEffect(() => {
-    if (!isInitialLoad && formData.propertyType && !availablePropertyTypes.includes(formData.propertyType)) {
-      setFormData((prev) => ({ ...prev, propertyType: "" }))
-    }
-  }, [formData.propertyCategory, formData.propertyType, availablePropertyTypes, isInitialLoad])
+//  useEffect(() => {
+//   if (!isInitialLoad && formData.propertyType && !availablePropertyTypes.includes(formData.propertyType)) {
+//     setFormData((prev) => ({ ...prev, propertyType: "" }))
+//   }
+// }, [formData.propertyCategory, availablePropertyTypes, isInitialLoad, formData.propertyType])
 
-  const {
-    data: listing,
-    isLoading,
-    isError,
-    
-  } = useQuery({
-    queryKey: ["listing", id],
-    queryFn: () => listingsService.getListing(id!),
-    enabled: !!id,
-    staleTime: 1000 * 60 * 5,
-  })
-
+ 
 
   const updateMutation = useMutation({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,43 +120,52 @@ export default function EditPropertyPage() {
       queryClient.invalidateQueries({ queryKey: ["listing", id] })
       navigate(`/property/detail/${id}`)
     },
-    onError: () => {
-      toast.error("Failed to update property listing")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error:any) => {
+      toast.error(error?.message || error?.response?.data?.message || "Failed to update property listing")
     },
   })
 
   
   useEffect(() => {
-    if (listing) {
-      setFormData({
-        propertyName: listing.propertyName,
-        propertyType: listing.propertyType,
-        propertyCategory: listing.propertyCategory,
-        description: listing.description,
-        amount: listing.amount,
-        area: listing.area,
-        featured:listing.featured,
-         status:listing?.status || 'Pending',
-        listingType: listing.listingType,
-        videoUrl: listing.videoUrl || "",
-        location: listing.location,
-        landmarks: listing.landmarks || [],
-        propertyAgent:{name: listing?.propertyAgent?.name, address:listing?.propertyAgent?.address, phone:listing?.propertyAgent?.phone, link:listing?.propertyAgent?.link},
-        propertyOwner:{name: listing?.propertyOwner?.name, address:listing?.propertyOwner?.address, phone:listing?.propertyOwner?.phone, link:listing?.propertyOwner?.link},
-        propertyDetails: listing.propertyDetails || [],
-        images: [],
-      })
+  if (listing) {
+    setFormData({
+      propertyName: listing.propertyName,
+      propertyType: listing.propertyType,
+      propertyCategory: listing.propertyCategory,
+      description: listing.description,
+      amount: listing.amount,
+      area: listing.area,
+      featured: listing.featured || false,
+      status: listing?.status || 'Pending',
+      listingType: listing.listingType,
+      videoUrl: listing.videoUrl || "",
+      location: listing.location,
+      landmarks: listing.landmarks || [],
+      propertyAgent: {
+        name: listing?.propertyAgent?.name || "",
+        address: listing?.propertyAgent?.address || "",
+        phone: listing?.propertyAgent?.phone || "",
+        link: listing?.propertyAgent?.link || ""
+      },
+      propertyOwner: {
+        name: listing?.propertyOwner?.name || "",
+        address: listing?.propertyOwner?.address || "",
+        phone: listing?.propertyOwner?.phone || "",
+        link: listing?.propertyOwner?.link || ""
+      },
+      propertyDetails: listing.propertyDetails || [],
+      images: [],
+    })
 
-     
-      if (listing.images && listing.images.length > 0) {
-        setExistingImages(listing.images)
-        setImagePreviews(listing.images)
-      }
-
-     
-      setIsInitialLoad(false)
+    // Set existing images
+    if (listing.images && listing.images.length > 0) {
+      setExistingImages(listing.images)
+      setImagePreviews(listing.images)
     }
-  }, [listing])
+
+  }
+}, [listing])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -329,7 +337,7 @@ export default function EditPropertyPage() {
             isLoading={updateMutation.isPending}
           >
             <FormSection title="Property Information">
-              <FormRow>
+              <FormRow className="!grid-cols-2">
                 <FormField label="Property Name" required>
                   <Input
                     name="propertyName"
@@ -356,7 +364,7 @@ export default function EditPropertyPage() {
                 </FormField>
               </FormRow>
 
-              <FormRow className="mt-4">
+              <FormRow className="mt-4 !grid-cols-2">
                 <FormField label="Property Type" required>
                   <Select
                     value={formData.propertyType}

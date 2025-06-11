@@ -59,7 +59,6 @@ export default function PartnerList() {
   const currentPartners = filteredPartners.slice(indexOfFirstPartner, indexOfLastPartner)
   const totalPages = Math.ceil(filteredPartners.length / partnersPerPage)
 
-  // Mutations
   const createPartnerMutation = useMutation({
     mutationFn: (data: PartnerFormData) => partnerListService.createPartner(data),
     onSuccess: () => {
@@ -67,8 +66,9 @@ export default function PartnerList() {
       queryClient.invalidateQueries({ queryKey: ["partners"] })
       setIsFormModalOpen(false)
     },
-    onError: () => {
-      toast.error("Failed to create partner")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error:any) => {
+      toast.error(error?.response?.data?.message || "Failed to create partner")
     },
   })
 

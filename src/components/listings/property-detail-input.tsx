@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -67,7 +66,7 @@ export function PropertyDetailsInput({ value, onChange, label = "Property Detail
     if (existingDetail) return
 
     let defaultValue: string | number | boolean = ""
-    if (detailType === "number") defaultValue = 0
+    if (detailType === "number") defaultValue = ""
     if (detailType === "boolean") defaultValue = false
 
     const detail: PropertyDetail = {
@@ -95,12 +94,24 @@ export function PropertyDetailsInput({ value, onChange, label = "Property Detail
       )
     }
 
-    if (typeof detail.value === "number") {
+    
+    const isNumberType = commonPropertyDetails.find(d => d.name === detail.name)?.type === "number"
+    
+    if (isNumberType || typeof detail.value === "number") {
       return (
         <Input
           type="number"
+          step="any"
           value={detail.value}
-          onChange={(e) => updateDetailValue(index, Number.parseInt(e.target.value) || 0)}
+          onChange={(e) => {
+            const inputValue = e.target.value
+            if (inputValue === "") {
+              updateDetailValue(index, "")
+            } else {
+              const numValue = parseFloat(inputValue)
+              updateDetailValue(index, isNaN(numValue) ? inputValue : numValue)
+            }
+          }}
           className="w-24"
         />
       )
@@ -198,12 +209,15 @@ export function PropertyDetailsInput({ value, onChange, label = "Property Detail
             ) : (
               <Input
                 type={newDetail.type === "number" ? "number" : "text"}
-                placeholder={newDetail.type === "number" ? "0" : "Enter value"}
+                step={newDetail.type === "number" ? "any" : undefined}
+                placeholder={newDetail.type === "number" ? "Enter number" : "Enter value"}
                 value={newDetail.value as string | number}
                 onChange={(e) =>
                   setNewDetail((prev) => ({
                     ...prev,
-                    value: newDetail.type === "number" ? Number.parseInt(e.target.value) || 0 : e.target.value,
+                    value: newDetail.type === "number" ? 
+                      (e.target.value === "" ? "" : parseFloat(e.target.value) || e.target.value) : 
+                      e.target.value,
                   }))
                 }
               />

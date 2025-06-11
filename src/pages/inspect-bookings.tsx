@@ -146,6 +146,7 @@ export default function InspectionBookingsPage() {
       header: "Property",
       accessorKey: "propertyDetails",
       cell: (row: Viewing ) => {
+        console.log(row)
         return (
           <div>
             <div className="font-medium">{row.propertyDetails.propertyName}</div>

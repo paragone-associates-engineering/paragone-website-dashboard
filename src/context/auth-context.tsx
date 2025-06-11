@@ -119,11 +119,6 @@ const isAdmin = ["admin", "super-admin", "super admin"].includes(userRole);
     checkAuth()
   }, [handleAuthError])
 
-  // Remove all the aggressive token checking intervals and event listeners
-  // Token validation should only happen:
-  // 1. On initial load (above)
-  // 2. When we get a 401 error from an API call (handleAuthError)
-  // 3. When explicitly called by the app (checkTokenValidity)
 
   const checkPermission = (feature: string, action: "view" | "edit" | "add" | "delete") => {
     return hasPermission(user, feature, action)

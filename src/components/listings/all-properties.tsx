@@ -1,12 +1,13 @@
+"use client"
 
 import { useState } from "react"
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { DataTable } from "@/components/shared/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Eye, Pencil, Trash2, RefreshCw, Loader2, Star } from "lucide-react"
 import { toast } from "sonner"
-import { listingsService, STATUS, type Listing } from "@/services/listings-service"
+import { listingsService, type STATUS, type Listing } from "@/services/listings-service"
 import { StatusChangeModal } from "@/components/listings/status-change"
 import { DeleteConfirmation } from "@/components/listings/delete-confirmation"
 
@@ -17,7 +18,7 @@ export default function PropertyListings() {
   const [deletingListing, setDeletingListing] = useState<Listing | null>(null)
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [searchQuery, setSearchQuery] = useState("")
   const {
@@ -25,12 +26,13 @@ const [currentPage, setCurrentPage] = useState(1)
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["listings"],
-    queryFn: () => listingsService.getListings({
+    queryKey: ["listings", currentPage, pageSize, searchQuery],
+    queryFn: () =>
+      listingsService.getListings({
         page: currentPage,
-      limit: pageSize,
-      searchString: searchQuery || undefined
-    }),
+        limit: pageSize,
+        searchString: searchQuery || undefined,
+      }),
     staleTime: 1000 * 60 * 5,
   })
 
@@ -53,7 +55,7 @@ const [currentPage, setCurrentPage] = useState(1)
     },
   })
 
-   const updateStatusMutation = useMutation({
+  const updateStatusMutation = useMutation({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: ({ id, data }: { id: string; data: any }) => listingsService.updateListingStatus(id, data),
     onSuccess: () => {
@@ -68,7 +70,6 @@ const [currentPage, setCurrentPage] = useState(1)
       toast.error("Failed to update listing")
     },
   })
- 
 
   const handleChangeStatus = (listing: Listing) => {
     setStatusChangeListing(listing)
@@ -76,13 +77,11 @@ const [currentPage, setCurrentPage] = useState(1)
   }
 
   const handleEdit = (listing: Listing) => {
-   navigate(`/property/edit/${listing.id}`)
+    navigate(`/property/edit/${listing.id}`)
   }
 
-  
   const handleViewDetails = (listing: Listing) => {
     navigate(`/property/detail/${listing.id}`)
-   
   }
   const handleDelete = (listing: Listing) => {
     setDeletingListing(listing)
@@ -90,14 +89,14 @@ const [currentPage, setCurrentPage] = useState(1)
   }
 
   const handleSaveStatus = (id: string, status: STATUS) => {
-     updateStatusMutation.mutate({ id, data: { status } })
+    updateStatusMutation.mutate({ id, data: { status } })
   }
- const handleMakeFeatured = (listing: Listing) => {
-  const id = listing?.id
-     updateStatusMutation.mutate({ id, data: { featured: true } })
+  const handleMakeFeatured = (listing: Listing) => {
+    const id = listing?.id
+    updateStatusMutation.mutate({ id, data: { featured: true } })
   }
-  const handleRemoveFeatured = (id:string) => {
-     updateStatusMutation.mutate({ id, data: { featured: false } })
+  const handleRemoveFeatured = (id: string) => {
+    updateStatusMutation.mutate({ id, data: { featured: false } })
   }
 
   const handleConfirmDelete = () => {
@@ -106,18 +105,18 @@ const [currentPage, setCurrentPage] = useState(1)
     }
   }
 
-   const handlePageChange = (page: number, newPageSize: number) => {
-    setCurrentPage(page)
+  const handlePageChange = (page: number, newPageSize: number) => {
     if (newPageSize !== pageSize) {
       setPageSize(newPageSize)
-      setCurrentPage(1) 
+      setCurrentPage(1) // Reset to first page when changing page size
+    } else {
+      setCurrentPage(page)
     }
   }
 
-  
   const handleSearch = (query: string) => {
     setSearchQuery(query)
-    setCurrentPage(1)
+    setCurrentPage(1) // Reset to first page when searching
   }
 
   const formatNumber = (num: number) => {
@@ -125,23 +124,23 @@ const [currentPage, setCurrentPage] = useState(1)
   }
 
   const getStatusBadge = (status?: string) => {
-     const statusColors = {
-       Pending: "bg-yellow-100 text-yellow-800",
-       Negotiation: "bg-blue-100 text-blue-800",
-       Inspection: "bg-blue-100 text-green-800",
+    const statusColors = {
+      Pending: "bg-yellow-100 text-yellow-800",
+      Negotiation: "bg-blue-100 text-blue-800",
+      Inspection: "bg-blue-100 text-green-800",
       "Off Market": "bg-red-100 text-green-800",
-        Paid: "bg-green-100 text-green-800",
-       Closed: "bg-gray-100 text-gray-800",
-     }
- 
-     const displayStatus = status || "Pending"
- 
-     return (
-       <Badge className={statusColors[displayStatus as keyof typeof statusColors] || "bg-gray-100 text-gray-800"}>
-         {displayStatus}
-       </Badge>
-     )
-   }
+      Paid: "bg-green-100 text-green-800",
+      Closed: "bg-gray-100 text-gray-800",
+    }
+
+    const displayStatus = status || "Pending"
+
+    return (
+      <Badge className={statusColors[displayStatus as keyof typeof statusColors] || "bg-gray-100 text-gray-800"}>
+        {displayStatus}
+      </Badge>
+    )
+  }
 
   const getListingTypeBadge = (listingType: string) => {
     const colors = {
@@ -175,7 +174,7 @@ const [currentPage, setCurrentPage] = useState(1)
       id: "propertyType",
       header: "Type",
       accessorKey: "propertyType",
-      cell: ( row: Listing ) => (
+      cell: (row: Listing) => (
         <div>
           <div className="font-medium">{row.propertyType}</div>
           <div className="text-sm text-gray-500">{row.propertyCategory}</div>
@@ -187,7 +186,7 @@ const [currentPage, setCurrentPage] = useState(1)
       id: "location",
       header: "Location",
       accessorKey: "location",
-      cell: (row: Listing ) => (
+      cell: (row: Listing) => (
         <div>
           <div className="font-medium">{row.location.region}</div>
           <div className="text-sm text-gray-500">
@@ -200,35 +199,35 @@ const [currentPage, setCurrentPage] = useState(1)
       id: "amount",
       header: "Price",
       accessorKey: "amount",
-      cell: (row: Listing ) => `₦${formatNumber(row.amount)}`,
+      cell: (row: Listing) => `₦${formatNumber(row.amount)}`,
       enableSorting: true,
     },
     {
       id: "listingType",
       header: "Listing Type",
       accessorKey: "listingType",
-      cell: (row: Listing ) => getListingTypeBadge(row.listingType),
+      cell: (row: Listing) => getListingTypeBadge(row.listingType),
       enableSorting: true,
     },
     {
       id: "area",
       header: "Area (sqft)",
       accessorKey: "area",
-      cell: (row: Listing ) => row.area.toLocaleString(),
+      cell: (row: Listing) => row.area.toLocaleString(),
       enableSorting: true,
     },
     {
       id: "status",
       header: "Status",
       accessorKey: "isActive",
-      cell: ( row: Listing ) => getStatusBadge(row?.status),
+      cell: (row: Listing) => getStatusBadge(row?.status),
       enableSorting: true,
     },
     {
       id: "createdAt",
       header: "Created",
       accessorKey: "createdAt",
-      cell: ( row: Listing ) => {
+      cell: (row: Listing) => {
         return new Date(row.createdAt).toLocaleDateString()
       },
       enableSorting: true,
@@ -246,17 +245,17 @@ const [currentPage, setCurrentPage] = useState(1)
       {
         label: "View details",
         icon: <Eye className="h-4 w-4" />,
-        onClick:handleViewDetails,
+        onClick: handleViewDetails,
       },
       {
         label: "Edit property",
         icon: <Pencil className="h-4 w-4" />,
         onClick: handleEdit,
       },
-       {
+      {
         label: "Make Featured",
         icon: <Star className="h-4 w-4" />,
-        onClick:  handleMakeFeatured,
+        onClick: handleMakeFeatured,
       },
       {
         label: "Change status",
@@ -276,8 +275,6 @@ const [currentPage, setCurrentPage] = useState(1)
 
   return (
     <div className="">
-
-
       <div className="bg-white rounded-lg border overflow-hidden">
         {isLoading ? (
           <div className="flex justify-center items-center p-8">
@@ -292,19 +289,20 @@ const [currentPage, setCurrentPage] = useState(1)
               columns={columns}
               data={listings}
               actionMenu={actionMenu}
-             pagination={{
-                  pageSize: pageSize,
-                  totalItems: metadata.total,
-                  initialPage: currentPage,
-                  serverSide: true,
-                  onPageChange: handlePageChange,
-                }}
-                searchable={true}
-                selectable={true}
-                removeFeatured={ (id:string) => handleRemoveFeatured(id)}
-                isFeatured={true}
-                onSearch={handleSearch}
-                loading={isLoading}
+              pagination={{
+                pageSize: pageSize,
+                totalItems: metadata.total,
+                initialPage: currentPage,
+                serverSide: true,
+                onPageChange: handlePageChange,
+              }}
+              searchable={true}
+              selectable={true}
+              removeFeatured={handleRemoveFeatured}
+              isFeatured={true}
+              searchValue={searchQuery} 
+              onSearch={handleSearch}
+              loading={isLoading}
             />
           </div>
         )}
@@ -320,7 +318,6 @@ const [currentPage, setCurrentPage] = useState(1)
         onSave={handleSaveStatus}
         isLoading={updateMutation.isPending}
       />
-
 
       <DeleteConfirmation
         isOpen={isDeleteDialogOpen}

@@ -25,9 +25,9 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div className='lg:flex max-w-full'>
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
-      <main className={`${collapsed ? 'lg:ml-[100px]' : 'lg:ml-[250px]'} w-full mx-auto`}>
+      <main className={`${collapsed ? 'lg:ml-[80px]' : 'lg:ml-[250px] max-[1300px]:max-w-[1020px]'} w-full mx-auto`}>
         <Navbar />
-          <div className={`max-w-full w-full xl:pl-5`}>
+          <div className={` max-w-full w-full xl:pl-5`}>
 <TokenValidator>{children}</TokenValidator>
           </div>
       </main>

@@ -26,12 +26,13 @@ const [currentPage, setCurrentPage] = useState(1)
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["listings"],
-    queryFn: () => listingsService.getListings({
+    queryKey: ["listings", currentPage, pageSize, searchQuery],
+    queryFn: () =>
+      listingsService.getListings({
         page: currentPage,
-      limit: pageSize,
-      searchString: searchQuery || undefined
-    }),
+        limit: pageSize,
+        searchString: searchQuery || undefined,
+      }),
     staleTime: 1000 * 60 * 5,
   })
 
@@ -321,19 +322,19 @@ const [currentPage, setCurrentPage] = useState(1)
               columns={columns}
               data={listings}
               actionMenu={actionMenu}
-             pagination={{
-                  pageSize: pageSize,
-                  totalItems: metadata.total,
-                  initialPage: currentPage,
-                  serverSide: true,
-                  onPageChange: handlePageChange,
-                }}
-                searchable={true}
-                selectable={true}
-                removeFeatured={ (id:string) => handleRemoveFeatured(id)}
-                isFeatured={true}
-                onSearch={handleSearch}
-                loading={isLoading}
+              pagination={{
+                pageSize: pageSize,
+                totalItems: metadata.total,
+                initialPage: currentPage,
+                serverSide: true,
+                onPageChange: handlePageChange,
+              }}
+              searchable={true}
+              selectable={true}
+              removeFeatured={handleRemoveFeatured}
+              isFeatured={true}
+              onSearch={handleSearch}
+              loading={isLoading}
             />
           </div>
         )}
