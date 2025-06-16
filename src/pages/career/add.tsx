@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch"
 import { FormContainer, FormField, FormTagsInput } from "@/components/shared/form-container"
 import { jobService } from "@/services/job-service"
 import type { CreateJobDTO } from "@/types/job"
+import RichTextEditor from "@/components/tiptap/rich-text-editor"
 
 const AddJobPage = ({ isEdit = false }: { isEdit?: boolean }) => {
   const navigate = useNavigate()
@@ -281,43 +282,71 @@ useEffect(() => {
           </div>
 
           <FormField label="Description" required error={formErrors.description} className="mt-4">
-            <Textarea
+            <RichTextEditor
+              content={formData.description}
+              onChange={(htmlContent: string) =>
+                setFormData((prev) => ({ ...prev, description: htmlContent }))
+              }
+              placeholder="Enter job description..."
+            />
+            {/* <Textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
               placeholder="Enter job description..."
               className="min-h-[100px]"
-            />
+            /> */}
           </FormField>
 
           <FormField label="Duties" required error={formErrors.duties} className="mt-4">
-            <Textarea
+             <RichTextEditor
+              content={formData.duties}
+              onChange={(htmlContent: string) =>
+                setFormData((prev) => ({ ...prev, duties: htmlContent }))
+              }
+              placeholder="Enter job duties.."
+            />
+            {/* <Textarea
               name="duties"
               value={formData.duties}
               onChange={handleInputChange}
               placeholder="Enter job duties..."
               className="min-h-[100px]"
-            />
+            /> */}
           </FormField>
 
           <FormField label="Skills" className="mt-4">
-            <Textarea
+             <RichTextEditor
+              content={formData.skills}
+              onChange={(htmlContent: string) =>
+                setFormData((prev) => ({ ...prev, skills: htmlContent }))
+              }
+              placeholder="Enter required skills.."
+            />
+            {/* <Textarea
               name="skills"
               value={formData.skills}
               onChange={handleInputChange}
               placeholder="Enter required skills..."
               className="min-h-[100px]"
-            />
+            /> */}
           </FormField>
 
           <FormField label="Experience" className="mt-4">
-            <Textarea
+             <RichTextEditor
+              content={formData.experience}
+              onChange={(htmlContent: string) =>
+                setFormData((prev) => ({ ...prev, experience: htmlContent }))
+              }
+              placeholder="Enter job experience.."
+            />
+            {/* <Textarea
               name="experience"
               value={formData.experience}
               onChange={handleInputChange}
               placeholder="Enter required experience..."
               className="min-h-[100px]"
-            />
+            /> */}
           </FormField>
 
           <FormField label="Education" className="mt-4">
