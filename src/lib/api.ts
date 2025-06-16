@@ -4,9 +4,9 @@ const api = axios.create({
   baseURL: "https://paragone-website-backend.onrender.com",
 })
 
+// Auth error handler (set by AuthProvider)
 let authErrorHandler: (() => void) | null = null
 
-// Function to set the auth error handler from AuthProvider
 export const setAuthErrorHandler = (handler: () => void) => {
   authErrorHandler = handler
 }
@@ -29,22 +29,9 @@ api.interceptors.response.use(
       (error.response && error.response.status === 401) ||
       (error.response && error.response.status === 400 && error.response.data?.message === "sign in required")
     ) {
-      // Use the auth error handler if available (from AuthProvider)
-      if (authErrorHandler) {
+      // Only call auth error handler if we're not already on login page
+      if (window.location.pathname !== "/login" && authErrorHandler) {
         authErrorHandler()
-      } else {
-        // Fallback to direct logout if AuthProvider isn't available
-        localStorage.removeItem("paragone_token")
-        localStorage.removeItem("paragone_user")
-
-        // Show a user-friendly message
-        if (window.location.pathname !== "/login") {
-          // Only show toast if not already on login page
-          import("sonner").then(({ toast }) => {
-            toast.error("Your session has expired. Please log in again.")
-          })
-        }
-        window.location.href = "/login"
       }
     }
     return Promise.reject(error)

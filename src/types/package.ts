@@ -12,6 +12,7 @@ export interface Package {
   price: number
   duration: string
   details: PackageDetail[]
+  archived: boolean
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -19,12 +20,17 @@ export interface Package {
 }
 
 export interface CreatePackageDTO {
-  id?:string
+  id?: string
   name: string
   level: string
   price: number
   duration: string
   details: PackageDetail[]
+  archived?: boolean
   isActive?: boolean
 }
 
+export interface PackagesResponse {
+  metadata: { total: number; totalPages: number }[]
+  results: Package[]
+}

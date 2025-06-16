@@ -73,14 +73,23 @@ export function DataTable({
   const [searchQuery, setSearchQuery] = useState(searchValue) // Initialize with prop value
   const [sortBy, setSortBy] = useState<{ column: string; direction: "asc" | "desc" } | null>(null)
   const [itemsPerPage, setItemsPerPage] = useState(pagination.pageSize || 10)
+const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
 
   useEffect(() => {
-    if (pagination.serverSide && searchQuery !== "") {
-      setCurrentPage(1)
-    }
-  }, [searchQuery, pagination.serverSide])
+  const timeoutId = setTimeout(() => {
+    setDebouncedSearchQuery(searchQuery)
+  }, 500) // Reduced from 800ms for better UX
 
-  // Handle search with debouncing for server-side
+  return () => clearTimeout(timeoutId)
+}, [searchQuery])
+
+  useEffect(() => {
+  if (pagination.serverSide && debouncedSearchQuery !== searchValue) {
+    setCurrentPage(1)
+  }
+}, [debouncedSearchQuery, pagination.serverSide, searchValue])
+
+ 
   useEffect(() => {
     if (pagination.serverSide && onSearch) {
       const timeoutId = setTimeout(() => {
@@ -90,11 +99,10 @@ export function DataTable({
     }
   }, [searchQuery, onSearch, pagination.serverSide])
 
-  // Sync internal search state with prop value
   useEffect(() => {
-    setSearchQuery(searchValue)
-  }, [searchValue])
-
+  setSearchQuery(searchValue)
+  setDebouncedSearchQuery(searchValue) 
+}, [searchValue])
   // Handle page changes for server-side pagination
   useEffect(() => {
     if (pagination.serverSide && pagination.onPageChange) {

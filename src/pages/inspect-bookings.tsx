@@ -150,7 +150,7 @@ export default function InspectionBookingsPage() {
         return (
           <div>
             <div className="font-medium">{row.propertyDetails.propertyName}</div>
-            <div className="text-sm text-gray-500">{row.propertyDetails.location}</div>
+            <div className="text-sm text-gray-500">{row.propertyDetails.location.region} - {row.propertyDetails.location.city}</div>
           </div>
         )
       },

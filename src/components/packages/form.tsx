@@ -1,6 +1,5 @@
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -24,6 +23,7 @@ export const PackageForm = ({ initialData, onSubmit, onCancel, isLoading }: Pack
     price: 0,
     duration: "",
     details: [{ title: "" }],
+    archived: false,
     isActive: true,
   })
 
@@ -41,6 +41,7 @@ export const PackageForm = ({ initialData, onSubmit, onCancel, isLoading }: Pack
           title: detail.title,
           amount: detail.amount,
         })),
+        archived: initialData.archived,
         isActive: initialData.isActive,
       })
     }

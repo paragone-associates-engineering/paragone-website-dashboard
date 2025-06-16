@@ -76,7 +76,7 @@ export function ViewDetailsModal({ isOpen, onClose, viewing }: ViewDetailsModalP
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-gray-500" />
-                <span>{viewing.propertyDetails.location}</span>
+                <span>{viewing.propertyDetails.location.city} - {viewing.propertyDetails.location.region}, {viewing.propertyDetails.location.country}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <DollarSign className="h-4 w-4 text-gray-500" />
@@ -112,7 +112,7 @@ export function ViewDetailsModal({ isOpen, onClose, viewing }: ViewDetailsModalP
           </div>
         </div>
 
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end pt-4 px-10">
           <Button onClick={onClose}>Close</Button>
         </div>
       </div>
