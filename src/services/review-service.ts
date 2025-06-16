@@ -1,8 +1,14 @@
-import api  from "@/lib/api"
+import api from "@/lib/api"
 import type { Review, ReviewsResponse, CreateReviewDTO, UpdateReviewDTO } from "@/types/review"
 
 export const reviewService = {
-  getReviews: async (params?: { page?: number; limit?: number; search?: string }) => {
+  getReviews: async (params?: {
+    page?: number
+    limit?: number
+    searchString?: string
+    archived?: string
+    isActive?: boolean
+  }) => {
     try {
       const response = await api.get<ReviewsResponse>("/gsuite/get-reviews", { params })
       return response.data
@@ -32,7 +38,14 @@ export const reviewService = {
     }
   },
 
-  // Helper method specifically for toggling active status
+  archiveReview: async (reviewId: string, archived: boolean) => {
+    return reviewService.updateReview(reviewId, { archived })
+  },
+
+  deleteReview: async (reviewId: string) => {
+    return reviewService.updateReview(reviewId, { isActive: false })
+  },
+
   toggleReviewStatus: async (reviewId: string, isActive: boolean) => {
     return reviewService.updateReview(reviewId, { isActive })
   },

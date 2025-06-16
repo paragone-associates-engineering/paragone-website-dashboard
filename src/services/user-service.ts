@@ -5,14 +5,14 @@ import type {  UserResponse, AddUserRequest, UpdateUserRequest } from "@/types/u
 
 const API_URL = "https://paragone-website-backend.onrender.com"
 
-export const getUsers = async (page = 1, limit = 30, search = ""): Promise<UserResponse> => {
+export const getUsers = async (page = 1, limit = 30, searchString = ""): Promise<UserResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
   })
 
-  if (search) {
-    params.append("search", search)
+  if (searchString) {
+    params.append("search", searchString)
   }
 
   const response = await api.get<UserResponse>(`/user/get-users?${params}`)

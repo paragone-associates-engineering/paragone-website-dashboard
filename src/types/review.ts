@@ -4,6 +4,7 @@ export interface Review {
   content: string
   rating: number
   testifierName: string
+  archived: boolean
   testifierOccupation: string
   isActive: boolean
   createdAt: Date
@@ -30,4 +31,5 @@ export interface UpdateReviewDTO {
   testifierName?: string
   testifierOccupation?: string
   isActive?: boolean
+  archived?: true | false
 }

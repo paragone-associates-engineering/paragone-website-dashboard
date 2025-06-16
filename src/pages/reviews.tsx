@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -6,7 +7,7 @@ import { toast } from "sonner"
 import { reviewService } from "@/services/review-service"
 import ReviewForm from "@/components/reviews/form"
 import ReviewList from "@/components/reviews/list"
-import type {  CreateReviewDTO } from "@/types/review"
+import type { CreateReviewDTO, Review } from "@/types/review"
 
 const ReviewsPage = () => {
   const queryClient = useQueryClient()
@@ -15,6 +16,7 @@ const ReviewsPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [archivingId, setArchivingId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const reviewsPerPage = 10
 
@@ -28,13 +30,18 @@ const ReviewsPage = () => {
       }
 
       if (searchQuery) {
-        params.search = searchQuery
+        params.searchString = searchQuery
       }
 
+     
       if (activeTab === "published") {
         params.isActive = true
+        params.archived = false
       } else if (activeTab === "archived") {
-        params.isActive = false
+        params.archived = true
+        params.isActive = true 
+      } else if (activeTab === "all") {
+        params.isActive = true 
       }
 
       if (sortBy) {
@@ -58,28 +65,49 @@ const ReviewsPage = () => {
     },
   })
 
-  const updateReviewStatusMutation = useMutation({
-    mutationFn: ({ reviewId, isActive }: { reviewId: string; isActive: boolean }) =>
-      reviewService.toggleReviewStatus(reviewId, isActive),
+  const archiveReviewMutation = useMutation({
+    mutationFn: ({ reviewId, archived }: { reviewId: string; archived: boolean }) =>
+      reviewService.archiveReview(reviewId, archived),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["reviews"] })
-      toast.success(`Review ${data.isActive ? "published" : "archived"} successfully`)
+      toast.success(`Review ${data.archived ? "archived" : "unarchived"} successfully`)
     },
     onError: (error) => {
-      console.error("Error updating review status:", error)
-      toast.error("Failed to update review status")
+      console.error("Error archiving review:", error)
+      toast.error("Failed to archive review")
     },
   })
 
-  const handleArchiveToggle = async (review: { id: string; isActive: boolean }) => {
+  const deleteReviewMutation = useMutation({
+    mutationFn: (reviewId: string) => reviewService.deleteReview(reviewId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reviews"] })
+      toast.success("Review deleted successfully")
+    },
+    onError: (error) => {
+      console.error("Error deleting review:", error)
+      toast.error("Failed to delete review")
+    },
+  })
+
+  const handleArchiveToggle = async (review: Review) => {
     try {
       setArchivingId(review.id)
-      await updateReviewStatusMutation.mutateAsync({
+      await archiveReviewMutation.mutateAsync({
         reviewId: review.id,
-        isActive: !review.isActive,
+        archived: !review.archived,
       })
     } finally {
       setArchivingId(null)
+    }
+  }
+
+  const handleDelete = async (review: Review) => {
+    try {
+      setDeletingId(review.id)
+      await deleteReviewMutation.mutateAsync(review.id)
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -87,13 +115,11 @@ const ReviewsPage = () => {
     await createReviewMutation.mutateAsync(data)
   }
 
-
   const handleSearch = (query: string) => {
     setSearchQuery(query)
     setCurrentPage(1)
   }
 
-  
   const handleSort = (sortValue: string) => {
     setSortBy(sortValue)
   }
@@ -174,10 +200,13 @@ const ReviewsPage = () => {
             reviews={reviewsQuery.data?.results || []}
             isLoading={reviewsQuery.isLoading}
             onArchive={handleArchiveToggle}
+            onDelete={handleDelete}
             archivingId={archivingId}
+            deletingId={deletingId}
             onSearch={handleSearch}
             onSort={handleSort}
             sortBy={sortBy}
+            activeTab={activeTab}
           />
 
           {/* Pagination */}

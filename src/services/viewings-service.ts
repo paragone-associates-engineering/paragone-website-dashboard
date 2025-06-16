@@ -13,7 +13,7 @@ export enum ViewingType {
 
 export interface PropertyDetails {
   propertyName: string
-  location: string
+  location: {city:string; region:string; country:string}
   amount: number
   propertyId: string
 }

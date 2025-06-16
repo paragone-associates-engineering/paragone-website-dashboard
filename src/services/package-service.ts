@@ -1,9 +1,9 @@
-import api  from "@/lib/api"
-import type { Package, CreatePackageDTO  } from "@/types/package"
+import api from "@/lib/api"
+import type { Package, CreatePackageDTO } from "@/types/package"
 
 export const packageService = {
-  getPackages: async () => {
-    const response = await api.get<Package[]>("/form/get-partner-packages")
+  getPackages: async (params?: { archived?: string; isActive?: boolean }) => {
+    const response = await api.get<Package[]>("/form/get-partner-packages", { params })
     return response.data
   },
 
@@ -16,6 +16,14 @@ export const packageService = {
   updatePackage: async (packageId: string, packageData: any) => {
     const response = await api.post<Package>(`/form/update-partner-package/${packageId}`, packageData)
     return response.data
+  },
+
+  archivePackage: async (packageId: string, archived: boolean) => {
+    return packageService.updatePackage(packageId, { archived })
+  },
+
+  deletePackage: async (packageId: string) => {
+    return packageService.updatePackage(packageId, { isActive: false })
   },
 
   togglePackageStatus: async (packageId: string, isActive: boolean) => {

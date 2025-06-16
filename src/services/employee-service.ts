@@ -1,14 +1,14 @@
 import api from "@/lib/api"
 import type { Employee, EmployeeResponse } from "@/types/employee"
 
-export const getEmployees = async (page = 1, limit = 30, search = ""): Promise<EmployeeResponse> => {
+export const getEmployees = async (page = 1, limit = 30, searchString = ""): Promise<EmployeeResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
   })
 
-  if (search) {
-    params.append("search", search)
+  if (searchString) {
+    params.append("search", searchString)
   }
 
   const response = await api.get<EmployeeResponse>(`/employee/get-employees?${params}`)
