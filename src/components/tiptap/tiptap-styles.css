@@ -87,3 +87,19 @@
 	margin-top: 0.7em !important;
 	margin-bottom: 0.3em !important;
 }
+
+.ProseMirror ul {
+  list-style-type: disc;
+  margin-left: 1rem;
+  padding-left: 1rem;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+  margin-left: 1rem;
+  padding-left: 1rem;
+}
+
+.ProseMirror li {
+  margin: 0.25rem 0;
+}

@@ -1,4 +1,3 @@
-"use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -303,20 +302,34 @@ export default function MenuBar({ editor }: MenuBarProps) {
 			<ToolbarSeparator />
 
 			{/* Lists */}
-			<MenuButton
-				onClick={() => editor.chain().focus().toggleBulletList().run()}
-				isActive={editor.isActive("bulletList")}
-				title="Bullet List"
-			>
-				<List size={16} />
-			</MenuButton>
-			<MenuButton
-				onClick={() => editor.chain().focus().toggleOrderedList().run()}
-				isActive={editor.isActive("orderedList")}
-				title="Ordered List"
-			>
-				<ListOrdered size={16} />
-			</MenuButton>
+			
+<MenuButton
+  onClick={() => {
+    if (editor.isActive('bulletList')) {
+      editor.chain().focus().liftListItem('listItem').run()
+    } else {
+      editor.chain().focus().toggleBulletList().run()
+    }
+  }}
+  isActive={editor.isActive("bulletList")}
+  title="Bullet List"
+>
+  <List size={16} />
+</MenuButton>
+
+<MenuButton
+  onClick={() => {
+    if (editor.isActive('orderedList')) {
+      editor.chain().focus().liftListItem('listItem').run()
+    } else {
+      editor.chain().focus().toggleOrderedList().run()
+    }
+  }}
+  isActive={editor.isActive("orderedList")}
+  title="Ordered List"
+>
+  <ListOrdered size={16} />
+</MenuButton>
 
 			<ToolbarSeparator />
 
