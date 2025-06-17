@@ -65,7 +65,7 @@ export function DataTable({
   className,
   isFeatured = false,
   onSearch,
-  searchValue = "", // Add default value
+  searchValue = "",
   loading = false,
 }: DataTableProps) {
   const [selectedRows, setSelectedRows] = useState<string[]>([])
@@ -143,12 +143,11 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
       })
     }
 
-    // Paginate data (client-side only)
     const startIndex = (currentPage - 1) * itemsPerPage
     return filteredData.slice(startIndex, startIndex + itemsPerPage)
   })()
 
-  // Calculate pagination info
+  
   const totalItems = pagination.serverSide
     ? pagination.totalItems || 0
     : searchQuery
@@ -165,7 +164,6 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
     ? Math.min(startIndex + itemsPerPage, totalItems)
     : Math.min(startIndex + processedData.length, totalItems)
 
-  // Handle row selection
   const toggleRowSelection = (id: string) => {
     setSelectedRows((prev) => {
       const newSelection = prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
@@ -189,9 +187,9 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
     }
   }
 
-  // Handle sorting (only for client-side)
+  
   const handleSort = (column: string) => {
-    if (pagination.serverSide) return // Don't sort on client-side for server-side pagination
+    if (pagination.serverSide) return
 
     if (sortBy?.column === column) {
       setSortBy(sortBy.direction === "asc" ? { column, direction: "desc" } : null)
@@ -200,13 +198,11 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
     }
   }
 
-  // Handle page size change
   const handlePageSizeChange = (newPageSize: number) => {
     setItemsPerPage(newPageSize)
     setCurrentPage(1)
   }
 
-  // Handle page change
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage)
   }
@@ -245,6 +241,11 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
       <Table>
         <TableHeader>
           <TableRow>
+            {isFeatured && (
+              <TableHead className="w-12">
+                <span className="sr-only">Featured</span>
+              </TableHead>
+            )}
             
             {selectable && (
               <TableHead className="w-12">
@@ -302,6 +303,7 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
                 className={onRowClick ? "cursor-pointer" : ""}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
+                
                 {isFeatured && (
                   <TableCell
                     onClick={(e) => {
@@ -311,7 +313,7 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
                       }
                     }}
                   >
-                    {row?.featured && <Star className="fill-primary stroke-primary text-sm" />}
+                    {isFeatured && row?.featured && <Star className="fill-primary stroke-primary text-sm" />}
                   </TableCell>
                 )}
 

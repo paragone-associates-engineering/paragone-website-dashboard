@@ -109,7 +109,7 @@ export default function EditPropertyPage() {
         propertyAgent: { name: data?.propertyAgent?.name, address: data?.propertyAgent?.address, phone: data?.propertyAgent?.phone, link: data?.propertyAgent?.link },
         propertyOwner: { name: data?.propertyOwner?.name, address: data?.propertyOwner?.address, phone: data?.propertyOwner?.phone, link: data?.propertyOwner?.link },
         landmarks: data.landmarks,
-        propertyDetail: data.propertyDetails,
+        propertyDetails: data.propertyDetails,
       }
 
       return listingsService.updateListing(id, updateData)
@@ -158,7 +158,7 @@ export default function EditPropertyPage() {
       images: [],
     })
 
-    // Set existing images
+   
     if (listing.images && listing.images.length > 0) {
       setExistingImages(listing.images)
       setImagePreviews(listing.images)

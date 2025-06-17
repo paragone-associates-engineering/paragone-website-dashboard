@@ -128,7 +128,7 @@ export interface UpdateListingDTO {
    propertyAgent?:PropertyOwnerAgent
     propertyOwner?:PropertyOwnerAgent
   landmarks?: Landmarks[]
-  propertyDetail?: PropertyDetail[]
+  propertyDetails?: PropertyDetail[]
   isActive?: boolean
 }
 export interface Region {
@@ -283,7 +283,7 @@ export const listingsService = {
         listingType: listingData.listingType,
         description: listingData.description,
         landmarks: listingData.landmarks,
-        propertyDetail: listingData.propertyDetails,
+        propertyDetails: listingData.propertyDetails,
       }
 
       formData.append("metadata", JSON.stringify(listingDTO))
