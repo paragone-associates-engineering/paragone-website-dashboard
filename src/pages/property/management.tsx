@@ -33,6 +33,7 @@ export default function PropertyManagementPage() {
   const properties = propertyData?.results || []
   const metadata = propertyData?.metadata?.[0] || { total: 0, totalPages: 0 }
 
+  console.log(properties)
   const updateMutation = useMutation({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: ({ id, data }: { id: string; data: any }) =>
@@ -139,9 +140,9 @@ export default function PropertyManagementPage() {
       enableSorting: true,
     },
     {
-      id: "location",
+      id: "propertyLocation",
       header: "Location",
-      accessorKey: "location",
+      accessorKey: "propertyLocation",
       enableSorting: true,
     },
     {
