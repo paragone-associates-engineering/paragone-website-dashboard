@@ -126,6 +126,7 @@ export function PropertyDetailsInput({ value, onChange, label = "Property Detail
     )
   }
 
+  
   return (
     <div className="space-y-4 ">
       <Label className="text-sm font-medium">{label}</Label>

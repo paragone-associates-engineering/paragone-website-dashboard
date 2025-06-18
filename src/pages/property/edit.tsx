@@ -93,25 +93,26 @@ export default function EditPropertyPage() {
     mutationFn: (data: any) => {
       if (!id) throw new Error("No listing ID provided")
 
-      
-      const updateData = {
-        propertyName: data.propertyName,
-        propertyType: data.propertyType,
-        propertyCategory: data.propertyCategory,
-        description: data.description,
-        amount: data.amount,
-        area: data.area,
-        status: data.status,
-        featured:data.featured,
-        listingType: data.listingType,
-        videoUrl: data.videoUrl,
-        location: data.location.id, 
-        propertyAgent: { name: data?.propertyAgent?.name, address: data?.propertyAgent?.address, phone: data?.propertyAgent?.phone, link: data?.propertyAgent?.link },
-        propertyOwner: { name: data?.propertyOwner?.name, address: data?.propertyOwner?.address, phone: data?.propertyOwner?.phone, link: data?.propertyOwner?.link },
-        landmarks: data.landmarks,
-        propertyDetails: data.propertyDetails,
+    const updateData = {
+  propertyName: data.propertyName,
+  propertyType: data.propertyType,
+  propertyCategory: data.propertyCategory,
+  description: data.description,
+  amount: data.amount,
+  area: data.area,
+  status: data.status,
+  featured: data.featured,
+  listingType: data.listingType,
+  videoUrl: data.videoUrl,
+  location: data.location.id, 
+  propertyAgent: { name: data?.propertyAgent?.name, address: data?.propertyAgent?.address, phone: data?.propertyAgent?.phone, link: data?.propertyAgent?.link },
+  propertyOwner: { name: data?.propertyOwner?.name, address: data?.propertyOwner?.address, phone: data?.propertyOwner?.phone, link: data?.propertyOwner?.link },
+  landmarks: data.landmarks,
+ propertyDetails: Array.isArray(data.propertyDetails)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ? data.propertyDetails.map(({ _id, ...detail }: PropertyDetail & { _id?: string }) => detail)
+          : data.propertyDetails
       }
-
       return listingsService.updateListing(id, updateData)
     },
     onSuccess: () => {
@@ -308,7 +309,7 @@ export default function EditPropertyPage() {
     )
   }
 
-  //console.log(formData)
+  console.log(formData)
   return (
     <div className="p-6 max-w-full">
       <div className="mb-6 flex items-center justify-between">
@@ -395,13 +396,12 @@ export default function EditPropertyPage() {
                       <SelectItem value={ListingType.FOR_SALE}>For Sale</SelectItem>
                       <SelectItem value={ListingType.FOR_RENT}>For Rent</SelectItem>
                       <SelectItem value={ListingType.SHORT_STAY}>Short Stay</SelectItem>
-                      <SelectItem value={ListingType.LAND}>Land</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormField>
               </FormRow>
 
-              <FormField label="Description" className="mt-4">
+              <FormField label="Description" className="mt-4" required>
                 <Textarea
                   name="description"
                   value={formData.description}
