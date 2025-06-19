@@ -1,4 +1,3 @@
-
 import type React from "react"
 import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
@@ -51,7 +50,6 @@ export const PackageForm = ({ initialData, onSubmit, onCancel, isLoading }: Pack
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: name === "price" ? Number(value) : value }))
 
-    // Clear error for this field if it exists
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev }
@@ -64,7 +62,6 @@ export const PackageForm = ({ initialData, onSubmit, onCancel, isLoading }: Pack
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
 
-    // Clear error for this field if it exists
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev }
@@ -151,7 +148,10 @@ export const PackageForm = ({ initialData, onSubmit, onCancel, isLoading }: Pack
         </FormField>
 
         <FormField label="Package Level" required error={errors.level}>
-          <Select value={formData.level} onValueChange={(value) => handleSelectChange("level", value)}>
+          <Select 
+            value={formData.level || ""} 
+            onValueChange={(value) => handleSelectChange("level", value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select level" />
             </SelectTrigger>

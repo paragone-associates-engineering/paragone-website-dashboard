@@ -29,7 +29,7 @@ const Subscriptions = () => {
         params.archived = "true"
         params.isActive = true
       } else {
-        // All tab - only active packages (both archived and published)
+        
         params.isActive = true
       }
 
@@ -69,10 +69,13 @@ const Subscriptions = () => {
   }
 
   const handleUpdateSubmit = (data: CreatePackageDTO) => {
-    if (editingPackage) {
-      updatePackageMutation.mutate({ packageId: editingPackage.id, data })
-    }
+  //console.log(data)
+  if (editingPackage) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...dataWithoutId } = data
+    updatePackageMutation.mutate({ packageId: editingPackage.id, data: dataWithoutId })
   }
+}
 
   const handleEdit = (pkg: Package) => {
     setEditingPackage(pkg)
@@ -91,7 +94,7 @@ const Subscriptions = () => {
       } else if (activeTab === "archived") {
         return pkg.isActive && pkg.archived
       }
-      // All tab - show all active packages
+     
       return pkg.isActive
     }) || []
 
@@ -132,7 +135,7 @@ const Subscriptions = () => {
         )}
       </div>
 
-      {/* Tabs */}
+     
       <div className="border-b mb-6">
         <div className="flex">
           <button
