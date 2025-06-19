@@ -78,14 +78,6 @@ export default function EditPropertyPage() {
       [],
     [formData.propertyCategory]
   )
-
-  
-//  useEffect(() => {
-//   if (!isInitialLoad && formData.propertyType && !availablePropertyTypes.includes(formData.propertyType)) {
-//     setFormData((prev) => ({ ...prev, propertyType: "" }))
-//   }
-// }, [formData.propertyCategory, availablePropertyTypes, isInitialLoad, formData.propertyType])
-
  
 
   const updateMutation = useMutation({
