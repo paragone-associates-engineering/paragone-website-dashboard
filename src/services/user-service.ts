@@ -1,9 +1,6 @@
-import axios from "axios"
 import api from "@/lib/api"
 import { getStoredUser } from "@/lib/auth"
 import type {  UserResponse, AddUserRequest, UpdateUserRequest } from "@/types/user"
-
-const API_URL = "https://paragone-website-backend.onrender.com"
 
 export const getUsers = async (page = 1, limit = 30, searchString = ""): Promise<UserResponse> => {
   const params = new URLSearchParams({
@@ -39,14 +36,9 @@ export const deleteUser = async (userId: string): Promise<void> => {
       throw new Error("No authentication token found")
     }
 
-    await axios.post(
-      `${API_URL}/user/update-user/${userId}`,
-      { isActive: false },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    await api.post(
+      `/user/update-user/${userId}`,
+      { isActive: false }
     )
   } catch (error) {
     console.error(`Error deleting user ${userId}:`, error)
