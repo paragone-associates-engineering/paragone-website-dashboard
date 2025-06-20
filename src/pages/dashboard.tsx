@@ -45,7 +45,7 @@ const {data:reviews} = useQuery({
      
       <Analytics analyticsData={analyticsData ?? null} isError={isError} error={error} isLoading={isLoading}/>
 
-    {/* Reviews and Overview */}
+  
 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
   {/* Customer Reviews */}
   <Card>

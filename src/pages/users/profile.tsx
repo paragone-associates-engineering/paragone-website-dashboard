@@ -24,7 +24,6 @@ export default function UserProfilePage() {
     email: "",
   })
 
-  // Notification settings state
   const [notifications, setNotifications] = useState({
     companyNews: false,
     pushNotification: true,
@@ -33,17 +32,14 @@ export default function UserProfilePage() {
     ordersNotifications: true,
   })
 
-  // Add reset password state after the notifications state
   const [resetPasswordEmail, setResetPasswordEmail] = useState("")
 
-  // Update user mutation
   const updateUserMutation = useMutation({
     mutationFn: (data: UpdateUserRequest) => {
       if (!user?.id) throw new Error("No user ID found")
       return userService.updateUser(user.id, data)
     },
     onSuccess: (updatedUser) => {
-      // Update localStorage with new data
       localStorage.setItem("paragone_user", JSON.stringify(updatedUser))
       setUser(updatedUser)
       toast.success("Profile updated successfully")
@@ -54,7 +50,6 @@ export default function UserProfilePage() {
     },
   })
 
-  // Add reset password mutation after the updateUserMutation
   const resetPasswordMutation = useMutation({
     mutationFn: (email: string) => userService.resetPassword(email),
     onSuccess: () => {
@@ -91,11 +86,9 @@ export default function UserProfilePage() {
   }
 
   const handleNotificationSubmit = () => {
-    // Since there's no specific endpoint for notifications, we'll just show a success message
     toast.success("Notification settings saved")
   }
 
-  // Add reset password handler
   const handleResetPassword = (e: React.FormEvent) => {
     e.preventDefault()
 
