@@ -39,12 +39,15 @@ export const deleteUser = async (userId: string): Promise<void> => {
       throw new Error("No authentication token found")
     }
 
-    await axios.post(`${API_URL}/user/update-user/${userId}`, {
-      data: { isActive: false },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    await axios.post(
+      `${API_URL}/user/update-user/${userId}`,
+      { isActive: false },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
   } catch (error) {
     console.error(`Error deleting user ${userId}:`, error)
     throw error
