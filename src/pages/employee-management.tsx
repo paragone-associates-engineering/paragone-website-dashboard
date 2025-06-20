@@ -9,8 +9,9 @@ import type { Employee, EmployeeFormData } from "@/types/employee"
 import EmployeeList from "@/components/employees/list"
 import EmployeeForm from "@/components/employees/form"
 import EmployeeProfile from "@/components/employees/profile"
-import { X } from "lucide-react"
+import { Loader2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Modal } from "@/components/ui/modal"
 
 
 const EmployeeManagement = () => {
@@ -20,6 +21,10 @@ const EmployeeManagement = () => {
   const [showViewModal, setShowViewModal] = useState(false)
   const [editEmployeeId, setEditEmployeeId] = useState<string | null>(null)
   const [viewEmployeeId, setViewEmployeeId] = useState<string | null>(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteEmployeeId, setDeleteEmployeeId] = useState<string | null>(null)
+  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null)
+  
   const [formData, setFormData] = useState<EmployeeFormData>({
     firstName: "",
     lastName: "",
@@ -37,7 +42,7 @@ const EmployeeManagement = () => {
     enabled: !!viewEmployeeId,
   })
 
-  // Add employee mutation
+  
   const addEmployeeMutation = useMutation({
     mutationFn: addEmployee,
     onSuccess: () => {
@@ -52,7 +57,6 @@ const EmployeeManagement = () => {
     },
   })
 
-  // Update employee mutation
   const updateEmployeeMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Employee> }) => updateEmployee(id, data),
     onSuccess: () => {
@@ -66,11 +70,13 @@ const EmployeeManagement = () => {
     },
   })
 
-  // Delete employee mutation
   const deleteEmployeeMutation = useMutation({
     mutationFn: deleteEmployee,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] })
+      setShowDeleteModal(false)
+      setDeleteEmployeeId(null)
+      setEmployeeToDelete(null)
       toast.success("Employee deleted successfully")
     },
     onError: (error) => {
@@ -100,11 +106,18 @@ const EmployeeManagement = () => {
       addEmployeeMutation.mutate(formData as Employee)
     }
   }
-
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this employee?")) {
-      deleteEmployeeMutation.mutate(id)
+  
+  const confirmDelete = () => {
+    if (deleteEmployeeId) {
+      deleteEmployeeMutation.mutate(deleteEmployeeId)
     }
+  }
+
+  
+  const cancelDelete = () => {
+    setShowDeleteModal(false)
+    setDeleteEmployeeId(null)
+    setEmployeeToDelete(null)
   }
 
   const resetForm = () => {
@@ -127,11 +140,11 @@ const EmployeeManagement = () => {
 
   const handleEditEmployee = (employee: Employee) => {
     if (employee.id) {
-      // Reset form before setting new data to avoid stale state
+     
       resetForm()
       setEditEmployeeId(employee.id)
 
-      // Manually set form data
+      
       setFormData({
         firstName: employee.firstName,
         lastName: employee.lastName,
@@ -142,7 +155,7 @@ const EmployeeManagement = () => {
         type: employee.type,
       })
 
-      // Open the edit modal
+     
       setShowEditModal(true)
     }
   }
@@ -167,18 +180,20 @@ const EmployeeManagement = () => {
     queryClient.invalidateQueries({ queryKey: ["employees"] })
   }
 
-  // Clean up when component unmounts
+  
   useEffect(() => {
     return () => {
       resetForm()
       setEditEmployeeId(null)
       setViewEmployeeId(null)
+      setDeleteEmployeeId(null)
+      setEmployeeToDelete(null)
     }
   }, [])
 
-  // Prevent body scroll when modal is open
+  
   useEffect(() => {
-    if (showEditModal || showViewModal) {
+    if (showEditModal || showViewModal || showDeleteModal) {
       document.body.style.overflow = "hidden"
     } else {
       document.body.style.overflow = "auto"
@@ -187,7 +202,7 @@ const EmployeeManagement = () => {
     return () => {
       document.body.style.overflow = "auto"
     }
-  }, [showEditModal, showViewModal])
+  }, [showEditModal, showViewModal, showDeleteModal])
 
   return (
     <div className="p-3 md:p-6">
@@ -199,10 +214,15 @@ const EmployeeManagement = () => {
         onAddEmployee={handleAddEmployee}
         onEditEmployee={handleEditEmployee}
         onViewEmployee={handleViewEmployee}
-        onDeleteEmployee={handleDelete}
+        onDeleteEmployee={(employeeId: string) => {
+          const employee = { ...({ id: employeeId } as Employee) }
+          setDeleteEmployeeId(employeeId)
+          setEmployeeToDelete(employee)
+          setShowDeleteModal(true)
+        }}
       />
 
-      {/* Add Employee Form */}
+    
       {showAddForm && (
         <div className="bg-white rounded-lg border">
           <div className="p-4 border-b">
@@ -226,7 +246,7 @@ const EmployeeManagement = () => {
         </div>
       )}
 
-      {/* Edit Employee Modal */}
+      
       {showEditModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-20">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-2 lg:mx-0">
@@ -251,7 +271,7 @@ const EmployeeManagement = () => {
         </div>
       )}
 
-      {/* View Employee Modal */}
+    
       {showViewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-20">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -266,6 +286,38 @@ const EmployeeManagement = () => {
             </div>
           </div>
         </div>
+      )}
+
+     
+      {showDeleteModal && (
+        <Modal isOpen={showDeleteModal} title='Delete Employee' onClose={cancelDelete}>
+         <div className='p-5'>
+           <div>
+             <h2 className='text-xl font-bold mb-3'>Are you sure?</h2>
+          <div>
+             {employeeToDelete && (
+               <>
+                 This will permanently delete the employee <span className="font-semibold">"{employeeToDelete.id}"</span>.
+                 This action cannot be undone.
+               </>
+             )}
+          </div>
+        </div>
+         <div className='flex items-center justify-end gap-4 mt-4'>
+          <Button onClick={cancelDelete} disabled={deleteEmployeeMutation.isPending}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={confirmDelete} 
+            disabled={deleteEmployeeMutation.isPending} 
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {deleteEmployeeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Delete
+          </Button>
+        </div>
+      </div>
+    </Modal>
       )}
     </div>
   )

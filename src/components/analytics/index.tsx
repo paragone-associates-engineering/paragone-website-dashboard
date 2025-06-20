@@ -55,7 +55,7 @@ export default function Analytics({analyticsData,isLoading, isError, error}: Ana
         <p className="text-gray-600">Property listings insights and statistics</p>
       </div>
 
-      {/* Total Listings Overview */}
+      
       <div className="mb-6">
         {/* <Card className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
           <CardContent className="p-6">
@@ -78,7 +78,7 @@ export default function Analytics({analyticsData,isLoading, isError, error}: Ana
         totalListings={analyticsData?.totalListings || 0}
       />
 
-      {/* Charts Section */}
+    
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <RegionStatsChart regionStats={analyticsData?.regionStats || []} />
         <CountryStatsChart countryStats={analyticsData?.countryStats || []} />
