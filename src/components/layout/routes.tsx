@@ -37,6 +37,10 @@ import SellAsACompanyPage from "@/pages/partner/sell-as-company"
 import { AdminGuard } from "../auth/role-guard"
 import ForgotPassword from "@/pages/auth/forgot-password"
 import GetInTouchList from "@/pages/get-in-touch"
+import AddEventPage from "@/pages/events/add-event"
+import EditEventPage from "@/pages/events/edit-event"
+import EventsPage from "@/pages/events"
+import EventApplicationsPage from "@/pages/events/applications"
 
 const AppRoutes = () => {
   
@@ -70,8 +74,13 @@ const AppRoutes = () => {
       <Route path="/join/list" element={<JoinUs />} />
       <Route path="/notification/all" element={<AdminGuard><NotificationPage /></AdminGuard>} />
       <Route path="/blog/list" element={<BlogPage />} />
+     
       <Route path="/blog/create" element={<CreateBlog />} />
       <Route path="/blog/edit/:id" element={<EditBlogPage />} />
+      <Route path="/event/list" element={<EventsPage />} />
+      <Route path="/event/edit/:eventId" element={<EditEventPage />} />
+      <Route path="/event/create" element={<AddEventPage />} />
+      <Route path="/event/applications" element={<EventApplicationsPage />} />
       <Route path="/career/list" element={<CareerPage />} />
       <Route path="/career/add" element={<AddJobPage />} />
        <Route path="/career/edit/:id" element={<EditJobPage />} />
