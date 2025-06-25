@@ -15,7 +15,7 @@ const AddEventPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events"] })
       toast.success("Event created successfully")
-      navigate("/events")
+      navigate("/event/list")
     },
     onError: () => {
       toast.error("Failed to create event")
@@ -27,7 +27,7 @@ const AddEventPage = () => {
   }
 
   const handleCancel = () => {
-    navigate("/event/all")
+    navigate("/event/list")
   }
 
   return (
