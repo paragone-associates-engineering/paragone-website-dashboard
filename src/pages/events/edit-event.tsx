@@ -24,7 +24,7 @@ const EditEventPage = () => {
       queryClient.invalidateQueries({ queryKey: ["events"] })
       queryClient.invalidateQueries({ queryKey: ["event", eventId] })
       toast.success("Event updated successfully")
-      navigate("/events")
+      navigate("/event/list")
     },
     onError: () => {
       toast.error("Failed to update event")
@@ -36,7 +36,7 @@ const EditEventPage = () => {
   }
 
   const handleCancel = () => {
-    navigate("/events")
+    navigate("/event/list")
   }
 
   if (eventQuery.isLoading) {

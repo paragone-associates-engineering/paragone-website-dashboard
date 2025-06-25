@@ -19,7 +19,6 @@ const EventApplicationsPage = () => {
 
   const queryClient = useQueryClient()
 
-  // Applications Query
   const applicationsQuery = useQuery({
     queryKey: ["event-applications", searchQuery, currentPage],
     queryFn: () =>
