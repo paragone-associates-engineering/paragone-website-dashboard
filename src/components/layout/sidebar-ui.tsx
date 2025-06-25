@@ -16,6 +16,7 @@ import {
   Users2,
   Link as LinkIcon,
   Mail,
+  Tickets,
   Scroll,
   ClipboardCheck,
   UsersRound,
@@ -121,10 +122,18 @@ const Sidebar = ({collapsed, setCollapsed}:{collapsed: boolean, setCollapsed: (v
          { label: 'Sell As A Company list', path: '/partner/sell-as-a-company' },
       ] 
     },
-    { icon: <FileText size={20} />, label: 'Blog/News', path: '/blog',
+    { icon: <FileText size={20} />, label: 'Blog/News', path: '/blog/list',
       submenu: [
         { label: 'Blog list', path: '/blog/list' },
         { label: 'Create blog', path: '/blog/create' },
+      ] 
+    },
+    { icon: <Tickets size={20} />, label: 'Events', path: '/event',
+      submenu: [
+        { label: 'Events List', path: '/event/list' },
+        { label: 'Create Event', path: '/event/create' },
+        { label: 'Applications', path: '/event/applications' },
+        
       ] 
     },
     { icon: <Search size={20} />, label: 'Property request', path: '/property-request',
