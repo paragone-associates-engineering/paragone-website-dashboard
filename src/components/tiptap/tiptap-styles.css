@@ -42,7 +42,7 @@
 .ProseMirror img {
 	max-width: 100%;
 	height: auto;
-	display: block; /* or inline-block based on preference */
+	display: block; 
 	margin-top: 0.5rem;
 	margin-bottom: 0.5rem;
 	border-radius: 0.25rem;
@@ -67,7 +67,7 @@
 }
 
 .ProseMirror h1 {
-	font-size: 2.5em !important; /* Make it very obvious */
+	font-size: 2.5em !important; 
 	color: black !important;
 	font-weight: bold !important;
 	margin-top: 1em !important;
@@ -102,4 +102,7 @@
 
 .ProseMirror li {
   margin: 0.25rem 0;
+}
+::placeholder {
+  color: '#a1a1a1';
 }

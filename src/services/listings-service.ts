@@ -122,7 +122,7 @@ export interface UpdateListingDTO {
   propertyType?: string
   status?:string;
   featured?:boolean;
-  location?: string;
+  location?: LocationDTO;
   listingType?: ListingType
   description?: string
    propertyAgent?:PropertyOwnerAgent
@@ -277,7 +277,7 @@ export const listingsService = {
         propertyCategory: listingData.propertyCategory,
         videoUrl: listingData.videoUrl,
         propertyType: listingData.propertyType,
-        location: listingData.location.id,
+        location: {id:listingData.location.id, country:listingData.location.country, region:listingData.location.region, city:listingData.location.city, postalCode:listingData.location.postalCode},
         propertyAgent:{name: listingData?.propertyAgent?.name, address:listingData?.propertyAgent?.address, phone:listingData?.propertyAgent?.phone, link:listingData?.propertyAgent?.link},
         propertyOwner:{name: listingData?.propertyOwner?.name, address:listingData?.propertyOwner?.address, phone:listingData?.propertyOwner?.phone, link:listingData?.propertyOwner?.link},
         listingType: listingData.listingType,
@@ -322,7 +322,7 @@ export const listingsService = {
     return response.data
   },
 
-  // Region methods for location selection
+  
   getRegions: async (params?: { page?: number; limit?: number; searchString?: string }) => {
     const response = await api.get<RegionsResponse>("/listings/get-locations", { params })
     return response.data

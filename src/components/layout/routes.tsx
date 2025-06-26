@@ -41,6 +41,10 @@ import AddEventPage from "@/pages/events/add-event"
 import EditEventPage from "@/pages/events/edit-event"
 import EventsPage from "@/pages/events"
 import EventApplicationsPage from "@/pages/events/applications"
+import ResourcesPage from "@/pages/resources"
+import EditResourcePage from "@/pages/resources/edit"
+import ResourceApplicationsPage from "@/pages/resources/application"
+import AddResourcePage from "@/pages/resources/add"
 
 const AppRoutes = () => {
   
@@ -84,6 +88,12 @@ const AppRoutes = () => {
       <Route path="/career/list" element={<CareerPage />} />
       <Route path="/career/add" element={<AddJobPage />} />
        <Route path="/career/edit/:id" element={<EditJobPage />} />
+
+       <Route path="/resources/list" element={<ResourcesPage />} />
+       <Route path="/resources/add" element={<AddResourcePage />} />
+       <Route path="/resources/applications" element={<ResourceApplicationsPage />} />
+       <Route path="/resources/edit/:resourceId" element={<EditResourcePage />} />
+    
       <Route path="/partner/individual" element={<PartnerWithUsPage />} />
       <Route path="/partner/sell-as-a-company" element={<SellAsACompanyPage />} />
       <Route path="/reviews" element={<ReviewsPage />} />
