@@ -24,7 +24,8 @@ import {
   X,
   ChevronDown,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  BookA
 } from 'lucide-react';
 import { notificationService } from '@/services/notification-service';
 import { useQuery } from '@tanstack/react-query';
@@ -147,6 +148,13 @@ const Sidebar = ({collapsed, setCollapsed}:{collapsed: boolean, setCollapsed: (v
         { label: 'Add job', path: '/career/add' },
       ] 
     },
+    { icon: <BookA size={20} />, label: 'Resources', path: '/resources',
+    submenu: [
+      { label: 'Resources list', path: '/resources/list' },
+      { label: 'Add Resources', path: '/resources/add' },
+      { label: 'Applications', path: '/resources/applications' },
+    ] 
+  },
     { icon: <Users2 size={20} />, label: 'Refer and Earn', path: '/refer',
       submenu: [
         { label: 'Refer and earn list', path: '/refer/list' },

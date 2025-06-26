@@ -96,7 +96,7 @@ export default function EditPropertyPage() {
   featured: data.featured,
   listingType: data.listingType,
   videoUrl: data.videoUrl,
-  location: data.location.id, 
+  location: {id:data.location.id, country: data.location.country, region: data.location.region, city: data.location.city, postalCode: data.location.postalCode}, 
   propertyAgent: { name: data?.propertyAgent?.name, address: data?.propertyAgent?.address, phone: data?.propertyAgent?.phone, link: data?.propertyAgent?.link },
   propertyOwner: { name: data?.propertyOwner?.name, address: data?.propertyOwner?.address, phone: data?.propertyOwner?.phone, link: data?.propertyOwner?.link },
   landmarks: data.landmarks,
@@ -133,7 +133,7 @@ export default function EditPropertyPage() {
       status: listing?.status || 'Pending',
       listingType: listing.listingType,
       videoUrl: listing.videoUrl || "",
-      location: listing.location,
+      location: {id:listing.location.id, country: listing.location.country, region: listing.location.region, city: listing.location.city, postalCode: listing.location.postalCode},
       landmarks: listing.landmarks || [],
       propertyAgent: {
         name: listing?.propertyAgent?.name || "",
