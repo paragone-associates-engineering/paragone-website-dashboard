@@ -11,6 +11,7 @@ import { FormContainer, FormField, FormTagsInput } from "@/components/shared/for
 import { jobService } from "@/services/job-service"
 import type { CreateJobDTO } from "@/types/job"
 import RichTextEditor from "@/components/tiptap/rich-text-editor"
+import { Loader } from "@/components/ui/loader"
 
 const EditJobPage = ({ isEdit = false }: { isEdit?: boolean }) => {
   const navigate = useNavigate()
@@ -165,7 +166,7 @@ const EditJobPage = ({ isEdit = false }: { isEdit?: boolean }) => {
   }
 
   if ( isLoading) {
-    return <div className="p-6">Loading job details...</div>
+    return <div className="p-6 flex items-center justify-center"><Loader /> <span>Loading job details...</span></div>
   }
 
   return (

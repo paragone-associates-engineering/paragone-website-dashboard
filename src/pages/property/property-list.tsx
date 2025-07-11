@@ -323,6 +323,7 @@ const [currentPage, setCurrentPage] = useState(1)
               columns={columns}
               data={listings}
               actionMenu={actionMenu}
+               onRowClick={handleViewDetails}
               pagination={{
                 pageSize: pageSize,
                 totalItems: metadata.total,

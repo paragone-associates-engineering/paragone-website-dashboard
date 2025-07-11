@@ -97,7 +97,6 @@ export default function GetInTouchList() {
   }
 
   const handleContact = (contact: Contact) => {
-    // Open phone dialer
     window.open(`tel:${contact.phoneNumber}`)
   }
 
@@ -276,6 +275,7 @@ export default function GetInTouchList() {
             <DataTable
               columns={columns}
               data={contacts}
+              onRowClick={handleViewDetails}
               actionMenu={actionMenu}
               pagination={{ pageSize: 10, totalItems: metadata.total }}
               searchable={true}

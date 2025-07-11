@@ -43,7 +43,6 @@ export default function AdvertisingPage() {
     staleTime: 1000 * 60 * 5,
   })
 
-  //const ads = adsData || []
   const metadata = { total: Array.isArray(adsData) ? adsData.length : 0, totalPages: 0 }
 
   const createMutation = useMutation({

@@ -78,7 +78,7 @@ const CustomerList = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const customersPerPage = 6
 
-  // Get current customers
+  
   const indexOfLastCustomer = currentPage * customersPerPage
   const indexOfFirstCustomer = indexOfLastCustomer - customersPerPage
   const currentCustomers = customers.slice(indexOfFirstCustomer, indexOfLastCustomer)
