@@ -218,6 +218,7 @@ export default function JoinUsPage() {
             <DataTable
               columns={columns}
               data={entries}
+              onRowClick={handleEdit}
               actionMenu={actionMenu}
               pagination={{ pageSize: 10, totalItems: entries.length }}
               searchable={true}

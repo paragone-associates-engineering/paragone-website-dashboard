@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-import { MoreVertical, ChevronLeft, ChevronRight, Star } from "lucide-react"
+import { MoreVertical, ChevronLeft, ChevronRight, Star, Download, FileText, FileSpreadsheet } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export interface Column {
@@ -48,8 +48,10 @@ interface DataTableProps {
   selectable?: boolean
   className?: string
   onSearch?: (query: string) => void
-  searchValue?: string // Add this new prop
+  searchValue?: string
   loading?: boolean
+  exportable?: boolean // New prop for export functionality
+  exportFileName?: string // Custom filename for export
 }
 
 export function DataTable({
@@ -67,29 +69,29 @@ export function DataTable({
   onSearch,
   searchValue = "",
   loading = false,
+  exportable = true,
+  exportFileName = "table-data",
 }: DataTableProps) {
   const [selectedRows, setSelectedRows] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(pagination.initialPage || 1)
-  const [searchQuery, setSearchQuery] = useState(searchValue) // Initialize with prop value
+  const [searchQuery, setSearchQuery] = useState(searchValue)
   const [sortBy, setSortBy] = useState<{ column: string; direction: "asc" | "desc" } | null>(null)
   const [itemsPerPage, setItemsPerPage] = useState(pagination.pageSize || 10)
-const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
 
   useEffect(() => {
-  const timeoutId = setTimeout(() => {
-    setDebouncedSearchQuery(searchQuery)
-  }, 500) // Reduced from 800ms for better UX
-
-  return () => clearTimeout(timeoutId)
-}, [searchQuery])
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+    }, 500)
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery])
 
   useEffect(() => {
-  if (pagination.serverSide && debouncedSearchQuery !== searchValue) {
-    setCurrentPage(1)
-  }
-}, [debouncedSearchQuery, pagination.serverSide, searchValue])
+    if (pagination.serverSide && debouncedSearchQuery !== searchValue) {
+      setCurrentPage(1)
+    }
+  }, [debouncedSearchQuery, pagination.serverSide, searchValue])
 
- 
   useEffect(() => {
     if (pagination.serverSide && onSearch) {
       const timeoutId = setTimeout(() => {
@@ -100,24 +102,100 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
   }, [searchQuery, onSearch, pagination.serverSide])
 
   useEffect(() => {
-  setSearchQuery(searchValue)
-  setDebouncedSearchQuery(searchValue) 
-}, [searchValue])
-  // Handle page changes for server-side pagination
+    setSearchQuery(searchValue)
+    setDebouncedSearchQuery(searchValue)
+  }, [searchValue])
+
   useEffect(() => {
     if (pagination.serverSide && pagination.onPageChange) {
       pagination.onPageChange(currentPage, itemsPerPage)
     }
   }, [currentPage, itemsPerPage, pagination.serverSide, pagination.onPageChange])
 
-  // Client-side filtering and processing
+  // Helper function to get raw cell value for export
+  const getCellValue = (row: any, column: Column) => {
+    if (column.cell) {
+      // For custom cell renderers, try to extract the raw value
+      const cellResult = column.cell(row)
+      if (typeof cellResult === 'string' || typeof cellResult === 'number') {
+        return cellResult
+      }
+      // If it's a React element, fall back to the raw data
+      return row[column.accessorKey]
+    }
+    return row[column.accessorKey]
+  }
+
+  // Export functions
+  const exportToCSV = (dataToExport: any[]) => {
+    const headers = columns.map(col => col.header).join(',')
+    const rows = dataToExport.map(row => 
+      columns.map(col => {
+        const value = getCellValue(row, col)
+        // Escape commas and quotes in CSV
+        const stringValue = String(value || '')
+        return stringValue.includes(',') || stringValue.includes('"') 
+          ? `"${stringValue.replace(/"/g, '""')}"` 
+          : stringValue
+      }).join(',')
+    )
+    
+    const csvContent = [headers, ...rows].join('\n')
+    downloadFile(csvContent, `${exportFileName}.csv`, 'text/csv')
+  }
+
+  const exportToJSON = (dataToExport: any[]) => {
+    const exportData = dataToExport.map(row => {
+      const exportRow: any = {}
+      columns.forEach(col => {
+        exportRow[col.header] = getCellValue(row, col)
+      })
+      return exportRow
+    })
+    
+    const jsonContent = JSON.stringify(exportData, null, 2)
+    downloadFile(jsonContent, `${exportFileName}.json`, 'application/json')
+  }
+
+  const downloadFile = (content: string, fileName: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleExport = (format: 'csv' | 'json', exportSelected: boolean = false) => {
+    let dataToExport = data
+
+    if (exportSelected && selectedRows.length > 0) {
+      dataToExport = data.filter(row => selectedRows.includes(row.id))
+    } else if (!pagination.serverSide && searchQuery) {
+      
+      dataToExport = data.filter((item) =>
+        Object.values(item).some(
+          (value) => value && value.toString().toLowerCase().includes(searchQuery.toLowerCase()),
+        ),
+      )
+    }
+
+    if (format === 'csv') {
+      exportToCSV(dataToExport)
+    } else {
+      exportToJSON(dataToExport)
+    }
+  }
+
+  
   const processedData = (() => {
     if (pagination.serverSide) {
-      // For server-side, use data as-is since filtering/pagination is handled by API
       return data
     }
 
-    // Client-side processing
     let filteredData = data
     if (!pagination.serverSide && searchQuery) {
       filteredData = data.filter((item) =>
@@ -127,7 +205,6 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
       )
     }
 
-    // Sort data if sortBy is set (client-side only)
     if (sortBy) {
       filteredData = [...filteredData].sort((a, b) => {
         const aValue = a[sortBy.column]
@@ -147,7 +224,6 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
     return filteredData.slice(startIndex, startIndex + itemsPerPage)
   })()
 
-  
   const totalItems = pagination.serverSide
     ? pagination.totalItems || 0
     : searchQuery
@@ -187,7 +263,6 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
     }
   }
 
-  
   const handleSort = (column: string) => {
     if (pagination.serverSide) return
 
@@ -209,9 +284,10 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
 
   return (
     <div className={`bg-white rounded-lg border ${className}`}>
-      {searchable && (
-        <div className="p-4 flex justify-between items-center border-b">
-          <div className="flex items-center gap-2">
+      {/* Header section with controls */}
+      <div className="p-4 flex justify-between items-center border-b">
+        <div className="flex items-center gap-2">
+          {searchable && (
             <Select value={itemsPerPage.toString()} onValueChange={(value) => handlePageSizeChange(Number(value))}>
               <SelectTrigger className="w-[100px]">
                 <SelectValue placeholder="Show" />
@@ -223,9 +299,47 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
                 <SelectItem value="50">50</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          )}
+        </div>
 
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          {/* Export buttons */}
+          {exportable && (
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" disabled={loading}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleExport('csv')}>
+                    <FileSpreadsheet className="h-4 w-4 mr-2" />
+                    Export as CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('json')}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as JSON
+                  </DropdownMenuItem>
+                  {selectedRows.length > 0 && (
+                    <>
+                      <DropdownMenuItem onClick={() => handleExport('csv', true)}>
+                        <FileSpreadsheet className="h-4 w-4 mr-2" />
+                        Export Selected as CSV
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExport('json', true)}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        Export Selected as JSON
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+
+          {searchable && (
             <Input
               type="search"
               placeholder="Search..."
@@ -234,9 +348,9 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
               onChange={(e) => setSearchQuery(e.target.value)}
               disabled={loading}
             />
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       <Table>
         <TableHeader>
@@ -281,7 +395,7 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
           {loading ? (
             <TableRow>
               <TableCell
-                colSpan={columns.length + (selectable ? 1 : 0) + (actionMenu ? 1 : 0)}
+                colSpan={columns.length + (selectable ? 1 : 0) + (actionMenu ? 1 : 0) + (isFeatured ? 1 : 0)}
                 className="text-center py-8"
               >
                 Loading...
@@ -290,7 +404,7 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
           ) : processedData.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={columns.length + (selectable ? 1 : 0) + (actionMenu ? 1 : 0)}
+                colSpan={columns.length + (selectable ? 1 : 0) + (actionMenu ? 1 : 0) + (isFeatured ? 1 : 0)}
                 className="text-center py-8"
               >
                 No data found
@@ -366,6 +480,9 @@ const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchValue)
         <div className="flex items-center justify-between p-4 border-t">
           <div className="text-sm text-gray-500">
             Showing {startIndex + 1} - {endIndex} of {totalItems} results
+            {selectedRows.length > 0 && (
+              <span className="ml-2">({selectedRows.length} selected)</span>
+            )}
           </div>
           <div className="flex items-center space-x-2">
             <Button

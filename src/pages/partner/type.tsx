@@ -3,7 +3,7 @@ import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { DataTable } from "@/components/shared/data-table"
 import { Badge } from "@/components/ui/badge"
-import { Eye, Pencil, Trash2,  Loader2 } from "lucide-react"
+import {  Pencil, Trash2,  Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { partnerService, type ConnectWithUs } from "@/services/partner-service"
 import { IndividualStatusModal } from "@/components/partner/individual-status"
@@ -74,9 +74,9 @@ export default function PartnerWithUsPage() {
     setIsIndividualDeleteDialogOpen(true)
   }
 
-  const handleIndividualView = (individual: ConnectWithUs) => {
-    toast.info(`Viewing details for ${individual.name.first} ${individual.name.lastName}`)
-  }
+  // const handleIndividualView = (individual: ConnectWithUs) => {
+  //   toast.info(`Viewing details for ${individual.name.first} ${individual.name.lastName}`)
+  // }
 
  
   const handleSaveIndividualStatus = (id: string, status: string) => {
@@ -181,11 +181,11 @@ export default function PartnerWithUsPage() {
 
   const individualActionMenu = {
     items: [
-      {
-        label: "View details",
-        icon: <Eye className="h-4 w-4" />,
-        onClick: handleIndividualView,
-      },
+      // {
+      //   label: "View details",
+      //   icon: <Eye className="h-4 w-4" />,
+      //   onClick: handleIndividualView,
+      // },
       {
         label: "Change status",
         icon: <Pencil className="h-4 w-4" />,
@@ -221,6 +221,7 @@ export default function PartnerWithUsPage() {
                 <DataTable
                   columns={individualColumns}
                   data={individuals}
+                  onRowClick={handleIndividualStatusChange}
                   actionMenu={individualActionMenu}
                   pagination={{ pageSize: 10, totalItems: individualsMetadata.total }}
                   searchable={true}

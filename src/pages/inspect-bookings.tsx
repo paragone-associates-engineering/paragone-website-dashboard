@@ -233,6 +233,7 @@ export default function InspectionBookingsPage() {
             <DataTable
               columns={columns}
               data={viewings}
+              onRowClick={handleViewDetails}
               actionMenu={actionMenu}
               pagination={{ pageSize: 10, totalItems: metadata.total }}
               searchable={true}

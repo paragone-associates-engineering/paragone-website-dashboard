@@ -288,6 +288,7 @@ export default function PropertyListings() {
             <DataTable
               columns={columns}
               data={listings}
+              onRowClick={handleViewDetails}
               actionMenu={actionMenu}
               pagination={{
                 pageSize: pageSize,

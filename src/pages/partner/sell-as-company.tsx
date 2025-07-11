@@ -3,7 +3,7 @@ import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { DataTable } from "@/components/shared/data-table"
 import { Badge } from "@/components/ui/badge"
-import { Eye, Pencil, Trash2, XCircle, Loader2 } from "lucide-react"
+import { Pencil, Trash2, XCircle, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { partnerService, type SellAsCompany } from "@/services/partner-service"
 import { CompanyStatusModal } from "@/components/partner/company-status"
@@ -34,11 +34,6 @@ export default function SellAsACompanyPage() {
   
   const companies = Array.isArray(companiesData) ? companiesData : []
 
- 
-
- 
-
-  // Company mutations
   const updateCompanyMutation = useMutation({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: ({ id, data }: { id: string; data: any }) => partnerService.updateSellAsCompany(id, data),
@@ -80,11 +75,6 @@ export default function SellAsACompanyPage() {
     },
   })
 
- 
-
- 
-
-  // Company handlers
   const handleCompanyStatusChange = (company: SellAsCompany) => {
     setStatusChangeCompany(company)
     setIsCompanyStatusModalOpen(true)
@@ -100,11 +90,9 @@ export default function SellAsACompanyPage() {
     setIsCompanyDeleteDialogOpen(true)
   }
 
-  const handleCompanyView = (company: SellAsCompany) => {
-    toast.info(`Viewing company details for ${company.email}`)
-  }
-
- 
+  // const handleCompanyView = (company: SellAsCompany) => {
+  //   toast.info(`Viewing company details for ${company.email}`)
+  // }
 
   const handleSaveCompanyStatus = (id: string, status: string) => {
     updateCompanyMutation.mutate({ id, data: { status } })
@@ -203,11 +191,11 @@ export default function SellAsACompanyPage() {
 
   const companyActionMenu = {
     items: [
-      {
-        label: "View details",
-        icon: <Eye className="h-4 w-4" />,
-        onClick: handleCompanyView,
-      },
+      // {
+      //   label: "View details",
+      //   icon: <Eye className="h-4 w-4" />,
+      //   onClick: handleCompanyView,
+      // },
       {
         label: "Change status",
         icon: <Pencil className="h-4 w-4" />,
@@ -247,6 +235,7 @@ export default function SellAsACompanyPage() {
                 <DataTable
                   columns={companyColumns}
                   data={companies}
+                  onRowClick={handleCompanyStatusChange}
                   actionMenu={companyActionMenu}
                   pagination={{ pageSize: 10, totalItems: companies.length }}
                   searchable={true}

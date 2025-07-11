@@ -124,7 +124,7 @@ const CareerPage = () => {
                 </TableHeader>
                 <TableBody>
                   {jobsQuery.data?.results.map((job) => (
-                    <TableRow key={job.id}>
+                    <TableRow key={job.id} className="cursor-pointer" onClick={() => navigate(`/career/edit/${job.id}`)}>
                       <TableCell className="font-medium">{job.title}</TableCell>
                       <TableCell>{job.department}</TableCell>
                       <TableCell>{job.location}</TableCell>

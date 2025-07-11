@@ -188,6 +188,7 @@ export default function ReferAndEarnPage() {
             <DataTable
               columns={columns}
               data={referrals}
+              onRowClick={handleEdit}
               actionMenu={actionMenu}
               pagination={{ pageSize: 10, totalItems: metadata.total }}
               searchable={true}

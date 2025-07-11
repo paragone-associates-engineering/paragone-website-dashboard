@@ -211,6 +211,7 @@ export default function PropertyManagementPage() {
             <DataTable
               columns={columns}
               data={properties}
+              onRowClick={handleEdit}
               actionMenu={actionMenu}
               pagination={{ pageSize: 10, totalItems: metadata.total }}
               searchable={true}

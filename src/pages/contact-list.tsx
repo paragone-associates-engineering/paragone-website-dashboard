@@ -235,6 +235,7 @@ export default function ContactUsListPage() {
             <DataTable
               columns={columns}
               data={contacts}
+              onRowClick={handleViewDetails}
               actionMenu={actionMenu}
               pagination={{ pageSize: 10, totalItems: metadata.total }}
               searchable={true}
