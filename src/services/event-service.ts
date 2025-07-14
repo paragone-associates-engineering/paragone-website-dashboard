@@ -14,16 +14,27 @@ export const eventService = {
     try {
       const formData = new FormData()
 
+      if (eventData.image && eventData.image instanceof Array) {
+        eventData.image.forEach((file) => formData.append("image", file))
+      }
+
+      const metadata: Record<string, any> = {}
       
       Object.entries(eventData).forEach(([key, value]) => {
-        if (key === "image" && value instanceof Array) {
-          value.forEach((file) => formData.append("image", file))
-        } else if (key === "price" && value) {
-          formData.append("price", JSON.stringify(value))
-        } else if (value !== undefined && value !== null) {
-          formData.append(key, String(value))
+        if (key !== "image" && value !== undefined && value !== null) {
+          if (key === "price" && value) {
+            metadata[key] = value // Keep price as object in metadata
+          } else if (key === "expirationDate" && value) {
+            // Ensure expirationDate is a UTC ISO 8601 string
+            const date = new Date(value)
+            metadata[key] = date.toISOString()
+          } else {
+            metadata[key] = value
+          }
         }
       })
+
+      formData.append("metadata", JSON.stringify(metadata))
 
       const response = await api.post<Event>("/event/create-event", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -39,15 +50,27 @@ export const eventService = {
     try {
       const formData = new FormData()
 
+      if (eventData.image && eventData.image instanceof Array) {
+        eventData.image.forEach((file) => formData.append("image", file))
+      }
+
+      const metadata: Record<string, any> = {}
+      
       Object.entries(eventData).forEach(([key, value]) => {
-        if (key === "image" && value instanceof Array) {
-          value.forEach((file) => formData.append("image", file))
-        } else if (key === "price" && value) {
-          formData.append("price", JSON.stringify(value))
-        } else if (value !== undefined && value !== null) {
-          formData.append(key, String(value))
+        if (key !== "image" && value !== undefined && value !== null) {
+          if (key === "price" && value) {
+            metadata[key] = value 
+          } else if (key === "expirationDate" && value) {
+            
+            const date = new Date(value)
+            metadata[key] = date.toISOString()
+          } else {
+            metadata[key] = value
+          }
         }
       })
+
+      formData.append("metadata", JSON.stringify(metadata))
 
       const response = await api.post<Event>(`/event/update-event/${eventId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -81,7 +104,14 @@ export const eventService = {
 
   deleteEvent: async (eventId: string) => {
     try {
-      const response = await api.post(`/event/update-event/${eventId}`, { isActive: false })
+    
+      const formData = new FormData()
+      const metadata = { isActive: false }
+      formData.append("metadata", JSON.stringify(metadata))
+      
+      const response = await api.post(`/event/update-event/${eventId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       return response.data
     } catch (error) {
       console.error("Error deleting event:", error)
@@ -89,7 +119,7 @@ export const eventService = {
     }
   },
 
-  // Event Applications
+ 
   getEventApplications: async (params?: { page?: number; limit?: number; searchString?: string }) => {
     try {
       const response = await api.get<EventApplicationsResponse>("/event/get-event-applications", { params })

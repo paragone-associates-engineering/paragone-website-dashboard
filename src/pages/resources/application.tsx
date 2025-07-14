@@ -1,4 +1,3 @@
-
 import type React from "react"
 
 import { useState } from "react"
@@ -6,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, Trash2, Mail, Phone } from "lucide-react"
+import { Search, Trash2, Mail, Phone, Download } from "lucide-react"
 import { resourceService } from "@/services/resource-service"
 import { DeleteConfirmationModal } from "@/components/resources/delete-confirmation"
 import { toast } from "sonner"
@@ -20,6 +19,7 @@ const ResourceApplicationsPage = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedApplication, setSelectedApplication] = useState<ResourceApplication | null>(null)
+  const [isExporting, setIsExporting] = useState(false)
 
   const applicationsPerPage = 10
 
@@ -63,6 +63,67 @@ const ResourceApplicationsPage = () => {
     }
   }
 
+  const handleExportCSV = async () => {
+    setIsExporting(true)
+    try {
+     
+      const allApplications = await resourceService.getResourceApplications({
+        page: 1,
+        limit: 1000, 
+        searchString: searchQuery || undefined,
+      })
+
+      const applications = allApplications.results || []
+      
+      
+      const csvHeaders = [
+        "Applicant Name",
+        "Email",
+        "Phone Number",
+        "Resource Title",
+        "Message",
+        "Applied Date",
+        "Status",
+        "Application ID"
+      ]
+
+      const csvRows = applications.map(app => [
+        `${app.applicantName.first} ${app.applicantName.lastName}`,
+        app.email,
+        app.phoneNumber,
+        app.resourceTitle,
+        app.message || "",
+        format(new Date(app.createdAt), "yyyy-MM-dd"),
+        app.isActive ? "Active" : "Deleted",
+        app.id
+      ])
+
+      const csvContent = [
+        csvHeaders.join(","),
+        ...csvRows.map(row => row.map(field => `"${field}"`).join(","))
+      ].join("\n")
+
+      // Create and download the file
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+      const link = document.createElement("a")
+      const url = URL.createObjectURL(blob)
+      
+      link.setAttribute("href", url)
+      link.setAttribute("download", `resource-applications-${format(new Date(), "yyyy-MM-dd")}.csv`)
+      link.style.visibility = "hidden"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      toast.success("Applications exported successfully")
+    } catch (error) {
+      console.error("Error exporting applications:", error)
+      toast.error("Failed to export applications")
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   if (applicationsQuery.isLoading) {
     return (
       <div className="p-6">
@@ -103,8 +164,19 @@ const ResourceApplicationsPage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </form>
-        <div className="text-sm text-gray-500">
-          {totalApplications} application{totalApplications !== 1 ? "s" : ""} found
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={handleExportCSV}
+            disabled={isExporting || totalApplications === 0}
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            {isExporting ? "Exporting..." : "Export CSV"}
+          </Button>
+          <div className="text-sm text-gray-500">
+            {totalApplications} application{totalApplications !== 1 ? "s" : ""} found
+          </div>
         </div>
       </div>
 
@@ -151,7 +223,7 @@ const ResourceApplicationsPage = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{application.resourceTitle}</div>
+                        <div className="text-sm text-gray-900">{application.resourceTitle.slice(0,40) + '...'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col gap-1">
