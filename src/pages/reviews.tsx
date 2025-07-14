@@ -18,7 +18,7 @@ const ReviewsPage = () => {
   const [archivingId, setArchivingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const reviewsPerPage = 10
+  const reviewsPerPage = 1000
 
   const reviewsQuery = useQuery({
     queryKey: ["reviews", activeTab, searchQuery, currentPage, sortBy],

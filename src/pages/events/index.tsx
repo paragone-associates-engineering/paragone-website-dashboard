@@ -1,11 +1,10 @@
-
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Search, Plus, Eye, Edit, Trash2, Calendar, MapPin } from "lucide-react"
+import { Search, Plus, Eye, Edit, Trash2, Calendar, MapPin, Download } from "lucide-react"
 import { eventService } from "@/services/event-service"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -19,11 +18,11 @@ const EventsPage = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null)
   const [viewingEvent, setViewingEvent] = useState<Event | null>(null)
+  const [isExporting, setIsExporting] = useState(false)
 
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
- 
   const eventsQuery = useQuery({
     queryKey: ["events", searchQuery, currentPage],
     queryFn: () =>
@@ -34,7 +33,6 @@ const EventsPage = () => {
       }),
   })
 
-  
   const deleteEventMutation = useMutation({
     mutationFn: eventService.deleteEvent,
     onSuccess: () => {
@@ -46,6 +44,75 @@ const EventsPage = () => {
       toast.error("Failed to delete event")
     },
   })
+
+  
+  const exportToCSV = async () => {
+    setIsExporting(true)
+    try {
+      
+      const allEventsResponse = await eventService.getEvents({
+        page: 1,
+        limit: 1000, 
+        searchString: searchQuery || undefined,
+      })
+
+      const events = allEventsResponse.results
+
+     
+      const headers = [
+        "ID",
+        "Title",
+        "Summary",
+        "Description",
+        "Status",
+        "Event Type",
+        "Is Paid",
+        "Location",
+        "Expiration Date",
+        "Created At",
+        "Updated At"
+      ]
+
+     
+      const csvData = events.map(event => [
+        event.id,
+        `"${event.title.replace(/"/g, '""')}"`, // Escape quotes
+        `"${event.summary?.replace(/"/g, '""') || ''}"`,
+        //`"${event.?.replace(/"/g, '""') || ''}"`,
+        event.status,
+        event.eventType,
+        event.isPaid ? "Yes" : "No",
+        `"${event.location?.replace(/"/g, '""') || ''}"`,
+        format(new Date(event.expirationDate), "yyyy-MM-dd HH:mm:ss"),
+        format(new Date(event.createdAt), "yyyy-MM-dd HH:mm:ss"),
+        format(new Date(event.updatedAt), "yyyy-MM-dd HH:mm:ss")
+      ])
+
+     
+      const csvContent = [
+        headers.join(","),
+        ...csvData.map(row => row.join(","))
+      ].join("\n")
+
+      
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+      const link = document.createElement("a")
+      const url = URL.createObjectURL(blob)
+      link.setAttribute("href", url)
+      link.setAttribute("download", `events_${format(new Date(), "yyyy-MM-dd_HH-mm-ss")}.csv`)
+      link.style.visibility = "hidden"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      toast.success("Events exported successfully")
+    } catch (error) {
+      console.error("Export failed:", error)
+      toast.error("Failed to export events")
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   const handleDeleteEvent = (event: Event) => {
     setDeletingEvent(event)
@@ -87,16 +154,26 @@ const EventsPage = () => {
 
   return (
     <div className="p-6">
-      
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Events Management</h1>
-        <Button onClick={() => navigate("/event/create")}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Event
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={exportToCSV}
+            disabled={isExporting || eventsQuery.isLoading || !eventsQuery.data?.results.length}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            {isExporting ? "Exporting..." : "Export CSV"}
+          </Button>
+          <Button onClick={() => navigate("/event/create")}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Event
+          </Button>
+        </div>
       </div>
 
-     
+      {/* Search */}
       <div className="mb-6">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -109,7 +186,7 @@ const EventsPage = () => {
         </div>
       </div>
 
-     
+      {/* Events List */}
       <div className="space-y-4">
         {eventsQuery.isLoading ? (
           <div className="flex justify-center py-8">
@@ -169,7 +246,7 @@ const EventsPage = () => {
         )}
       </div>
 
-    
+      {/* Pagination */}
       {eventsQuery.data?.metadata &&
         eventsQuery.data.metadata[0] &&
         eventsQuery.data.metadata[0].totalPages > 1 && (

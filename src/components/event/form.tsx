@@ -1,4 +1,3 @@
-
 import type React from "react"
 
 import { useState, useEffect } from "react"
@@ -31,6 +30,7 @@ export const EventForm = ({ initialData, onSubmit, onCancel, isLoading }: EventF
   })
 
   const [selectedImages, setSelectedImages] = useState<File[]>([])
+  const [existingImages, setExistingImages] = useState<string[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -45,10 +45,18 @@ export const EventForm = ({ initialData, onSubmit, onCancel, isLoading }: EventF
         price: initialData.price,
         location: initialData.location || "",
       })
+      
+     
+      if (initialData.image) {
+        if (Array.isArray(initialData.image)) {
+          setExistingImages(initialData.image)
+        } else if (typeof initialData.image === 'string') {
+          setExistingImages([initialData.image])
+        }
+      }
     }
   }, [initialData])
 
- // console.log('initial', initialData)
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -88,8 +96,12 @@ export const EventForm = ({ initialData, onSubmit, onCancel, isLoading }: EventF
     setSelectedImages(files)
   }
 
-  const removeImage = (index: number) => {
+  const removeNewImage = (index: number) => {
     setSelectedImages((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const removeExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index))
   }
 
   const validateForm = (): boolean => {
@@ -100,7 +112,6 @@ export const EventForm = ({ initialData, onSubmit, onCancel, isLoading }: EventF
     if (!formData.link.trim()) newErrors.link = "Link is required"
     if (!formData.expirationDate) newErrors.expirationDate = "Expiration date is required"
 
-  
     if (formData.expirationDate && new Date(formData.expirationDate) <= new Date()) {
       newErrors.expirationDate = "Expiration date must be in the future"
     }
@@ -126,10 +137,14 @@ export const EventForm = ({ initialData, onSubmit, onCancel, isLoading }: EventF
       const submitData = {
         ...formData,
         image: selectedImages.length > 0 ? selectedImages : undefined,
+       
+        existingImages: existingImages.length > 0 ? existingImages : undefined,
       }
       onSubmit(submitData)
     }
   }
+
+  const hasImages = existingImages.length > 0 || selectedImages.length > 0
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -138,7 +153,6 @@ export const EventForm = ({ initialData, onSubmit, onCancel, isLoading }: EventF
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-         
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="title">Event Title *</Label>
@@ -220,7 +234,7 @@ export const EventForm = ({ initialData, onSubmit, onCancel, isLoading }: EventF
             </div>
           )}
 
-         
+          {/* Image Upload Section */}
           <div className="space-y-2">
             <Label htmlFor="image">Event Image</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
@@ -231,24 +245,61 @@ export const EventForm = ({ initialData, onSubmit, onCancel, isLoading }: EventF
               </label>
             </div>
 
-            {selectedImages.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {selectedImages.map((file, index) => (
-                  <div key={index} className="relative">
-                    <img
-                      src={URL.createObjectURL(file) || "/placeholder.svg"}
-                      alt={`Preview ${index + 1}`}
-                      className="w-20 h-20 object-cover rounded"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
+            {hasImages && (
+              <div className="space-y-4">
+               
+                {existingImages.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Current Images:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {existingImages.map((imageUrl, index) => (
+                        <div key={`existing-${index}`} className="relative">
+                          <img
+                            src={imageUrl}
+                            alt={`Existing ${index + 1}`}
+                            className="w-20 h-20 object-cover rounded"
+                            onError={(e) => {
+                              
+                              e.currentTarget.src = "/placeholder.svg"
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeExistingImage(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
+                )}
+
+                {/* Display newly selected images */}
+                {selectedImages.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">New Images:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedImages.map((file, index) => (
+                        <div key={`new-${index}`} className="relative">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`New ${index + 1}`}
+                            className="w-20 h-20 object-cover rounded"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeNewImage(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -317,7 +368,7 @@ export const EventForm = ({ initialData, onSubmit, onCancel, isLoading }: EventF
             )}
           </div>
 
-         
+          {/* Form Actions */}
           <div className="flex justify-end space-x-4">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel

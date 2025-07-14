@@ -1,11 +1,10 @@
-
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Search, Trash2, Users } from "lucide-react"
+import { Search, Trash2, Users, Download } from "lucide-react"
 import { eventService } from "@/services/event-service"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -16,6 +15,7 @@ const EventApplicationsPage = () => {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [deletingApplication, setDeletingApplication] = useState<EventApplication | null>(null)
+  const [isExporting, setIsExporting] = useState(false)
 
   const queryClient = useQueryClient()
 
@@ -29,19 +29,19 @@ const EventApplicationsPage = () => {
       }),
   })
 
-  // Mutations
-//   const updateApplicationMutation = useMutation({
-//     mutationFn: ({ applicationId, status }: { applicationId: string; status: ApplicationStatus }) =>
-//       eventService.updateApplicationStatus(applicationId, status),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: ["event-applications"] })
-//       toast.success("Application status updated")
-//     },
-//     onError: () => {
-//       toast.error("Failed to update application status")
-//     },
-//   })
+  
+  const allApplicationsQuery = useQuery({
+    queryKey: ["all-event-applications", searchQuery],
+    queryFn: () =>
+      eventService.getEventApplications({
+        page: 1,
+        limit: 1000, 
+        searchString: searchQuery || undefined,
+      }),
+    enabled: false, 
+  })
 
+  
   const deleteApplicationMutation = useMutation({
     mutationFn: eventService.deleteApplication,
     onSuccess: () => {
@@ -54,10 +54,6 @@ const EventApplicationsPage = () => {
     },
   })
 
-//   const handleUpdateApplicationStatus = (applicationId: string, status: ApplicationStatus) => {
-//     updateApplicationMutation.mutate({ applicationId, status })
-//   }
-
   const handleDeleteApplication = (application: EventApplication) => {
     setDeletingApplication(application)
   }
@@ -67,20 +63,6 @@ const EventApplicationsPage = () => {
       deleteApplicationMutation.mutate(deletingApplication.id)
     }
   }
-
-//   const getStatusBadge = (status: string) => {
-//     const statusColors = {
-//       pending: "bg-yellow-100 text-yellow-800",
-//       approved: "bg-green-100 text-green-800",
-//       rejected: "bg-red-100 text-red-800",
-//     }
-
-//     return (
-//       <Badge className={statusColors[status as keyof typeof statusColors] || "bg-gray-100 text-gray-800"}>
-//         {/* {status?.charAt(0).toUpperCase() + status?.slice(1)} */}
-//       </Badge>
-//     )
-//   }
 
   const getEventTypeBadge = (type: string) => {
     const typeColors = {
@@ -96,14 +78,88 @@ const EventApplicationsPage = () => {
     )
   }
 
+  
+  const convertToCSV = (applications: EventApplication[]) => {
+    const headers = [
+      "First Name",
+      "Last Name",
+      "Email",
+      "Phone Number",
+      "Event Title",
+      "Event Type",
+      "Application Date",
+      "Status"
+    ]
+
+    const csvData = applications.map(app => [
+      app.applicantName?.first || "",
+      app.applicantName?.lastName || "",
+      app.email || "",
+      app.phoneNumber || "",
+      app.eventTitle || "",
+      app.eventType === "inPerson" ? "In Person" : app.eventType || "",
+      format(new Date(app.createdAt), "yyyy-MM-dd HH:mm:ss"),
+      app.status || "pending"
+    ])
+
+    const csvContent = [headers, ...csvData]
+      .map(row => row.map(field => `"${field}"`).join(","))
+      .join("\n")
+
+    return csvContent
+  }
+
+  const downloadCSV = (csvContent: string, filename: string) => {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob)
+      link.setAttribute("href", url)
+      link.setAttribute("download", filename)
+      link.style.visibility = "hidden"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+  }
+
+  const handleExportCSV = async () => {
+    setIsExporting(true)
+    try {
+      const result = await allApplicationsQuery.refetch()
+      
+      if (result.data?.results) {
+        const csvContent = convertToCSV(result.data.results)
+        const timestamp = format(new Date(), "yyyy-MM-dd_HH-mm-ss")
+        const filename = `event-applications_${timestamp}.csv`
+        
+        downloadCSV(csvContent, filename)
+        toast.success("Applications exported successfully")
+      } else {
+        toast.error("No data to export")
+      }
+    } catch (error) {
+      toast.error("Failed to export applications")
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   return (
     <div className="p-6">
-    
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Event Applications</h1>
+        <Button 
+          onClick={handleExportCSV}
+          disabled={isExporting || applicationsQuery.isLoading}
+          variant="outline"
+        >
+          <Download className="h-4 w-4 mr-2" />
+          {isExporting ? "Exporting..." : "Export CSV"}
+        </Button>
       </div>
 
-     
       <div className="mb-6">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -116,7 +172,6 @@ const EventApplicationsPage = () => {
         </div>
       </div>
 
-     
       <div className="space-y-4">
         {applicationsQuery.isLoading ? (
           <div className="flex justify-center py-8">
@@ -137,7 +192,6 @@ const EventApplicationsPage = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-lg font-semibold">{application.applicantName?.first} {application.applicantName?.lastName}</h3>
-                     
                       {getEventTypeBadge(application?.eventType)}
                     </div>
 
@@ -158,7 +212,6 @@ const EventApplicationsPage = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    
                     <Button variant="outline" size="sm" onClick={() => handleDeleteApplication(application)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -208,7 +261,6 @@ const EventApplicationsPage = () => {
         </div>
       )}
 
-    
       <DeleteConfirmationModal
         isOpen={!!deletingApplication}
         onClose={() => setDeletingApplication(null)}
