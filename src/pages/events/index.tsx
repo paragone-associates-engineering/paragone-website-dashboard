@@ -154,7 +154,7 @@ const EventsPage = () => {
 
   return (
     <div className="p-6">
-      {/* Header */}
+     
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Events Management</h1>
         <div className="flex gap-2">
@@ -172,8 +172,7 @@ const EventsPage = () => {
           </Button>
         </div>
       </div>
-
-      {/* Search */}
+      
       <div className="mb-6">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -246,7 +245,7 @@ const EventsPage = () => {
         )}
       </div>
 
-      {/* Pagination */}
+     
       {eventsQuery.data?.metadata &&
         eventsQuery.data.metadata[0] &&
         eventsQuery.data.metadata[0].totalPages > 1 && (
