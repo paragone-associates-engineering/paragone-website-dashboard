@@ -137,8 +137,6 @@ export const EventForm = ({ initialData, onSubmit, onCancel, isLoading }: EventF
       const submitData = {
         ...formData,
         image: selectedImages.length > 0 ? selectedImages : undefined,
-       
-        existingImages: existingImages.length > 0 ? existingImages : undefined,
       }
       onSubmit(submitData)
     }
