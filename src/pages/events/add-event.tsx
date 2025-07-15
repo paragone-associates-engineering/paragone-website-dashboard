@@ -17,8 +17,8 @@ const AddEventPage = () => {
       toast.success("Event created successfully")
       navigate("/event/list")
     },
-    onError: () => {
-      toast.error("Failed to create event")
+    onError: (error:any) => {
+      toast.error(`${error.message === 'Network Error' ? error?.message : error?.response?.data?.message}`)
     },
   })
 
