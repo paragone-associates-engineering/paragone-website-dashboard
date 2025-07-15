@@ -76,9 +76,8 @@ const EventsPage = () => {
      
       const csvData = events.map(event => [
         event.id,
-        `"${event.title.replace(/"/g, '""')}"`, // Escape quotes
+        `"${event.title.replace(/"/g, '""')}"`, 
         `"${event.summary?.replace(/"/g, '""') || ''}"`,
-        //`"${event.?.replace(/"/g, '""') || ''}"`,
         event.status,
         event.eventType,
         event.isPaid ? "Yes" : "No",
@@ -173,6 +172,8 @@ const EventsPage = () => {
         </div>
       </div>
       
+
+     
       <div className="mb-6">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -199,18 +200,22 @@ const EventsPage = () => {
             </CardContent>
           </Card>
         ) : (
-          eventsQuery.data?.results.map((event) => (
-            <Card key={event.id}>
-              <CardContent className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {eventsQuery.data?.results.map((event) => (
+            <Card key={event?.id}>
+              <CardContent className="px-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold">{event.title}</h3>
-                      {getStatusBadge(event.status)}
+                      <div className="flex items-center gap-2 mb-2">
+                         {getStatusBadge(event.status)}
                       {getEventTypeBadge(event.eventType)}
                       {event.isPaid && <Badge className="bg-green-100 text-green-800">Paid</Badge>}
+                      </div>
+                      
+                     
                     </div>
-
+<h3 className="text-lg font-semibold">{event.title}</h3>
                     <p className="text-gray-600 mb-3 line-clamp-2">{event.summary}</p>
 
                     <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -241,7 +246,9 @@ const EventsPage = () => {
                 </div>
               </CardContent>
             </Card>
-          ))
+          ))}
+          </div>
+          
         )}
       </div>
 

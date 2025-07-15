@@ -246,11 +246,11 @@ export const EventForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="expirationDate">Expiration Date *</Label>
+              <Label htmlFor="expirationDate">Expiration Date & Time *</Label>
               <Input
                 id="expirationDate"
                 name="expirationDate"
-                type="date"
+                type="datetime-local"
                 value={formData.expirationDate}
                 onChange={handleInputChange}
               />
@@ -261,6 +261,7 @@ export const EventForm = ({
           </div>
 
           {(formData.eventType === "inPerson" ||
+            formData.eventType === "virtual" ||
             formData.eventType === "hybrid") && (
             <div className="space-y-2">
               <Label htmlFor="location">
@@ -279,7 +280,6 @@ export const EventForm = ({
             </div>
           )}
 
-          {/* Image Upload Section */}
           <div className="space-y-2">
             <Label htmlFor="image">Event Image</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
@@ -333,7 +333,6 @@ export const EventForm = ({
                   </div>
                 )}
 
-                {/* Display newly selected images */}
                 {selectedImages.length > 0 && (
                   <div>
                     <h4 className="text-sm font-medium text-gray-700 mb-2">
