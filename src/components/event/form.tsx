@@ -163,8 +163,6 @@ export const EventForm = ({
       const submitData = {
         ...formData,
         image: selectedImages.length > 0 ? selectedImages : undefined,
-
-        //existingImages: existingImages.length > 0 ? existingImages : undefined,
       };
       onSubmit(submitData);
     }
@@ -247,23 +245,23 @@ export const EventForm = ({
               )}
             </div>
 
-           <div className="space-y-2">
-  <Label htmlFor="expirationDate">Expiration Date & Time *</Label>
-  <Input
-    id="expirationDate"
-    name="expirationDate"
-    type="datetime-local"
-    value={formData.expirationDate}
-    onChange={handleInputChange}
-  />
-  {errors.expirationDate && (
-    <p className="text-sm text-red-500">{errors.expirationDate}</p>
-  )}
-</div>
+            <div className="space-y-2">
+              <Label htmlFor="expirationDate">Expiration Date & Time *</Label>
+              <Input
+                id="expirationDate"
+                name="expirationDate"
+                type="datetime-local"
+                value={formData.expirationDate}
+                onChange={handleInputChange}
+              />
+              {errors.expirationDate && (
+                <p className="text-sm text-red-500">{errors.expirationDate}</p>
+              )}
+            </div>
           </div>
 
           {(formData.eventType === "inPerson" ||
-          formData.eventType === "virtual" ||
+            formData.eventType === "virtual" ||
             formData.eventType === "hybrid") && (
             <div className="space-y-2">
               <Label htmlFor="location">
@@ -282,7 +280,6 @@ export const EventForm = ({
             </div>
           )}
 
-          
           <div className="space-y-2">
             <Label htmlFor="image">Event Image</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
@@ -336,7 +333,6 @@ export const EventForm = ({
                   </div>
                 )}
 
-               
                 {selectedImages.length > 0 && (
                   <div>
                     <h4 className="text-sm font-medium text-gray-700 mb-2">
@@ -454,7 +450,6 @@ export const EventForm = ({
               </div>
             )}
           </div>
-
 
           <div className="flex justify-end space-x-4">
             <Button type="button" variant="outline" onClick={onCancel}>

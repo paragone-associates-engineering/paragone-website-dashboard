@@ -76,9 +76,8 @@ const EventsPage = () => {
      
       const csvData = events.map(event => [
         event.id,
-        `"${event.title.replace(/"/g, '""')}"`, // Escape quotes
+        `"${event.title.replace(/"/g, '""')}"`, 
         `"${event.summary?.replace(/"/g, '""') || ''}"`,
-        //`"${event.?.replace(/"/g, '""') || ''}"`,
         event.status,
         event.eventType,
         event.isPaid ? "Yes" : "No",
@@ -154,7 +153,7 @@ const EventsPage = () => {
 
   return (
     <div className="p-6">
-      {/* Header */}
+     
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Events Management</h1>
         <div className="flex gap-2">
@@ -172,6 +171,7 @@ const EventsPage = () => {
           </Button>
         </div>
       </div>
+      
 
      
       <div className="mb-6">
@@ -252,7 +252,7 @@ const EventsPage = () => {
         )}
       </div>
 
-      {/* Pagination */}
+     
       {eventsQuery.data?.metadata &&
         eventsQuery.data.metadata[0] &&
         eventsQuery.data.metadata[0].totalPages > 1 && (
