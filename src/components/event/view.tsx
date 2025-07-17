@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Link, DollarSign } from "lucide-react"
+import { Calendar, MapPin, Link, DollarSign, Timer } from "lucide-react"
 import { format } from "date-fns"
 import type { Event } from "@/types/event"
 
@@ -79,10 +79,16 @@ export const ViewEventModal = ({ event, isOpen, onClose }: ViewEventModalProps) 
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-gray-500" />
                 <span>
-                  <strong>Expires:</strong> {format(new Date(event.expirationDate), "MMM d, yyyy 'at' h:mm a")}
+                  <strong>Date:</strong> {format(new Date(event.expirationDate), "MMM d, yyyy 'at' h:mm a")}
                 </span>
               </div>
 
+<div className="flex items-center gap-2 text-sm">
+                  <Timer className="h-4 w-4 text-gray-500" />
+                  <span>
+                    <strong>Duration:</strong> {event?.duration || "Not specified"}
+                  </span>
+                </div>
               {event.location && (
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-gray-500" />

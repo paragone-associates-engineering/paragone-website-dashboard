@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { CircleProgress } from "./circle-progress"
-import { Home, Building, Calendar, MapPin } from "lucide-react"
+import { Home, Building, Calendar } from "lucide-react"
 import type { ListingTypeStats } from "@/services/analytics-service"
 
 interface ListingTypeCardsProps {
@@ -32,13 +32,7 @@ export function ListingTypeCards({ listingTypeStats}: ListingTypeCardsProps) {
       textColor: "text-orange-100",
       icon: <Calendar className="h-8 w-8" />,
     },
-    {
-      type: "Land",
-      label: "Total Land",
-      bgColor: "bg-gray-700",
-      textColor: "text-gray-300",
-      icon: <MapPin className="h-8 w-8" />,
-    },
+   
   ]
 
   // Get stats for each listing type, defaulting to 0 if not found
@@ -55,7 +49,7 @@ export function ListingTypeCards({ listingTypeStats}: ListingTypeCardsProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       {listingTypeConfigs.map((config) => {
         const stats = getStatsForType(config.type)
 

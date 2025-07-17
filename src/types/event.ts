@@ -38,6 +38,7 @@ export enum EventType {
     eventType: EventType
     price?: EventPrice
     status: EventStatus
+     duration?: string
     location?: string
     isActive: boolean
     createdAt: string
@@ -63,7 +64,8 @@ export enum EventType {
     title: string
     summary: string
     link: string
-    image?: File[]
+    image?: File[];
+    duration?: string
     expirationDate: string
     isPaid: boolean
     eventType: EventType

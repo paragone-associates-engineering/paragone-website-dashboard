@@ -22,6 +22,7 @@ const Dashboard = () => {
      queryFn: () => analyticsService.getListingsAnalytics(),
      staleTime: 1000 * 60 * 5, 
    })
+   console.log('analyticsData', analyticsData)
 const {data:reviews} = useQuery({
     queryKey: ["reviewsoverview"],
     queryFn: async () => reviewService.getReviews(),

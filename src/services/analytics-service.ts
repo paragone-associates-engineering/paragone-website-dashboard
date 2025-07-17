@@ -18,6 +18,12 @@ export interface RegionStats {
   percentage: number
 }
 
+export interface CategoryStats {
+  propertyCategory: string
+  count: number
+  percentage: number
+}
+
 export interface CountryStats {
   country: string
   count: number
@@ -30,6 +36,7 @@ export interface AnalyticsResponse {
   cityStats: CityStats[]
   regionStats: RegionStats[]
   countryStats: CountryStats[]
+  propertyCategoryStats: CategoryStats[]
 }
 
 export const analyticsService = {

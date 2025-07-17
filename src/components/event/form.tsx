@@ -35,6 +35,7 @@ export const EventForm = ({
     summary: "",
     link: "",
     expirationDate: "",
+    duration: "",
     isPaid: false,
     eventType: "inPerson" as EventType,
     location: "",
@@ -53,6 +54,7 @@ export const EventForm = ({
         expirationDate: initialData.expirationDate.split("T")[0],
         isPaid: initialData.isPaid,
         eventType: initialData.eventType,
+        duration: initialData.duration || "",
         price: initialData.price,
         location: initialData.location || "",
       });
@@ -246,7 +248,7 @@ export const EventForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="expirationDate">Expiration Date & Time *</Label>
+              <Label htmlFor="expirationDate"> Date & Time *</Label>
               <Input
                 id="expirationDate"
                 name="expirationDate"
@@ -260,12 +262,29 @@ export const EventForm = ({
             </div>
           </div>
 
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   <div className="space-y-2">
+              <Label htmlFor="duration">
+               Event Duration *
+              </Label>
+              <Input
+                id="duration"
+                name="duration"
+                value={formData.duration}
+                onChange={handleInputChange}
+                placeholder="Enter event duration"
+              />
+              {errors.location && (
+                <p className="text-sm text-red-500">{errors.duration}</p>
+              )}
+            </div>
+
           {(formData.eventType === "inPerson" ||
             formData.eventType === "virtual" ||
             formData.eventType === "hybrid") && (
             <div className="space-y-2">
               <Label htmlFor="location">
-                Location {formData.eventType === "inPerson" ? "*" : ""}
+               {formData.eventType === "virtual" ? "Platform *" : "Location *"}
               </Label>
               <Input
                 id="location"
@@ -279,7 +298,7 @@ export const EventForm = ({
               )}
             </div>
           )}
-
+</div>
           <div className="space-y-2">
             <Label htmlFor="image">Event Image</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
