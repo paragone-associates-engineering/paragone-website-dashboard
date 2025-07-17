@@ -6,6 +6,7 @@ import { AnalyticsResponse} from "@/services/analytics-service"
 import { ListingTypeCards } from "./listing-type-cards"
 import { RegionStatsChart } from "./region-stats-chart"
 import { CountryStatsChart } from "./country-stats-chart"
+import { CategoryStatsChart } from "./category-stats"
 
 interface AnalyticsData {
     analyticsData:  AnalyticsResponse | null,
@@ -79,7 +80,8 @@ export default function Analytics({analyticsData,isLoading, isError, error}: Ana
       />
 
     
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        <CategoryStatsChart categoryStats={analyticsData?.propertyCategoryStats || []} />
         <RegionStatsChart regionStats={analyticsData?.regionStats || []} />
         <CountryStatsChart countryStats={analyticsData?.countryStats || []} />
       </div>
