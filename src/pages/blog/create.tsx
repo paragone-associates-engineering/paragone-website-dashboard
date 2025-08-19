@@ -194,7 +194,7 @@ const CreateBlog = () => {
               className="mt-4"
             />
 
-            <div className="mt-6">
+            {/* <div className="mt-6">
               <h3 className="text-lg font-medium mb-4">Select time and schedule</h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -248,7 +248,7 @@ const CreateBlog = () => {
                   </div>
                 </FormField>
               </div>
-            </div>
+            </div> */}
           </FormContainer>
         </div>
 
